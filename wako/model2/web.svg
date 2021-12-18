@@ -1,0 +1,660 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="223.01056mm"
+   height="317.86609mm"
+   viewBox="0 0 223.01056 317.86609"
+   version="1.1"
+   id="svg12600"
+   inkscape:version="1.1.1 (3bf5ae0d25, 2021-09-20)"
+   sodipodi:docname="web.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview12602"
+     pagecolor="#505050"
+     bordercolor="#ffffff"
+     borderopacity="1"
+     inkscape:pageshadow="0"
+     inkscape:pageopacity="0"
+     inkscape:pagecheckerboard="1"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:zoom="0.60221134"
+     inkscape:cx="424.26966"
+     inkscape:cy="661.72783"
+     inkscape:current-layer="layer1"
+     inkscape:snap-global="false" />
+  <defs
+     id="defs12597">
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient90586">
+      <stop
+         style="stop-color:#2c9a4d;stop-opacity:1"
+         offset="0"
+         id="stop90582" />
+      <stop
+         style="stop-color:#3bd168;stop-opacity:1"
+         offset="1"
+         id="stop90584" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient83121">
+      <stop
+         style="stop-color:#34b75b;stop-opacity:1"
+         offset="0"
+         id="stop83117" />
+      <stop
+         style="stop-color:#ffffff;stop-opacity:0.99731261"
+         offset="1"
+         id="stop83119" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient18559">
+      <stop
+         style="stop-color:#f5f5f5;stop-opacity:0.00008008"
+         offset="0"
+         id="stop18557" />
+      <stop
+         style="stop-color:#12c23f;stop-opacity:1"
+         offset="1"
+         id="stop18555" />
+    </linearGradient>
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath128852">
+      <rect
+         style="opacity:1;fill:#ffffff;stroke:none;stroke-width:1.26158;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         id="rect128854"
+         width="223.01056"
+         height="300.9523"
+         x="37.093143"
+         y="432.58426"
+         ry="1.2007356" />
+    </clipPath>
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient128176">
+      <stop
+         style="stop-color:#17c255;stop-opacity:1"
+         offset="0"
+         id="stop128172" />
+      <stop
+         style="stop-color:#f2f2f2;stop-opacity:1"
+         offset="1"
+         id="stop128174" />
+    </linearGradient>
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath128852-5">
+      <rect
+         style="opacity:1;fill:#ffffff;stroke:none;stroke-width:1.26158;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         id="rect128854-6"
+         width="223.01056"
+         height="300.9523"
+         x="37.093143"
+         y="432.58426"
+         ry="1.2007356" />
+    </clipPath>
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient128176"
+       id="linearGradient14655"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(1.0944486,0,0,1.0944486,-108.39503,-122.02993)"
+       x1="187.36859"
+       y1="495.22308"
+       x2="228.82028"
+       y2="514.5943" />
+    <filter
+       inkscape:collect="always"
+       style="color-interpolation-filters:sRGB"
+       id="filter18163"
+       x="-0.2458168"
+       y="-0.17008655"
+       width="1.4916336"
+       height="1.3401731">
+      <feGaussianBlur
+         inkscape:collect="always"
+         stdDeviation="6.8087264"
+         id="feGaussianBlur18165" />
+    </filter>
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient18559"
+       id="linearGradient18561"
+       x1="170.80412"
+       y1="446.95679"
+       x2="180.19847"
+       y2="530.8714"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(2.2130198,0,0,0.90538012,-147.99056,97.62211)" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient128176"
+       id="linearGradient58269"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(1.1340345,-0.18125365,0.19776086,1.0246363,-257.69156,-21.86971)"
+       x1="179.06065"
+       y1="474.16983"
+       x2="247.36678"
+       y2="521.81274" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient128176"
+       id="linearGradient60880"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(1.1340345,-0.18125365,0.19776086,1.0246363,-257.69156,-21.86971)"
+       x1="179.06065"
+       y1="474.16983"
+       x2="247.36678"
+       y2="521.81274" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient128176"
+       id="linearGradient60882"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(1.0944486,0,0,1.0944486,-108.39503,-122.02993)"
+       x1="179.06065"
+       y1="474.16983"
+       x2="247.36678"
+       y2="521.81274" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient83121"
+       id="linearGradient83123"
+       x1="238.41458"
+       y1="529.04431"
+       x2="229.64781"
+       y2="637.41034"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.90903501,0,0,0.90903501,5.7326786,28.632531)" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient90586"
+       id="linearGradient90588"
+       x1="226.78615"
+       y1="512.297"
+       x2="187.09326"
+       y2="488.9259"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="translate(-0.65822718,-3.134063)" />
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath127547">
+      <rect
+         style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:5.40896;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         id="rect127549"
+         width="370.36575"
+         height="69.852066"
+         x="-62.78389"
+         y="539.43384"
+         ry="6.843102" />
+    </clipPath>
+  </defs>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-41.511309,-30.150889)">
+    <g
+       id="g12772-1"
+       transform="translate(4.4181656,-402.43337)">
+      <rect
+         style="opacity:1;fill:#ffffff;stroke:none;stroke-width:1.26158;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         id="rect21419-2"
+         width="223.01056"
+         height="300.952"
+         x="37.093143"
+         y="432.58426"
+         ry="1.2007344" />
+      <rect
+         style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.901997;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         id="rect32479"
+         width="223.01056"
+         height="153.84311"
+         x="37.093143"
+         y="432.58426"
+         ry="0.61380124" />
+      <g
+         id="g128848-7"
+         clip-path="url(#clipPath128852-5)">
+        <g
+           id="g34313"
+           style="opacity:0.237805"
+           transform="matrix(1.0851969,0,0.32749295,1.0851969,-185.635,-24.62557)">
+          <g
+             id="g90174">
+            <g
+               id="g60556">
+              <path
+                 style="opacity:1;fill:url(#linearGradient58269);fill-opacity:1;stroke:none;stroke-width:1.18857;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+                 d="m 142.26114,413.57793 c 0,0 -63.186772,61.41864 -90.306824,119.04925 -27.120028,57.63065 41.296759,77.89755 41.296759,77.89755 L 202.33747,527.92822 Z"
+                 id="path58267" />
+              <path
+                 style="opacity:1;fill:url(#linearGradient14655);fill-opacity:1;stroke:none;stroke-width:1.18857;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+                 d="m 187.36262,395.40464 c 0,0 -70.25426,53.17563 -106.057924,108.39933 -35.803631,55.22374 24.586874,87.55431 24.586874,87.55431 l 117.05277,-67.518 z"
+                 id="path128038-0" />
+            </g>
+            <g
+               id="g60878"
+               transform="rotate(180,179.52208,476.95116)">
+              <path
+                 style="opacity:1;fill:url(#linearGradient60880);fill-opacity:1;stroke:none;stroke-width:1.18857;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+                 d="m 142.26114,413.57793 c 0,0 -63.186772,61.41864 -90.306824,119.04925 -27.120028,57.63065 41.296759,77.89755 41.296759,77.89755 L 202.33747,527.92822 Z"
+                 id="path60874" />
+              <path
+                 style="opacity:1;fill:url(#linearGradient60882);fill-opacity:1;stroke:none;stroke-width:1.18857;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+                 d="m 187.36262,395.40464 c 0,0 -70.25426,53.17563 -106.057924,108.39933 -35.803631,55.22374 24.586874,87.55431 24.586874,87.55431 l 117.05277,-67.518 z"
+                 id="path60876" />
+            </g>
+          </g>
+          <rect
+             style="opacity:1;fill:url(#linearGradient18561);fill-opacity:1;stroke:none;stroke-width:5.49428;stroke-linecap:round;stroke-linejoin:round"
+             id="rect1631-1"
+             width="294.36533"
+             height="120.42936"
+             x="174.41457"
+             y="483.43323"
+             ry="6.8567557"
+             transform="matrix(1,0,-0.30585392,0.95207845,0,0)" />
+        </g>
+        <rect
+           style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:5.40897;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+           id="rect121944-2"
+           width="370.36575"
+           height="69.852066"
+           x="-62.78389"
+           y="539.43384"
+           ry="6.843102" />
+        <g
+           id="g127543"
+           clip-path="url(#clipPath127547)">
+          <rect
+             style="fill:#253042;fill-opacity:1;stroke:none;stroke-width:2.26009;stroke-linecap:round;stroke-linejoin:round"
+             id="rect125809"
+             width="179.20123"
+             height="12.35458"
+             x="-174.99408"
+             y="582.2674"
+             ry="2.5567589"
+             transform="matrix(1,0,0.38240062,0.92399663,0,0)" />
+        </g>
+        <g
+           id="g91652"
+           transform="matrix(-1.3937788,0.34561087,0.34561087,1.3937788,115.1407,-349.51623)">
+          <rect
+             style="opacity:0.490766;fill:#3f3c2f;fill-opacity:0.373792;stroke:none;stroke-width:1.40155;stroke-linecap:round;stroke-linejoin:round;filter:url(#filter18163)"
+             id="rect17945"
+             width="66.476105"
+             height="96.07428"
+             x="311.66809"
+             y="430.27051"
+             ry="6.7597508"
+             transform="matrix(0.75652272,0.20270965,-0.20270965,0.75652272,-92.893618,169.50059)" />
+          <rect
+             style="opacity:1;fill:#34b75b;fill-opacity:1;stroke:none;stroke-width:1.62388;stroke-linecap:round;stroke-linejoin:round"
+             id="rect1456-6"
+             width="65.629684"
+             height="91.12957"
+             x="180.39616"
+             y="502.97711"
+             ry="7.8320308"
+             transform="rotate(15)"
+             clip-path="none" />
+          <rect
+             style="opacity:1;fill:url(#linearGradient83123);fill-opacity:1;stroke:none;stroke-width:1.62388;stroke-linecap:round;stroke-linejoin:round"
+             id="rect79368"
+             width="55.78363"
+             height="51.465317"
+             x="174.51135"
+             y="533.62067"
+             ry="7.8320308"
+             transform="rotate(15)"
+             clip-path="none" />
+        </g>
+      </g>
+      <rect
+         style="opacity:1;fill:#ffffff;fill-opacity:1;stroke-width:1.25127;stroke-linecap:round;stroke-linejoin:round"
+         id="rect28156"
+         width="12.004935"
+         height="5.046042"
+         x="202.08266"
+         y="438.08194"
+         ry="2.523021" />
+      <g
+         id="g85909-2"
+         transform="matrix(0.67073324,0,0,0.67073324,85.471483,139.99292)"
+         style="fill:#666666">
+        <text
+           xml:space="preserve"
+           style="font-size:10.5833px;line-height:1.1;font-family:sans-serif;text-align:start;letter-spacing:0px;text-anchor:start;white-space:pre;inline-size:187.118;fill:#34b75b;fill-opacity:1;stroke-width:0.264583"
+           x="11.395563"
+           y="616.75604"
+           id="text37518-2"
+           transform="matrix(0.36969048,0,0,0.36969048,172.57261,221.60115)"><tspan
+             x="11.395563"
+             y="616.75604"
+             id="tspan134241"><tspan
+               style="font-family:'Work Sans';-inkscape-font-specification:'Work Sans'"
+               id="tspan134239">HOME</tspan></tspan></text>
+        <text
+           xml:space="preserve"
+           style="font-size:10.5833px;line-height:1.1;font-family:sans-serif;text-align:start;letter-spacing:0px;text-anchor:start;white-space:pre;inline-size:187.118;fill:#ffffff;fill-opacity:1;stroke-width:0.264583"
+           x="11.395563"
+           y="616.75604"
+           id="text43192-8"
+           transform="matrix(0.36969048,0,0,0.36969048,196.92978,221.60115)"><tspan
+             x="11.395563"
+             y="616.75604"
+             id="tspan134245"><tspan
+               style="font-family:'Work Sans';-inkscape-font-specification:'Work Sans'"
+               id="tspan134243">BLOG</tspan></tspan></text>
+        <text
+           xml:space="preserve"
+           style="font-size:10.5833px;line-height:1.1;font-family:sans-serif;text-align:start;letter-spacing:0px;text-anchor:start;white-space:pre;inline-size:187.118;fill:#ffffff;fill-opacity:1;stroke-width:0.264583"
+           x="11.395563"
+           y="616.75604"
+           id="text43562-9"
+           transform="matrix(0.36969048,0,0,0.36969048,219.64569,221.60115)"><tspan
+             x="11.395563"
+             y="616.75604"
+             id="tspan134249"><tspan
+               style="font-family:'Work Sans';-inkscape-font-specification:'Work Sans'"
+               id="tspan134247">ABOUT US</tspan></tspan></text>
+      </g>
+      <g
+         id="g79952-7"
+         transform="translate(0,119.28977)">
+        <rect
+           style="opacity:1;fill:#253042;fill-opacity:1;stroke:none;stroke-width:0.848288;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+           id="rect44823-3"
+           width="223.01056"
+           height="136.06668"
+           x="37.093143"
+           y="495.0939"
+           ry="0.54287702" />
+        <text
+           xml:space="preserve"
+           style="font-size:10.5833px;line-height:1.1;font-family:sans-serif;text-align:start;letter-spacing:0px;text-anchor:start;white-space:pre;inline-size:187.118;fill:#ffffff;stroke-width:0.264583"
+           x="11.395563"
+           y="616.75604"
+           id="text28526-6"
+           transform="matrix(0.33382843,0,0,0.33382843,59.193511,374.9185)"><tspan
+             x="11.395563"
+             y="616.75604"
+             id="tspan134253"><tspan
+               style="font-family:'Work Sans';-inkscape-font-specification:'Work Sans'"
+               id="tspan134251">Kami PT Wako Indonesia bergerak </tspan></tspan><tspan
+             x="11.395563"
+             y="628.7341"
+             id="tspan134257"><tspan
+               style="font-family:'Work Sans';-inkscape-font-specification:'Work Sans'"
+               id="tspan134255">di bidang jasa Logistik (ekspor, </tspan></tspan><tspan
+             x="11.395563"
+             y="640.71219"
+             id="tspan134261"><tspan
+               style="font-family:'Work Sans';-inkscape-font-specification:'Work Sans'"
+               id="tspan134259">impor dan pengiriman domestik), </tspan></tspan><tspan
+             x="11.395563"
+             y="652.69028"
+             id="tspan134265"><tspan
+               style="font-family:'Work Sans';-inkscape-font-specification:'Work Sans'"
+               id="tspan134263">Jasa Konsultan (pengurusan izin </tspan></tspan><tspan
+             x="11.395563"
+             y="664.66837"
+             id="tspan134269"><tspan
+               style="font-family:'Work Sans';-inkscape-font-specification:'Work Sans'"
+               id="tspan134267">perusahaan), dan juga Trading yang </tspan></tspan><tspan
+             x="11.395563"
+             y="676.64646"
+             id="tspan134273"><tspan
+               style="font-family:'Work Sans';-inkscape-font-specification:'Work Sans'"
+               id="tspan134271">menyediakan lampu LED</tspan></tspan></text>
+        <text
+           xml:space="preserve"
+           style="font-size:10.5833px;line-height:1.1;font-family:sans-serif;text-align:start;letter-spacing:0px;text-anchor:start;white-space:pre;inline-size:187.118;fill:#ffffff;fill-opacity:1;stroke-width:0.264583"
+           x="11.395563"
+           y="616.75604"
+           id="text36110-1"
+           transform="matrix(0.4720161,0,0,0.4720161,57.582095,282.82677)"><tspan
+             x="11.395563"
+             y="616.75604"
+             id="tspan134277"><tspan
+               style="font-family:'Yeseva One';-inkscape-font-specification:'Yeseva One'"
+               id="tspan134275">Tentang Kami</tspan></tspan></text>
+        <text
+           xml:space="preserve"
+           style="font-size:10.5833px;line-height:1.1;font-family:sans-serif;text-align:start;letter-spacing:0px;text-anchor:start;white-space:pre;inline-size:187.118;fill:#ffffff;stroke-width:0.264583"
+           x="11.395563"
+           y="616.75604"
+           id="text45115-2"
+           transform="matrix(0.33382843,0,0,0.33382843,140.87073,374.9185)"><tspan
+             x="11.395563"
+             y="616.75604"
+             id="tspan134281"><tspan
+               style="font-family:'Work Sans';-inkscape-font-specification:'Work Sans'"
+               id="tspan134279">Kami PT Wako Indonesia bergerak </tspan></tspan><tspan
+             x="11.395563"
+             y="628.7341"
+             id="tspan134285"><tspan
+               style="font-family:'Work Sans';-inkscape-font-specification:'Work Sans'"
+               id="tspan134283">di bidang jasa Logistik (ekspor, </tspan></tspan><tspan
+             x="11.395563"
+             y="640.71219"
+             id="tspan134289"><tspan
+               style="font-family:'Work Sans';-inkscape-font-specification:'Work Sans'"
+               id="tspan134287">impor dan pengiriman domestik), </tspan></tspan><tspan
+             x="11.395563"
+             y="652.69028"
+             id="tspan134293"><tspan
+               style="font-family:'Work Sans';-inkscape-font-specification:'Work Sans'"
+               id="tspan134291">Jasa Konsultan (pengurusan izin </tspan></tspan><tspan
+             x="11.395563"
+             y="664.66837"
+             id="tspan134297"><tspan
+               style="font-family:'Work Sans';-inkscape-font-specification:'Work Sans'"
+               id="tspan134295">perusahaan), dan juga Trading yang </tspan></tspan><tspan
+             x="11.395563"
+             y="676.64646"
+             id="tspan134301"><tspan
+               style="font-family:'Work Sans';-inkscape-font-specification:'Work Sans'"
+               id="tspan134299">menyediakan lampu LED</tspan></tspan></text>
+        <text
+           xml:space="preserve"
+           style="font-size:10.5833px;line-height:1.1;font-family:sans-serif;text-align:start;letter-spacing:0px;text-anchor:start;white-space:pre;inline-size:187.118;fill:#ffffff;fill-opacity:1;stroke-width:0.264583"
+           x="11.395563"
+           y="616.75604"
+           id="text45119-9"
+           transform="matrix(0.4720161,0,0,0.4720161,139.25931,282.82677)"><tspan
+             x="11.395563"
+             y="616.75604"
+             id="tspan134305"><tspan
+               style="font-family:'Yeseva One';-inkscape-font-specification:'Yeseva One'"
+               id="tspan134303">Hubungi Kami</tspan></tspan></text>
+      </g>
+      <g
+         id="g86020-7"
+         transform="matrix(0.84896807,0,0,0.84896807,4.2943308,90.430955)"
+         style="fill:#4d4d4d;fill-opacity:1">
+        <text
+           xml:space="preserve"
+           style="font-size:10.5833px;line-height:1.1;font-family:sans-serif;text-align:start;letter-spacing:0px;text-anchor:start;white-space:pre;inline-size:295.011;fill:#4d4d4d;fill-opacity:1;stroke-width:0.264583"
+           x="11.395563"
+           y="616.75604"
+           id="text86012-8"
+           transform="matrix(0.29981174,0,0,0.29981174,106.44139,382.96884)"><tspan
+             x="11.395563"
+             y="616.75604"
+             id="tspan134311"><tspan
+               style="font-family:'Work Sans';-inkscape-font-specification:'Work Sans'"
+               id="tspan134307">Kami PT Wako Indonesia bergerak </tspan><tspan
+               style="font-family:'Work Sans';-inkscape-font-specification:'Work Sans'"
+               id="tspan134309">di bidang jasa Logistik </tspan></tspan><tspan
+             x="11.395563"
+             y="628.7341"
+             id="tspan134319"><tspan
+               style="font-family:'Work Sans';-inkscape-font-specification:'Work Sans'"
+               id="tspan134313">(ekspor, </tspan><tspan
+               style="font-family:'Work Sans';-inkscape-font-specification:'Work Sans'"
+               id="tspan134315">impor dan pengiriman domestik), </tspan><tspan
+               style="font-family:'Work Sans';-inkscape-font-specification:'Work Sans'"
+               id="tspan134317">Jasa </tspan></tspan><tspan
+             x="11.395563"
+             y="640.71219"
+             id="tspan134325"><tspan
+               style="font-family:'Work Sans';-inkscape-font-specification:'Work Sans'"
+               id="tspan134321">Konsultan (pengurusan izin </tspan><tspan
+               style="font-family:'Work Sans';-inkscape-font-specification:'Work Sans'"
+               id="tspan134323">perusahaan), dan juga </tspan></tspan><tspan
+             x="11.395563"
+             y="652.69028"
+             id="tspan134331"><tspan
+               style="font-family:'Work Sans';-inkscape-font-specification:'Work Sans'"
+               id="tspan134327">Trading yang </tspan><tspan
+               style="font-family:'Work Sans';-inkscape-font-specification:'Work Sans'"
+               id="tspan134329">menyediakan lampu LED</tspan></tspan></text>
+        <text
+           xml:space="preserve"
+           style="font-size:10.5833px;line-height:1.1;font-family:sans-serif;text-align:start;letter-spacing:0px;text-anchor:start;white-space:pre;inline-size:187.118;fill:#34b75b;fill-opacity:1;stroke-width:0.264583"
+           x="11.395563"
+           y="616.75604"
+           id="text86016-4"
+           transform="matrix(0.88085242,0,0,0.88085242,51.426712,26.7546)"><tspan
+             x="11.395563"
+             y="616.75604"
+             id="tspan134335"><tspan
+               style="font-family:'Yeseva One';-inkscape-font-specification:'Yeseva One'"
+               id="tspan134333">Tentang
+</tspan></tspan><tspan
+             x="11.395563"
+             y="628.72742"
+             id="tspan134339"><tspan
+               style="font-family:'Yeseva One';-inkscape-font-specification:'Yeseva One'"
+               id="tspan134337">Kami</tspan></tspan></text>
+        <rect
+           style="opacity:1;fill:#253042;fill-opacity:1;stroke:none;stroke-width:0.521839;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+           id="rect86018-5"
+           width="19.435921"
+           height="6.4786406"
+           x="109.99002"
+           y="583.00677"
+           ry="3.2393203" />
+      </g>
+      <g
+         id="g95221-0"
+         transform="matrix(1.7339213,0,0,1.7339213,-240.92917,-337.9321)">
+        <text
+           xml:space="preserve"
+           style="font-size:5.58998px;line-height:1.1;font-family:sans-serif;text-align:center;letter-spacing:0px;text-anchor:middle;stroke-width:0.13975"
+           x="182.72891"
+           y="472.73169"
+           id="text86574-3"><tspan
+             sodipodi:role="line"
+             id="tspan86572-6"
+             style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:Inter;-inkscape-font-specification:'Inter Bold';stroke-width:0.13975"
+             x="182.72891"
+             y="472.73169">Logistic.</tspan></text>
+        <text
+           xml:space="preserve"
+           style="font-size:5.58998px;line-height:1.1;font-family:sans-serif;text-align:center;letter-spacing:0px;text-anchor:middle;stroke-width:0.13975"
+           x="207.39481"
+           y="472.84039"
+           id="text88852-1"><tspan
+             sodipodi:role="line"
+             id="tspan88850-0"
+             style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:Inter;-inkscape-font-specification:'Inter Bold';stroke-width:0.13975"
+             x="207.39481"
+             y="472.84039">Trading.</tspan></text>
+        <text
+           xml:space="preserve"
+           style="font-size:5.58998px;line-height:1.1;font-family:sans-serif;text-align:center;letter-spacing:0px;text-anchor:middle;stroke-width:0.13975"
+           x="189.05156"
+           y="479.46524"
+           id="text89730-6"><tspan
+             sodipodi:role="line"
+             id="tspan89728-3"
+             style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:Inter;-inkscape-font-specification:'Inter Bold';stroke-width:0.13975"
+             x="189.05156"
+             y="479.46524">Consultancy.</tspan></text>
+        <text
+           xml:space="preserve"
+           style="font-size:15.9379px;line-height:1.1;font-family:sans-serif;text-align:center;letter-spacing:-0.304279px;text-anchor:middle;fill:url(#linearGradient90588);fill-opacity:1;stroke-width:0.398448"
+           x="189.9799"
+           y="494.49243"
+           id="text92862-2"><tspan
+             sodipodi:role="line"
+             id="tspan92860-0"
+             style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:Inter;-inkscape-font-specification:'Inter Bold';fill:url(#linearGradient90588);fill-opacity:1;stroke-width:0.398448"
+             x="189.82776"
+             y="494.49243">Done</tspan></text>
+      </g>
+      <g
+         id="g104674"
+         transform="translate(-9.6123946,-20.984963)">
+        <rect
+           style="fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1.086;stroke-linecap:round;stroke-linejoin:round"
+           id="rect104406"
+           width="15.820956"
+           height="15.820956"
+           x="53.480843"
+           y="457.92825"
+           ry="2.7540104" />
+        <g
+           id="g999"
+           transform="matrix(0.66917182,0,0,0.66917182,-139.11289,136.42677)">
+          <g
+             id="g129185"
+             transform="matrix(0.25159873,0,0,0.25159873,293.22592,428.17194)">
+            <circle
+               style="opacity:1;fill:none;stroke:#fe5605;stroke-width:1.24496;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+               id="circle129177"
+               cx="25.168144"
+               cy="247.18829"
+               r="14.349805" />
+            <circle
+               style="opacity:1;fill:none;stroke:#ed1a22;stroke-width:1.24496;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+               id="circle129179"
+               cx="39.668148"
+               cy="254.47826"
+               r="7.2073631" />
+            <circle
+               style="opacity:1;fill:none;stroke:#22b14c;stroke-width:1.24496;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+               id="circle129181"
+               cx="25.139742"
+               cy="233.17076"
+               r="7.2073631" />
+            <circle
+               style="opacity:1;fill:none;stroke:#0a1583;stroke-width:1.24496;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+               id="circle129183"
+               cx="10.282679"
+               cy="254.47826"
+               r="7.2073631" />
+          </g>
+          <g
+             id="g129193"
+             transform="matrix(0.25159873,0,0,0.25159873,281.30122,414.7909)">
+            <text
+               xml:space="preserve"
+               style="font-size:14.982px;line-height:1.1;font-family:sans-serif;text-align:center;letter-spacing:0px;text-anchor:middle;stroke-width:0.37455"
+               x="74.129204"
+               y="337.17462"
+               id="text129191"><tspan
+                 sodipodi:role="line"
+                 id="tspan129189"
+                 style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:'IBM Plex Sans';-inkscape-font-specification:'IBM Plex Sans Bold';stroke-width:0.37455"
+                 x="74.129204"
+                 y="337.17462">WAKO</tspan></text>
+          </g>
+        </g>
+      </g>
+    </g>
+  </g>
+</svg>
