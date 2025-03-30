@@ -35,7 +35,7 @@ img.onload = async () => {
       txtheight = txtdim.actualBoundingBoxAscent + txtdim.actualBoundingBoxDescent,
       x = Math.floor((canvas.width - txtwidth) / 2),
       //y = Math.floor((canvas.height - txtheight) / 2) + 30;
-      y = 550;
+      y = 530;
 
   // (B6) DRAW TEXT ONTO CANVAS
   ctx.strokeText(txt, x, y);
