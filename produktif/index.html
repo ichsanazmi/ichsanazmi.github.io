@@ -49,7 +49,6 @@
         /* Custom Font for Clock */
         .font-micro5 {
             font-family: 'Micro 5', sans-serif;
-            /* Tambahkan sedikit cahaya (glow) putih untuk kontras yang lebih baik */
             text-shadow: 0 0 15px rgba(255, 255, 255, 0.4); 
         }
 
@@ -92,7 +91,6 @@
         
     </style>
 </head>
-<!-- PERBAIKAN: Set dark/light class untuk background dan text body -->
 <body class="font-sans min-h-screen flex items-center justify-center p-4 sm:p-8 dark bg-dark-bg text-zinc-100 dark:bg-dark-bg dark:text-zinc-100 light:bg-light-bg light:text-light-text transition-colors duration-500">
 
     <!-- Main Grid Container: Ditingkatkan agar item baru muat -->
@@ -105,11 +103,9 @@
                 
                 <!-- Minimal Clock (Left/Center) -->
                 <div class="md:w-1/2 flex flex-col items-center sm:items-start justify-center pl-4 md:pl-0 w-full md:w-1/2"> 
-                    <!-- PERBAIKAN: Menggunakan dark:text-white dan light:text-light-text -->
                     <div id="current-time" class="text-huge sm:text-colossal font-extrabold font-micro5 tracking-tight transition-opacity duration-300 leading-none dark:text-white light:text-light-text">
                         --:--
                     </div>
-                    <!-- PERBAIKAN: Menggunakan dark: dan light: -->
                     <div id="current-day" class="text-xs mt-[-1.5rem] sm:mt-[-3rem] dark:text-zinc-400 light:text-light-subtext">
                         --
                     </div>
@@ -124,7 +120,6 @@
         </div>
         
         <!-- 2. DAILY TRACKER (Fitur Utama: 2x2) -->
-        <!-- PERBAIKAN: Menggunakan dark:bg-dark-card dan light:bg-light-card -->
         <div class="bento-card md:col-span-2 md:row-span-2 rounded-3xl p-6 shadow-xl overflow-hidden transition-colors duration-500 dark:bg-dark-card dark:border-dark-border light:bg-light-card light:border-light-border">
             
             <div class="flex flex-col h-full overflow-hidden">
@@ -149,14 +144,14 @@
                         </div>
                     </div>
 
-                    <!-- Tombol Mode Switch BARU -->
+                    <!-- Tombol Mode Switch -->
                     <button id="mode-switch-btn" class="p-2 ml-2 rounded-xl transition-all duration-300 
                         dark:text-zinc-400 dark:hover:bg-zinc-700 dark:hover:text-white 
                         light:text-light-subtext light:hover:text-light-text light:hover:bg-gray-200" title="Ganti Mode UI">
-                        <i id="mode-icon" data-lucide="sun" width="16" height="16"></i>
+                        <i data-lucide="sun" width="16" height="16"></i> 
                     </button>
 
-                    <!-- Tombol Sync Cloud DIPINDAH di sini -->
+                    <!-- Tombol Sync Cloud -->
                     <button id="sync-btn" class="p-2 hover:text-blue-400 rounded-xl transition-all flex items-center gap-1 group 
                         dark:hover:bg-zinc-700 
                         light:hover:bg-gray-200" title="Sinkronisasi ke Google Sheet">
@@ -243,9 +238,14 @@
         <div class="bento-card md:col-span-1 md:row-span-2 rounded-3xl p-6 shadow-xl overflow-hidden transition-colors duration-500 
             dark:bg-amber-900/10 dark:border-amber-900/20 
             light:bg-yellow-100/50 light:border-yellow-300/50">
-            <div class="flex items-center gap-2 mb-4 dark:text-zinc-400 light:text-light-subtext">
-                <i data-lucide="sticky-note" width="18" height="18"></i>
-                <h3 class="text-xs font-bold uppercase tracking-wider">Catatan Cepat</h3>
+            <div class="flex items-center justify-between mb-4 dark:text-zinc-400 light:text-light-subtext">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="sticky-note" width="18" height="18"></i>
+                    <h3 class="text-xs font-bold uppercase tracking-wider">Catatan Cepat</h3>
+                </div>
+                <button id="sync-note-btn" class="p-1 hover:text-blue-400 rounded-lg transition-all flex items-center group" title="Sinkronisasi Catatan ke Google Sheet">
+                    <i data-lucide="cloud-upload" width="16" height="16" class="dark:text-zinc-400 light:text-light-subtext group-hover:dark:text-blue-400 group-hover:light:text-light-accent"></i>
+                </button>
             </div>
             <textarea
                 id="note-input"
@@ -311,7 +311,7 @@
         let allTasks = JSON.parse(localStorage.getItem('productivity_tasks')) || {};
         
         // State untuk Kalender (Bulan yang sedang dilihat)
-        let currentCalendarDate = new Date(); // Inisialisasi dengan bulan saat ini
+        let currentCalendarDate = new Date(); 
         
         // --- DOM ELEMENTS ---
         const bodyEl = document.body;
@@ -329,6 +329,7 @@
         const prevDateBtn = document.getElementById('prev-date-btn');
         const nextDateBtn = document.getElementById('next-date-btn');
         const syncBtn = document.getElementById('sync-btn'); 
+        const syncNoteBtn = document.getElementById('sync-note-btn'); // New Note Sync Button
         
         // Clock & Calendar Elements
         const currentTimeEl = document.getElementById('current-time');
@@ -337,7 +338,6 @@
 
         // Mode Switch Elements
         const modeSwitchBtn = document.getElementById('mode-switch-btn');
-        const modeIcon = document.getElementById('mode-icon');
 
 
         // Modal Elements
@@ -350,10 +350,11 @@
         const modalDesc = document.getElementById('modal-desc');
         const modalNoDesc = document.getElementById('modal-no-desc');
 
-        // --- UI MODE LOGIC ---
+        // --- UI MODE LOGIC (Fixed for stable icon switching) ---
 
         const initializeUIMode = () => {
             const savedMode = localStorage.getItem('uiMode') || 'dark';
+            // Set initial mode to ensure correct icons are loaded first time
             setUIMode(savedMode);
         };
 
@@ -361,18 +362,41 @@
             if (mode === 'dark') {
                 bodyEl.classList.add('dark');
                 bodyEl.classList.remove('light');
-                modeIcon.setAttribute('data-lucide', 'sun'); // Tampilkan Sun (untuk beralih ke light)
+                updateModeIcon('sun'); 
             } else {
                 bodyEl.classList.add('light');
                 bodyEl.classList.remove('dark');
-                modeIcon.setAttribute('data-lucide', 'moon'); // Tampilkan Moon (untuk beralih ke dark)
+                updateModeIcon('moon'); 
             }
             localStorage.setItem('uiMode', mode);
-            // Re-render icons after changing attributes
-            lucide.createIcons();
             // Re-render calendar to update day color
             renderCalendar(currentCalendarDate);
+            // Re-render tasks to update item colors
+            renderTasks();
         };
+
+        const updateModeIcon = (iconName) => {
+            // Hapus ikon SVG lama (yang dibuat oleh Lucide)
+            const currentIcon = modeSwitchBtn.querySelector('svg');
+            if (currentIcon) {
+                currentIcon.remove();
+            }
+
+            // Cari template <i> di dalam tombol. Jika tidak ada (setelah refresh), buat baru
+            let iconTemplate = modeSwitchBtn.querySelector('i');
+            if (!iconTemplate) {
+                 iconTemplate = document.createElement('i');
+                 iconTemplate.setAttribute('width', '16');
+                 iconTemplate.setAttribute('height', '16');
+                 modeSwitchBtn.appendChild(iconTemplate);
+            }
+            
+            // Set atribut data-lucide baru ke template
+            iconTemplate.setAttribute('data-lucide', iconName);
+            
+            // Render ulang ikon
+            lucide.createIcons();
+        }
 
         const toggleUIMode = () => {
             const currentMode = bodyEl.classList.contains('dark') ? 'dark' : 'light';
@@ -404,25 +428,21 @@
         };
 
         // --- CLOCK & CALENDAR LOGIC ---
-        let lastRenderedCalendarDay = null; // Untuk menghindari rendering kalender setiap detik
+        let lastRenderedCalendarDay = null; 
 
         const updateClock = () => {
             const now = new Date();
             
-            // Format jam (HH:MM) - Detik Dihapus
             const timeOptions = { hour: '2-digit', minute: '2-digit', hour12: false };
             const timeString = now.toLocaleTimeString('en-US', timeOptions);
             currentTimeEl.textContent = timeString;
 
-            // Format hari (Contoh: Kamis, 20 November 2025)
             const dateOptions = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
             const dayString = now.toLocaleDateString('id-ID', dateOptions);
             currentDayEl.textContent = dayString;
 
-            // Render kalender hanya jika hari berubah
             const todayKey = getDateKey(now);
             if (todayKey !== lastRenderedCalendarDay) {
-                // Pastikan kalender dirender ulang hanya jika bulannya adalah bulan saat ini
                 if (getDateKey(currentCalendarDate).substring(0, 7) === todayKey.substring(0, 7)) {
                     renderCalendar(currentCalendarDate);
                 }
@@ -431,9 +451,7 @@
         };
 
         const changeCalendarMonth = (offset) => {
-            // Ubah bulan saat ini
             currentCalendarDate.setMonth(currentCalendarDate.getMonth() + offset);
-            // Render bulan yang baru
             renderCalendar(currentCalendarDate);
         };
 
@@ -447,12 +465,11 @@
             const hoverColor = isDarkMode ? 'hover:bg-zinc-700/50' : 'hover:bg-gray-200';
             const textColor = isDarkMode ? 'text-zinc-300' : 'text-light-text';
 
-            const firstDayOfMonth = new Date(year, month, 1).getDay(); // 0=Minggu, 1=Senin
+            const firstDayOfMonth = new Date(year, month, 1).getDay();
             const daysInMonth = new Date(year, month + 1, 0).getDate();
 
             const monthName = new Intl.DateTimeFormat('id-ID', { month: 'long', year: 'numeric' }).format(date);
 
-            // Container utama kalender
             let calendarHTML = `
                 <div class="p-1.5 w-full max-w-[200px] text-zinc-200">
                     
@@ -478,20 +495,17 @@
                     <div class="grid grid-cols-7 gap-0.5">
             `;
 
-            // Isi hari kosong sebelum tanggal 1
             const startDayIndex = firstDayOfMonth;
 
             for (let i = 0; i < startDayIndex; i++) {
                 calendarHTML += `<div></div>`;
             }
 
-            // Isi tanggal
             for (let day = 1; day <= daysInMonth; day++) {
                 const dayDate = new Date(year, month, day);
                 const currentDateStr = getDateKey(dayDate);
                 const isToday = currentDateStr === todayKey;
 
-                // Ukuran cell diperkecil (p-0.5) dan text-xs menjadi text-xs/10px
                 let dayClasses = `p-0.5 text-xs rounded-lg transition-all cursor-default text-center leading-tight`;
                 
                 if (isToday) {
@@ -511,10 +525,7 @@
             lucide.createIcons();
         };
         
-        // Expose changeCalendarMonth to window
         window.changeCalendarMonth = changeCalendarMonth;
-        
-        // Mulai interval jam
         setInterval(updateClock, 1000); 
 
         // --- MODAL LOGIC ---
@@ -523,7 +534,6 @@
             const task = allTasks[key].find(t => t.id === taskId);
             if (!task) return;
 
-            // Set Content
             modalTitle.textContent = task.text;
             modalDate.textContent = formatDateDisplay(currentDate);
             
@@ -536,15 +546,12 @@
                 modalNoDesc.classList.remove('hidden');
             }
 
-            // Show Modal (Animations handled via CSS classes)
             taskModal.classList.remove('hidden');
-            // Small timeout to allow CSS transition to work
             setTimeout(() => {
                 modalBackdrop.classList.remove('opacity-0');
                 modalContent.classList.remove('opacity-0', 'scale-95');
             }, 10);
             
-            // Refresh icons in modal
             lucide.createIcons();
         };
 
@@ -554,10 +561,9 @@
             
             setTimeout(() => {
                 taskModal.classList.add('hidden');
-            }, 300); // Match transition duration
+            }, 300);
         };
 
-        // Modal Event Listeners
         closeModalBtn.addEventListener('click', closeModal);
         modalBackdrop.addEventListener('click', closeModal);
         document.addEventListener('keydown', (e) => {
@@ -598,7 +604,6 @@
                 tasks.forEach(task => {
                     const div = document.createElement('div');
                     
-                    // Indikator jika ada deskripsi
                     const hasDesc = task.description && task.description.trim().length > 0;
                     const descIndicator = hasDesc 
                         ? `<i data-lucide="align-left" width="14" height="14" class="${secondaryTextColor} group-hover/text:text-emerald-400 transition-colors"></i>`
@@ -619,7 +624,6 @@
                             <i data-lucide="${task.completed ? 'check-circle-2' : 'circle'}" width="20" height="20"></i>
                         </button>
                         
-                        <!-- Bagian Teks sekarang bisa diklik untuk buka modal -->
                         <div onclick="openModal(${task.id})" class="flex-1 min-w-0 cursor-pointer group/text flex items-center gap-2">
                             <span class="truncate font-medium text-sm ${completedText}">
                                 ${escapeHtml(task.text)}
@@ -655,7 +659,7 @@
             progressText.textContent = `${percentage}%`;
         };
 
-        // --- GOOGLE SHEETS SYNC LOGIC ---
+        // --- GOOGLE SHEETS SYNC LOGIC: TASKS ---
         const syncToGoogleSheets = async () => {
             if (GOOGLE_SCRIPT_URL.includes("PASTE_YOUR")) {
                 alert("Harap konfigurasi URL Google Apps Script Anda terlebih dahulu.");
@@ -664,13 +668,10 @@
 
             // UI Loading State
             syncBtn.disabled = true;
+            const originalHTML = syncBtn.innerHTML;
             const spinnerSvg = `<svg class="animate-spin-custom" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>`;
-            syncBtn.innerHTML = `
-                <span class="text-[10px] font-semibold uppercase tracking-wider hidden sm:inline group-hover:text-blue-400">Memuat...</span>
-                ${spinnerSvg}
-            `;
+            syncBtn.innerHTML = `<span class="text-[10px] font-semibold uppercase tracking-wider hidden sm:inline group-hover:text-blue-400">Memuat...</span>${spinnerSvg}`;
 
-            // 1. Siapkan Data Lokal
             const payloadTasks = [];
             const dates = Object.keys(allTasks);
             
@@ -688,7 +689,7 @@
                 }
             });
 
-            const payload = { tasks: payloadTasks };
+            const payload = { action: 'sync_tasks', tasks: payloadTasks };
 
             try {
                 const response = await fetch(GOOGLE_SCRIPT_URL, {
@@ -723,22 +724,74 @@
                     allTasks = mergedTasks;
                     saveTasks(); 
                     
-                    alert(`Sukses! Sinkronisasi data berhasil.`);
+                    alert(`Sukses! Sinkronisasi tugas berhasil. Data dimuat dari cloud.`);
                 } else {
                     throw new Error("Format respon server tidak sesuai");
                 }
 
             } catch (error) {
-                console.error("Error Syncing:", error);
+                console.error("Error Syncing Tasks:", error);
                 let msg = error.message;
                 if (msg.includes("Failed to fetch")) {
                     msg = "Gagal koneksi. Pastikan deployment script di-set ke 'Anyone' (Siapa saja).";
                 }
-                alert(`Gagal sinkronisasi: ${msg}`);
+                alert(`Gagal sinkronisasi tugas: ${msg}`);
             } finally {
-                location.reload(); 
+                // Reset UI state (tidak perlu reload penuh agar catatan tetap)
+                syncBtn.disabled = false;
+                syncBtn.innerHTML = originalHTML;
+                lucide.createIcons();
             }
         };
+
+        // --- GOOGLE SHEETS SYNC LOGIC: NOTES (NEW) ---
+        const syncNotesToGoogleSheets = async () => {
+            if (GOOGLE_SCRIPT_URL.includes("PASTE_YOUR")) {
+                alert("Harap konfigurasi URL Google Apps Script Anda terlebih dahulu.");
+                return;
+            }
+
+            // UI Loading State
+            syncNoteBtn.disabled = true;
+            const originalIcon = syncNoteBtn.querySelector('i').outerHTML;
+            const spinnerSvg = `<svg class="animate-spin-custom dark:text-zinc-400 light:text-light-subtext" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>`;
+            syncNoteBtn.innerHTML = spinnerSvg; 
+
+            const noteContent = noteInput.value.trim();
+            const payload = { action: 'sync_notes', noteContent: noteContent };
+
+            try {
+                const response = await fetch(GOOGLE_SCRIPT_URL, {
+                    redirect: "follow",
+                    method: "POST",
+                    referrerPolicy: "no-referrer", 
+                    headers: { "Content-Type": "text/plain" },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+
+                const resultData = await response.json();
+                
+                if(resultData.result === "error") throw new Error(resultData.message || "Backend error");
+
+                alert(`Sukses! Catatan telah disimpan ke Spreadsheet 'Notes_DB'.`);
+
+            } catch (error) {
+                console.error("Error Syncing Notes:", error);
+                let msg = error.message;
+                if (msg.includes("Failed to fetch")) {
+                    msg = "Gagal koneksi. Pastikan deployment script di-set ke 'Anyone' (Siapa saja).";
+                }
+                alert(`Gagal sinkronisasi catatan: ${msg}`);
+            } finally {
+                // Reset UI state
+                syncNoteBtn.disabled = false;
+                syncNoteBtn.innerHTML = originalIcon;
+                lucide.createIcons();
+            }
+        };
+
 
         // --- EVENT HANDLERS ---
 
@@ -787,7 +840,6 @@
             saveTasks();
         };
 
-        // Expose openModal to window so it can be called from inline HTML
         window.openModal = openModal;
 
         prevDateBtn.addEventListener('click', () => {
@@ -801,7 +853,8 @@
         });
 
         syncBtn.addEventListener('click', syncToGoogleSheets);
-        modeSwitchBtn.addEventListener('click', toggleUIMode); // NEW: Toggle mode
+        modeSwitchBtn.addEventListener('click', toggleUIMode);
+        syncNoteBtn.addEventListener('click', syncNotesToGoogleSheets); // New Event Listener
 
         noteInput.value = localStorage.getItem('productivity_note') || '';
         noteInput.addEventListener('input', (e) => {
@@ -824,15 +877,12 @@
             renderDateHeader();
             renderTasks();
             updateProgress();
-            // Panggil renderCalendar di updateAll agar kalender terinisialisasi saat load
             renderCalendar(currentCalendarDate);
         }
 
-        // Initialize UI Mode and then start clock/render
         initializeUIMode();
         updateClock(); 
         updateAll();
-        // Icons creation is also handled inside setUIMode and renderCalendar
 
     </script>
 </body>
