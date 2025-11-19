@@ -49,7 +49,11 @@
         /* Custom Font for Clock */
         .font-micro5 {
             font-family: 'Micro 5', sans-serif;
+            /* Tambahkan sedikit glow di dark mode, hilang di light mode */
             text-shadow: 0 0 15px rgba(255, 255, 255, 0.4); 
+        }
+        .light .font-micro5 {
+             text-shadow: none;
         }
 
         /* Loading Spinner Animation */
@@ -86,12 +90,12 @@
         .bento-card {
             display: flex;
             flex-direction: column;
-            color: white; /* Default text color, overridden by light:text-light-text */
         }
         
     </style>
 </head>
-<body class="font-sans min-h-screen flex items-center justify-center p-4 sm:p-8 dark bg-dark-bg text-zinc-100 dark:bg-dark-bg dark:text-zinc-100 light:bg-light-bg light:text-light-text transition-colors duration-500">
+<!-- Perbaikan: Menghapus kelas warna statis agar hanya mengandalkan prefix dark/light yang diaktifkan oleh JS -->
+<body class="font-sans min-h-screen flex items-center justify-center p-4 sm:p-8 transition-colors duration-500 dark:bg-dark-bg dark:text-zinc-100 light:bg-light-bg light:text-light-text">
 
     <!-- Main Grid Container: Ditingkatkan agar item baru muat -->
     <div class="w-full max-w-6xl grid grid-cols-1 md:grid-cols-3 gap-4 auto-rows-[minmax(180px,auto)]">
@@ -148,7 +152,7 @@
                     <button id="mode-switch-btn" class="p-2 ml-2 rounded-xl transition-all duration-300 
                         dark:text-zinc-400 dark:hover:bg-zinc-700 dark:hover:text-white 
                         light:text-light-subtext light:hover:text-light-text light:hover:bg-gray-200" title="Ganti Mode UI">
-                        <i data-lucide="sun" width="16" height="16"></i> 
+                        <span id="mode-icon-container"><i data-lucide="sun" width="16" height="16"></i></span> 
                     </button>
 
                     <!-- Tombol Sync Cloud -->
@@ -338,7 +342,7 @@
 
         // Mode Switch Elements
         const modeSwitchBtn = document.getElementById('mode-switch-btn');
-
+        const modeIconContainerEl = document.getElementById('mode-icon-container');
 
         // Modal Elements
         const taskModal = document.getElementById('task-modal');
@@ -355,46 +359,44 @@
         const initializeUIMode = () => {
             const savedMode = localStorage.getItem('uiMode') || 'dark';
             // Set initial mode to ensure correct icons are loaded first time
-            setUIMode(savedMode);
+            setUIMode(savedMode, false); // Don't save to localStorage again on init
         };
 
-        const setUIMode = (mode) => {
+        const setUIMode = (mode, saveToStorage = true) => {
             if (mode === 'dark') {
                 bodyEl.classList.add('dark');
                 bodyEl.classList.remove('light');
+                // Tambahkan kelas dark: yang mungkin terhapus
+                bodyEl.classList.add('dark:bg-dark-bg', 'dark:text-zinc-100');
+                bodyEl.classList.remove('light:bg-light-bg', 'light:text-light-text');
                 updateModeIcon('sun'); 
             } else {
                 bodyEl.classList.add('light');
                 bodyEl.classList.remove('dark');
+                // Tambahkan kelas light: yang mungkin terhapus
+                bodyEl.classList.add('light:bg-light-bg', 'light:text-light-text');
+                bodyEl.classList.remove('dark:bg-dark-bg', 'dark:text-zinc-100');
                 updateModeIcon('moon'); 
             }
-            localStorage.setItem('uiMode', mode);
-            // Re-render calendar to update day color
+            if (saveToStorage) {
+                localStorage.setItem('uiMode', mode);
+            }
+            
+            // Perlu dipanggil ulang karena warna dihitung dalam JS berdasarkan mode body
             renderCalendar(currentCalendarDate);
-            // Re-render tasks to update item colors
             renderTasks();
         };
 
         const updateModeIcon = (iconName) => {
-            // Hapus ikon SVG lama (yang dibuat oleh Lucide)
-            const currentIcon = modeSwitchBtn.querySelector('svg');
-            if (currentIcon) {
-                currentIcon.remove();
-            }
+            modeIconContainerEl.innerHTML = ''; 
 
-            // Cari template <i> di dalam tombol. Jika tidak ada (setelah refresh), buat baru
-            let iconTemplate = modeSwitchBtn.querySelector('i');
-            if (!iconTemplate) {
-                 iconTemplate = document.createElement('i');
-                 iconTemplate.setAttribute('width', '16');
-                 iconTemplate.setAttribute('height', '16');
-                 modeSwitchBtn.appendChild(iconTemplate);
-            }
+            const newIconTemplate = document.createElement('i');
+            newIconTemplate.setAttribute('data-lucide', iconName);
+            newIconTemplate.setAttribute('width', '16');
+            newIconTemplate.setAttribute('height', '16');
             
-            // Set atribut data-lucide baru ke template
-            iconTemplate.setAttribute('data-lucide', iconName);
+            modeIconContainerEl.appendChild(newIconTemplate);
             
-            // Render ulang ikon
             lucide.createIcons();
         }
 
@@ -460,10 +462,13 @@
             const month = date.getMonth();
             const today = new Date();
             const todayKey = getDateKey(today);
+            
+            // --- Color Logic for Calendar ---
             const isDarkMode = bodyEl.classList.contains('dark');
             const primaryColor = isDarkMode ? 'bg-indigo-500' : 'bg-light-accent';
             const hoverColor = isDarkMode ? 'hover:bg-zinc-700/50' : 'hover:bg-gray-200';
             const textColor = isDarkMode ? 'text-zinc-300' : 'text-light-text';
+            const ringColor = isDarkMode ? 'ring-indigo-300' : 'ring-light-accent/50';
 
             const firstDayOfMonth = new Date(year, month, 1).getDay();
             const daysInMonth = new Date(year, month + 1, 0).getDate();
@@ -509,7 +514,7 @@
                 let dayClasses = `p-0.5 text-xs rounded-lg transition-all cursor-default text-center leading-tight`;
                 
                 if (isToday) {
-                    dayClasses += ` ${primaryColor} text-white font-bold shadow-md ring-1 ring-indigo-300`;
+                    dayClasses += ` ${primaryColor} text-white font-bold shadow-md ring-1 ${ringColor}`;
                 } else {
                     dayClasses += ` ${hoverColor} ${textColor}`;
                 }
@@ -587,6 +592,7 @@
             
             taskListEl.innerHTML = '';
 
+            // --- Color Logic for Tasks ---
             const isDarkMode = bodyEl.classList.contains('dark');
             const primaryColor = isDarkMode ? 'text-emerald-500' : 'text-light-primary';
             const secondaryTextColor = isDarkMode ? 'text-zinc-500' : 'text-light-subtext';
@@ -753,7 +759,8 @@
 
             // UI Loading State
             syncNoteBtn.disabled = true;
-            const originalIcon = syncNoteBtn.querySelector('i').outerHTML;
+            const originalHTML = syncNoteBtn.innerHTML; 
+            
             const spinnerSvg = `<svg class="animate-spin-custom dark:text-zinc-400 light:text-light-subtext" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>`;
             syncNoteBtn.innerHTML = spinnerSvg; 
 
@@ -787,7 +794,7 @@
             } finally {
                 // Reset UI state
                 syncNoteBtn.disabled = false;
-                syncNoteBtn.innerHTML = originalIcon;
+                syncNoteBtn.innerHTML = originalHTML;
                 lucide.createIcons();
             }
         };
@@ -854,7 +861,7 @@
 
         syncBtn.addEventListener('click', syncToGoogleSheets);
         modeSwitchBtn.addEventListener('click', toggleUIMode);
-        syncNoteBtn.addEventListener('click', syncNotesToGoogleSheets); // New Event Listener
+        syncNoteBtn.addEventListener('click', syncNotesToGoogleSheets); 
 
         noteInput.value = localStorage.getItem('productivity_note') || '';
         noteInput.addEventListener('input', (e) => {
