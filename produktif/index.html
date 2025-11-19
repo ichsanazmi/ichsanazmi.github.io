@@ -17,25 +17,22 @@
     <!-- Custom Styles and Tailwind Configuration -->
     <script>
         tailwind.config = {
-            darkMode: 'class', // Menggunakan class 'dark' untuk mode gelap
+            // Hapus: darkMode: 'class',
             theme: {
                 extend: {
                     colors: {
-                        'dark-bg': '#0a0a0a',
-                        'dark-card': '#1f1f1f',
-                        'dark-border': '#27272a',
+                        // Hanya definisikan skema Light Mode
                         'light-bg': '#f3f4f6',
                         'light-card': '#ffffff',
                         'light-border': '#e5e7eb',
-                        'light-text': '#1f2937',
-                        'light-subtext': '#6b7280',
+                        'light-text': '#1f2937', // dark gray for main text
+                        'light-subtext': '#6b7280', // muted gray for secondary text
                         'light-primary': '#10b981', // emerald
                         'light-accent': '#3b82f6', // blue
-                        'dark-accent': '#93c5fd', // light blue
                     },
                     fontSize: {
-                        'huge': '8rem', /* 8xl */
-                        'colossal': '14rem', /* 224px */
+                        'huge': '8rem',
+                        'colossal': '14rem',
                     },
                     fontFamily: {
                         'micro5': ['Micro 5', 'sans-serif'],
@@ -49,11 +46,7 @@
         /* Custom Font for Clock */
         .font-micro5 {
             font-family: 'Micro 5', sans-serif;
-            /* Tambahkan sedikit glow di dark mode, hilang di light mode */
-            text-shadow: 0 0 15px rgba(255, 255, 255, 0.4); 
-        }
-        .light .font-micro5 {
-             text-shadow: none;
+            text-shadow: none; /* Hapus glow */
         }
 
         /* Loading Spinner Animation */
@@ -64,29 +57,21 @@
             animation: spin 1s linear infinite;
         }
 
-        /* Scrollbar styles (adjust based on dark/light mode) */
+        /* Scrollbar styles for Light Mode */
         .custom-scrollbar::-webkit-scrollbar {
             width: 6px;
         }
         .custom-scrollbar::-webkit-scrollbar-track {
             background: transparent;
         }
-        .dark .custom-scrollbar::-webkit-scrollbar-thumb {
-            background-color: #3f3f46;
-            border-radius: 20px;
-        }
-        .dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-            background-color: #52525b;
-        }
-        .light .custom-scrollbar::-webkit-scrollbar-thumb {
+        .custom-scrollbar::-webkit-scrollbar-thumb {
             background-color: #9ca3af;
             border-radius: 20px;
         }
-        .light .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
             background-color: #6b7280;
         }
 
-        /* Default is Dark Mode (for elements not covered by dark: utility) */
         .bento-card {
             display: flex;
             flex-direction: column;
@@ -94,8 +79,8 @@
         
     </style>
 </head>
-<!-- Perbaikan: Menghapus kelas warna statis agar hanya mengandalkan prefix dark/light yang diaktifkan oleh JS -->
-<body class="font-sans min-h-screen flex items-center justify-center p-4 sm:p-8 transition-colors duration-500 dark:bg-dark-bg dark:text-zinc-100 light:bg-light-bg light:text-light-text">
+<!-- Terapkan kelas Light Mode sebagai default -->
+<body class="font-sans min-h-screen flex items-center justify-center p-4 sm:p-8 transition-colors duration-500 bg-light-bg text-light-text">
 
     <!-- Main Grid Container: Ditingkatkan agar item baru muat -->
     <div class="w-full max-w-6xl grid grid-cols-1 md:grid-cols-3 gap-4 auto-rows-[minmax(180px,auto)]">
@@ -107,10 +92,10 @@
                 
                 <!-- Minimal Clock (Left/Center) -->
                 <div class="md:w-1/2 flex flex-col items-center sm:items-start justify-center pl-4 md:pl-0 w-full md:w-1/2"> 
-                    <div id="current-time" class="text-huge sm:text-colossal font-extrabold font-micro5 tracking-tight transition-opacity duration-300 leading-none dark:text-white light:text-light-text">
+                    <div id="current-time" class="text-huge sm:text-colossal font-extrabold font-micro5 tracking-tight transition-opacity duration-300 leading-none text-light-text">
                         --:--
                     </div>
-                    <div id="current-day" class="text-xs mt-[-1.5rem] sm:mt-[-3rem] dark:text-zinc-400 light:text-light-subtext">
+                    <div id="current-day" class="text-xs mt-[-1.5rem] sm:mt-[-3rem] text-light-subtext">
                         --
                     </div>
                 </div>
@@ -124,23 +109,21 @@
         </div>
         
         <!-- 2. DAILY TRACKER (Fitur Utama: 2x2) -->
-        <div class="bento-card md:col-span-2 md:row-span-2 rounded-3xl p-6 shadow-xl overflow-hidden transition-colors duration-500 dark:bg-dark-card dark:border-dark-border light:bg-light-card light:border-light-border">
+        <div class="bento-card md:col-span-2 md:row-span-2 rounded-3xl p-6 shadow-xl overflow-hidden transition-colors duration-500 bg-light-card border-light-border">
             
             <div class="flex flex-col h-full overflow-hidden">
                 
-                <!-- Date Navigation BARU (Termasuk Tombol Sync Cloud dan Mode Switch) -->
+                <!-- Date Navigation BARU (Termasuk Tombol Sync Cloud) -->
                 <div class="flex items-center justify-between mb-4 p-3 rounded-2xl backdrop-blur-sm transition-colors duration-500 
-                    dark:bg-zinc-800/50 dark:border-zinc-700/30 
-                    light:bg-gray-100/70 light:border-gray-300/50">
+                    bg-gray-100/70 border-gray-300/50">
                     
                     <button id="prev-date-btn" class="p-2 rounded-xl transition-colors duration-300 
-                        dark:text-zinc-400 dark:hover:bg-zinc-700 dark:hover:text-white 
-                        light:text-gray-600 light:hover:bg-gray-200">
+                        text-gray-600 hover:bg-gray-200">
                         <i data-lucide="chevron-left" width="20" height="20"></i>
                     </button>
                     
-                    <div class="text-center flex-1 dark:text-zinc-100 light:text-light-text">
-                        <div id="date-label" class="text-xs font-semibold uppercase tracking-widest dark:text-zinc-500 light:text-light-subtext">
+                    <div class="text-center flex-1 text-light-text">
+                        <div id="date-label" class="text-xs font-semibold uppercase tracking-widest text-light-subtext">
                             Hari Ini
                         </div>
                         <div id="date-display" class="font-medium text-lg sm:text-xl">
@@ -148,26 +131,16 @@
                         </div>
                     </div>
 
-                    <!-- Tombol Mode Switch -->
-                    <button id="mode-switch-btn" class="p-2 ml-2 rounded-xl transition-all duration-300 
-                        dark:text-zinc-400 dark:hover:bg-zinc-700 dark:hover:text-white 
-                        light:text-light-subtext light:hover:text-light-text light:hover:bg-gray-200" title="Ganti Mode UI">
-                        <span id="mode-icon-container"><i data-lucide="sun" width="16" height="16"></i></span> 
-                    </button>
-
                     <!-- Tombol Sync Cloud -->
                     <button id="sync-btn" class="p-2 hover:text-blue-400 rounded-xl transition-all flex items-center gap-1 group 
-                        dark:hover:bg-zinc-700 
-                        light:hover:bg-gray-200" title="Sinkronisasi ke Google Sheet">
+                        hover:bg-gray-200" title="Sinkronisasi ke Google Sheet">
                         <span id="sync-text" class="text-[10px] font-semibold uppercase tracking-wider hidden sm:inline 
-                            dark:group-hover:text-blue-400 
-                            light:text-light-subtext light:group-hover:text-light-accent">Sync Cloud</span>
-                        <i data-lucide="cloud-upload" width="16" height="16" class="dark:text-zinc-400 light:text-light-subtext"></i>
+                            text-light-subtext group-hover:text-light-accent">Sync Cloud</span>
+                        <i data-lucide="cloud-upload" width="16" height="16" class="text-light-subtext"></i>
                     </button>
                     
                     <button id="next-date-btn" class="p-2 rounded-xl transition-colors duration-300 
-                        dark:text-zinc-400 dark:hover:bg-zinc-700 dark:hover:text-white 
-                        light:text-gray-600 light:hover:bg-gray-200">
+                        text-gray-600 hover:bg-gray-200">
                         <i data-lucide="chevron-right" width="20" height="20"></i>
                     </button>
 
@@ -176,27 +149,25 @@
 
                 <!-- Progress Bar -->
                 <div class="mb-4">
-                    <div class="flex justify-between text-xs mb-2 dark:text-zinc-400 light:text-light-subtext">
+                    <div class="flex justify-between text-xs mb-2 text-light-subtext">
                         <span>Progres Harian</span>
                         <span id="progress-text">0%</span>
                     </div>
-                    <div class="h-2 rounded-full overflow-hidden dark:bg-zinc-800 light:bg-gray-200">
-                        <div id="progress-bar" class="h-full transition-all duration-500 ease-out dark:bg-emerald-500 light:bg-light-primary" style="width: 0%"></div>
+                    <div class="h-2 rounded-full overflow-hidden bg-gray-200">
+                        <div id="progress-bar" class="h-full transition-all duration-500 ease-out bg-light-primary" style="width: 0%"></div>
                     </div>
                 </div>
 
                 <!-- Input Task Baru -->
                 <form id="task-form" class="mb-4 flex flex-col gap-2 p-3 rounded-xl border transition-colors duration-500 
-                    dark:bg-zinc-800/30 dark:border-zinc-700/30 
-                    light:bg-gray-100/70 light:border-gray-300/50">
+                    bg-gray-100/70 border-gray-300/50">
                     <div class="relative">
                         <input
                             type="text"
                             id="task-input"
                             placeholder="Judul tugas..."
-                            class="w-full rounded-lg py-2 pl-3 pr-10 focus:outline-none focus:bg-zinc-800 transition-all text-sm 
-                                dark:bg-zinc-800/50 dark:border-zinc-700/50 dark:focus:border-emerald-500/50 dark:focus:bg-zinc-800 dark:text-zinc-200 dark:placeholder:text-zinc-600
-                                light:bg-white/70 light:border-gray-300 light:focus:border-light-primary light:focus:bg-white light:text-light-text light:placeholder:text-gray-400
+                            class="w-full rounded-lg py-2 pl-3 pr-10 focus:outline-none transition-all text-sm 
+                                bg-white/70 border-gray-300 focus:border-light-primary focus:bg-white text-light-text placeholder:text-gray-400
                             "
                             autocomplete="off"
                         />
@@ -206,8 +177,7 @@
                         rows="1"
                         placeholder="Deskripsi tambahan (opsional)..."
                         class="w-full rounded-lg py-2 px-3 focus:outline-none transition-all text-xs resize-none
-                                dark:bg-zinc-800/50 dark:border-zinc-700/50 dark:focus:border-emerald-500/50 dark:focus:bg-zinc-800 dark:text-zinc-300 dark:placeholder:text-zinc-600
-                                light:bg-white/70 light:border-gray-300 light:focus:border-light-primary light:focus:bg-white light:text-light-text light:placeholder:text-gray-400
+                                bg-white/70 border-gray-300 focus:border-light-primary focus:bg-white text-light-text placeholder:text-gray-400
                             "
                     ></textarea>
                     
@@ -215,7 +185,7 @@
                         type="submit"
                         id="add-task-btn"
                         disabled
-                        class="self-end flex items-center gap-2 px-4 py-1.5 rounded-lg text-white text-xs font-medium transition-all dark:bg-emerald-600 dark:hover:bg-emerald-500 light:bg-light-primary light:hover:bg-emerald-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                        class="self-end flex items-center gap-2 px-4 py-1.5 rounded-lg text-white text-xs font-medium transition-all bg-light-primary hover:bg-emerald-600 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         <i data-lucide="plus" width="14" height="14"></i>
                         <span>Tambah</span>
@@ -228,8 +198,8 @@
                 </div>
 
                 <!-- Empty State Template -->
-                <div id="empty-state" class="hidden h-full flex flex-col items-center justify-center space-y-2 min-h-[80px] dark:text-zinc-600 light:text-gray-400">
-                    <div class="w-10 h-10 rounded-full dark:bg-zinc-800/50 light:bg-gray-200/50 flex items-center justify-center">
+                <div id="empty-state" class="hidden h-full flex flex-col items-center justify-center space-y-2 min-h-[80px] text-gray-400">
+                    <div class="w-10 h-10 rounded-full bg-gray-200/50 flex items-center justify-center">
                         <i data-lucide="activity" class="opacity-50" width="18" height="18"></i>
                     </div>
                     <p class="text-xs">Belum ada target untuk hari ini.</p>
@@ -240,23 +210,21 @@
 
         <!-- 3. NOTES (Catatan Cepat: 1x2) -->
         <div class="bento-card md:col-span-1 md:row-span-2 rounded-3xl p-6 shadow-xl overflow-hidden transition-colors duration-500 
-            dark:bg-amber-900/10 dark:border-amber-900/20 
-            light:bg-yellow-100/50 light:border-yellow-300/50">
-            <div class="flex items-center justify-between mb-4 dark:text-zinc-400 light:text-light-subtext">
+            bg-yellow-100/50 border-yellow-300/50">
+            <div class="flex items-center justify-between mb-4 text-light-subtext">
                 <div class="flex items-center gap-2">
                     <i data-lucide="sticky-note" width="18" height="18"></i>
                     <h3 class="text-xs font-bold uppercase tracking-wider">Catatan Cepat</h3>
                 </div>
                 <button id="sync-note-btn" class="p-1 hover:text-blue-400 rounded-lg transition-all flex items-center group" title="Sinkronisasi Catatan ke Google Sheet">
-                    <i data-lucide="cloud-upload" width="16" height="16" class="dark:text-zinc-400 light:text-light-subtext group-hover:dark:text-blue-400 group-hover:light:text-light-accent"></i>
+                    <i data-lucide="cloud-upload" width="16" height="16" class="text-light-subtext group-hover:text-light-accent"></i>
                 </button>
             </div>
             <textarea
                 id="note-input"
                 placeholder="Tulis ide atau catatan di sini..."
                 class="flex-1 w-full h-full bg-transparent resize-none focus:outline-none text-sm leading-relaxed custom-scrollbar 
-                    dark:text-zinc-300 dark:placeholder:text-zinc-600 
-                    light:text-light-text light:placeholder:text-gray-400"
+                    text-light-text placeholder:text-gray-400"
             ></textarea>
         </div>
 
@@ -265,37 +233,35 @@
     <!-- --- MODAL / POPUP DESKRIPSI --- -->
     <div id="task-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
         <!-- Backdrop -->
-        <div id="modal-backdrop" class="absolute inset-0 backdrop-blur-sm transition-opacity opacity-0 dark:bg-black/80 light:bg-gray-900/80"></div>
+        <div id="modal-backdrop" class="absolute inset-0 backdrop-blur-sm transition-opacity opacity-0 bg-gray-900/80"></div>
         
         <!-- Modal Content -->
         <div id="modal-content" class="relative border rounded-2xl max-w-md w-full p-6 shadow-2xl transform scale-95 transition-all opacity-0 flex flex-col max-h-[80vh] 
-            dark:bg-zinc-900 dark:border-zinc-700 
-            light:bg-light-card light:border-light-border">
+            bg-light-card border-light-border">
             
             <!-- Close Button -->
             <button id="close-modal-btn" class="absolute top-4 right-4 p-1 rounded-lg transition-all 
-                dark:text-zinc-500 dark:hover:text-zinc-100 dark:hover:bg-zinc-800 
-                light:text-gray-500 light:hover:text-gray-900 light:hover:bg-gray-100">
+                text-gray-500 hover:text-gray-900 hover:bg-gray-100">
                 <i data-lucide="x" width="20" height="20"></i>
             </button>
 
             <!-- Modal Header -->
             <div class="mb-4 pr-8">
-                <h3 id="modal-title" class="text-xl font-bold leading-snug break-words dark:text-white light:text-light-text">Judul Tugas</h3>
-                <div class="text-xs mt-1 font-mono dark:text-zinc-500 light:text-light-subtext" id="modal-date">Tanggal</div>
+                <h3 id="modal-title" class="text-xl font-bold leading-snug break-words text-light-text">Judul Tugas</h3>
+                <div class="text-xs mt-1 font-mono text-light-subtext" id="modal-date">Tanggal</div>
             </div>
 
             <!-- Divider -->
-            <div class="h-px w-full mb-4 dark:bg-zinc-800 light:bg-gray-300"></div>
+            <div class="h-px w-full mb-4 bg-gray-300"></div>
 
             <!-- Modal Body (Scrollable) -->
             <div class="flex-1 overflow-y-auto custom-scrollbar pr-2">
-                <div id="modal-desc" class="text-sm leading-relaxed whitespace-pre-wrap break-words dark:text-zinc-300 light:text-light-text">
+                <div id="modal-desc" class="text-sm leading-relaxed whitespace-pre-wrap break-words text-light-text">
                     <!-- Deskripsi akan muncul di sini -->
                 </div>
                 
                 <!-- Placeholder jika kosong -->
-                <div id="modal-no-desc" class="hidden flex flex-col items-center justify-center py-8 dark:text-zinc-600 light:text-gray-400">
+                <div id="modal-no-desc" class="hidden flex flex-col items-center justify-center py-8 text-gray-400">
                     <i data-lucide="align-left" width="24" height="24" class="mb-2 opacity-50"></i>
                     <span class="text-xs italic">Tidak ada deskripsi tambahan.</span>
                 </div>
@@ -340,9 +306,9 @@
         const currentDayEl = document.getElementById('current-day');
         const calendarContainerEl = document.getElementById('calendar-wrapper'); 
 
-        // Mode Switch Elements
-        const modeSwitchBtn = document.getElementById('mode-switch-btn');
-        const modeIconContainerEl = document.getElementById('mode-icon-container');
+        // Mode Switch Elements - DIHAPUS
+        // const modeSwitchBtn = document.getElementById('mode-switch-btn');
+        // const modeIconContainerEl = document.getElementById('mode-icon-container');
 
         // Modal Elements
         const taskModal = document.getElementById('task-modal');
@@ -354,56 +320,11 @@
         const modalDesc = document.getElementById('modal-desc');
         const modalNoDesc = document.getElementById('modal-no-desc');
 
-        // --- UI MODE LOGIC (Fixed for stable icon switching) ---
-
+        // --- UI MODE LOGIC (Sekarang hanya Light Mode) ---
         const initializeUIMode = () => {
-            const savedMode = localStorage.getItem('uiMode') || 'dark';
-            // Set initial mode to ensure correct icons are loaded first time
-            setUIMode(savedMode, false); // Don't save to localStorage again on init
-        };
-
-        const setUIMode = (mode, saveToStorage = true) => {
-            if (mode === 'dark') {
-                bodyEl.classList.add('dark');
-                bodyEl.classList.remove('light');
-                // Tambahkan kelas dark: yang mungkin terhapus
-                bodyEl.classList.add('dark:bg-dark-bg', 'dark:text-zinc-100');
-                bodyEl.classList.remove('light:bg-light-bg', 'light:text-light-text');
-                updateModeIcon('sun'); 
-            } else {
-                bodyEl.classList.add('light');
-                bodyEl.classList.remove('dark');
-                // Tambahkan kelas light: yang mungkin terhapus
-                bodyEl.classList.add('light:bg-light-bg', 'light:text-light-text');
-                bodyEl.classList.remove('dark:bg-dark-bg', 'dark:text-zinc-100');
-                updateModeIcon('moon'); 
-            }
-            if (saveToStorage) {
-                localStorage.setItem('uiMode', mode);
-            }
-            
-            // Perlu dipanggil ulang karena warna dihitung dalam JS berdasarkan mode body
-            renderCalendar(currentCalendarDate);
-            renderTasks();
-        };
-
-        const updateModeIcon = (iconName) => {
-            modeIconContainerEl.innerHTML = ''; 
-
-            const newIconTemplate = document.createElement('i');
-            newIconTemplate.setAttribute('data-lucide', iconName);
-            newIconTemplate.setAttribute('width', '16');
-            newIconTemplate.setAttribute('height', '16');
-            
-            modeIconContainerEl.appendChild(newIconTemplate);
-            
-            lucide.createIcons();
-        }
-
-        const toggleUIMode = () => {
-            const currentMode = bodyEl.classList.contains('dark') ? 'dark' : 'light';
-            const newMode = currentMode === 'dark' ? 'light' : 'dark';
-            setUIMode(newMode);
+            // Hapus semua logika mode UI, paksa ke Light Mode
+            bodyEl.classList.remove('dark');
+            bodyEl.classList.add('light'); // Hanya untuk referensi di JS rendering
         };
 
         // --- HELPERS ---
@@ -463,12 +384,11 @@
             const today = new Date();
             const todayKey = getDateKey(today);
             
-            // --- Color Logic for Calendar ---
-            const isDarkMode = bodyEl.classList.contains('dark');
-            const primaryColor = isDarkMode ? 'bg-indigo-500' : 'bg-light-accent';
-            const hoverColor = isDarkMode ? 'hover:bg-zinc-700/50' : 'hover:bg-gray-200';
-            const textColor = isDarkMode ? 'text-zinc-300' : 'text-light-text';
-            const ringColor = isDarkMode ? 'ring-indigo-300' : 'ring-light-accent/50';
+            // --- Color Logic (Fixed to Light Mode) ---
+            const primaryColor = 'bg-light-accent';
+            const hoverColor = 'hover:bg-gray-200';
+            const textColor = 'text-light-text';
+            const ringColor = 'ring-light-accent/50';
 
             const firstDayOfMonth = new Date(year, month, 1).getDay();
             const daysInMonth = new Date(year, month + 1, 0).getDate();
@@ -480,11 +400,11 @@
                     
                     <!-- Navigasi Bulan -->
                     <div class="flex items-center justify-between font-semibold text-xs mb-1">
-                        <button onclick="changeCalendarMonth(-1)" class="p-0.5 rounded-lg transition-colors text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-white light:text-gray-600 light:hover:bg-gray-200">
+                        <button onclick="changeCalendarMonth(-1)" class="p-0.5 rounded-lg transition-colors text-gray-600 hover:bg-gray-200">
                             <i data-lucide="chevron-left" width="14" height="14"></i>
                         </button>
-                        <span class="dark:text-white light:text-light-text">${monthName}</span>
-                        <button onclick="changeCalendarMonth(1)" class="p-0.5 rounded-lg transition-colors text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-white light:text-gray-600 light:hover:bg-gray-200">
+                        <span class="text-light-text">${monthName}</span>
+                        <button onclick="changeCalendarMonth(1)" class="p-0.5 rounded-lg transition-colors text-gray-600 hover:bg-gray-200">
                             <i data-lucide="chevron-right" width="14" height="14"></i>
                         </button>
                     </div>
@@ -492,7 +412,7 @@
                     <!-- Nama Hari -->
                     <div class="grid grid-cols-7 gap-0.5 text-[10px] font-medium text-center mb-0.5">
                         ${['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'].map(day => 
-                            `<div class="dark:text-zinc-500 light:text-gray-500">${day}</div>`
+                            `<div class="text-gray-500">${day}</div>`
                         ).join('')}
                     </div>
 
@@ -592,13 +512,16 @@
             
             taskListEl.innerHTML = '';
 
-            // --- Color Logic for Tasks ---
-            const isDarkMode = bodyEl.classList.contains('dark');
-            const primaryColor = isDarkMode ? 'text-emerald-500' : 'text-light-primary';
-            const secondaryTextColor = isDarkMode ? 'text-zinc-500' : 'text-light-subtext';
-            const mainTextColor = isDarkMode ? 'text-zinc-200' : 'text-light-text';
-            const cardBg = isDarkMode ? 'bg-zinc-800/30' : 'bg-gray-100/70';
-            const cardBorder = isDarkMode ? 'border-zinc-700/30' : 'border-gray-300/50';
+            // --- Color Logic (Fixed to Light Mode) ---
+            const primaryColor = 'text-light-primary';
+            const secondaryTextColor = 'text-light-subtext';
+            const mainTextColor = 'text-light-text';
+            
+            // Backgrounds and Borders (used for non-completed tasks)
+            const baseBg = 'bg-gray-100/70';
+            const baseBorder = 'border-gray-300/50';
+            const hoverBg = 'hover:bg-gray-200/70';
+            const hoverBorder = 'hover:border-gray-400';
 
             if (tasks.length === 0) {
                 emptyStateEl.classList.remove('hidden');
@@ -615,23 +538,32 @@
                         ? `<i data-lucide="align-left" width="14" height="14" class="${secondaryTextColor} group-hover/text:text-emerald-400 transition-colors"></i>`
                         : '';
 
-                    const completedClasses = task.completed 
-                        ? `bg-zinc-900/30 border-transparent opacity-60 dark:bg-zinc-900/30 light:bg-gray-100/50` 
-                        : `${cardBg} ${cardBorder} hover:border-zinc-600 dark:hover:bg-zinc-800/50 light:hover:bg-gray-200/70`;
+                    let divClasses = `group flex items-center gap-3 p-3 rounded-xl border transition-all duration-200`;
 
-                    const completedText = task.completed 
-                        ? `line-through ${secondaryTextColor}`
-                        : `${mainTextColor} group-hover/text:text-white dark:group-hover/text:text-white light:group-hover/text-light-text transition-colors`;
+                    let textClasses;
+                    let iconColor;
+                    
+                    if (task.completed) {
+                        // Completed state
+                        divClasses += ` bg-gray-100/50 border-transparent opacity-60`; 
+                        textClasses = `line-through ${secondaryTextColor}`;
+                        iconColor = primaryColor;
+                    } else {
+                        // Non-completed state
+                        divClasses += ` ${baseBg} ${baseBorder} ${hoverBg} ${hoverBorder}`;
+                        textClasses = `${mainTextColor} group-hover/text:text-light-text transition-colors`;
+                        iconColor = secondaryTextColor;
+                    }
 
-                    div.className = `group flex items-center gap-3 p-3 rounded-xl border transition-all duration-200 ${completedClasses}`;
+                    div.className = divClasses;
                     
                     div.innerHTML = `
-                        <button onclick="event.stopPropagation(); toggleTask(${task.id})" class="flex-shrink-0 transition-colors ${task.completed ? primaryColor : secondaryTextColor} p-1 dark:hover:text-zinc-300 light:hover:text-light-text">
+                        <button onclick="event.stopPropagation(); toggleTask(${task.id})" class="flex-shrink-0 transition-colors ${task.completed ? primaryColor : secondaryTextColor} p-1 hover:text-light-text">
                             <i data-lucide="${task.completed ? 'check-circle-2' : 'circle'}" width="20" height="20"></i>
                         </button>
                         
                         <div onclick="openModal(${task.id})" class="flex-1 min-w-0 cursor-pointer group/text flex items-center gap-2">
-                            <span class="truncate font-medium text-sm ${completedText}">
+                            <span class="truncate font-medium text-sm ${textClasses}">
                                 ${escapeHtml(task.text)}
                             </span>
                             ${descIndicator}
@@ -761,7 +693,7 @@
             syncNoteBtn.disabled = true;
             const originalHTML = syncNoteBtn.innerHTML; 
             
-            const spinnerSvg = `<svg class="animate-spin-custom dark:text-zinc-400 light:text-light-subtext" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>`;
+            const spinnerSvg = `<svg class="animate-spin-custom text-light-subtext" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>`;
             syncNoteBtn.innerHTML = spinnerSvg; 
 
             const noteContent = noteInput.value.trim();
@@ -860,7 +792,7 @@
         });
 
         syncBtn.addEventListener('click', syncToGoogleSheets);
-        modeSwitchBtn.addEventListener('click', toggleUIMode);
+        // Hapus modeSwitchBtn.addEventListener('click', toggleUIMode);
         syncNoteBtn.addEventListener('click', syncNotesToGoogleSheets); 
 
         noteInput.value = localStorage.getItem('productivity_note') || '';
