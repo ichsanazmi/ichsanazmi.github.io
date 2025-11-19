@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Produktivitas Bento</title>
+    
+    <!-- Tailwind CSS (CDN) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Lucide Icons (CDN) -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Custom Styles for Scrollbar -->
+    <style>
+        /* Custom Scrollbar */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background-color: #3f3f46;
+            border-radius: 20px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background-color: #52525b;
+        }
+
+        .bento-card {
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Loading Spinner Animation */
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .animate-spin-custom {
+            animation: spin 1s linear infinite;
+        }
+    </style>
+</head>
+<body class="bg-black text-zinc-100 font-sans min-h-screen flex items-center justify-center p-4 sm:p-8">
+
+    <!-- Main Grid Container -->
+    <div class="w-full max-w-6xl grid grid-cols-1 md:grid-cols-3 gap-4 auto-rows-[minmax(180px,auto)] md:h-[600px]">
+        
+        <!-- 1. DAILY TRACKER (Fitur Utama - Bento Paling Besar) -->
+        <div class="bento-card md:col-span-2 md:row-span-2 bg-gradient-to-br from-zinc-900 to-zinc-900/50 border border-zinc-800 rounded-3xl p-6 shadow-xl overflow-hidden">
+            <!-- Card Header dengan Tombol Sync -->
+            <div class="flex items-center justify-between mb-4 text-zinc-400">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="activity" width="18" height="18"></i>
+                    <h3 class="text-xs font-bold uppercase tracking-wider">Pelacak Harian</h3>
+                </div>
+                <button id="sync-btn" class="hover:text-blue-400 hover:bg-zinc-800 p-1.5 rounded-lg transition-all flex items-center gap-2 group" title="Sinkronisasi ke Google Sheet">
+                    <span id="sync-text" class="text-[10px] font-semibold uppercase tracking-wider hidden sm:inline group-hover:text-blue-400">Sync Cloud</span>
+                    <i id="sync-icon" data-lucide="cloud-upload" width="16" height="16"></i>
+                </button>
+            </div>
+
+            <div class="flex flex-col h-full overflow-hidden">
+                
+                <!-- Date Navigation -->
+                <div class="flex items-center justify-between mb-6 bg-zinc-800/50 p-3 rounded-2xl backdrop-blur-sm border border-zinc-700/30">
+                    <button id="prev-date-btn" class="p-2 hover:bg-zinc-700 rounded-xl transition-colors text-zinc-400 hover:text-white">
+                        <i data-lucide="chevron-left" width="20" height="20"></i>
+                    </button>
+                    
+                    <div class="text-center">
+                        <div id="date-label" class="text-xs text-zinc-500 font-semibold uppercase tracking-widest">
+                            Hari Ini
+                        </div>
+                        <div id="date-display" class="font-medium text-lg sm:text-xl">
+                            -
+                        </div>
+                    </div>
+
+                    <button id="next-date-btn" class="p-2 hover:bg-zinc-700 rounded-xl transition-colors text-zinc-400 hover:text-white">
+                        <i data-lucide="chevron-right" width="20" height="20"></i>
+                    </button>
+                </div>
+
+                <!-- Progress Bar -->
+                <div class="mb-6">
+                    <div class="flex justify-between text-xs mb-2 text-zinc-400">
+                        <span>Progres Harian</span>
+                        <span id="progress-text">0%</span>
+                    </div>
+                    <div class="h-2 bg-zinc-800 rounded-full overflow-hidden">
+                        <div id="progress-bar" class="h-full bg-emerald-500 transition-all duration-500 ease-out" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <!-- Input Task -->
+                <form id="task-form" class="mb-4 relative group">
+                    <input
+                        type="text"
+                        id="task-input"
+                        placeholder="Tambahkan target hari ini..."
+                        class="w-full bg-zinc-800/50 border border-zinc-700/50 rounded-xl py-3 pl-4 pr-12 focus:outline-none focus:border-emerald-500/50 focus:bg-zinc-800 transition-all placeholder:text-zinc-600 text-zinc-200"
+                        autocomplete="off"
+                    />
+                    <button 
+                        type="submit"
+                        id="add-task-btn"
+                        disabled
+                        class="absolute right-2 top-2 p-1.5 bg-emerald-600 rounded-lg text-white hover:bg-emerald-500 disabled:opacity-0 disabled:scale-90 transition-all"
+                    >
+                        <i data-lucide="plus" width="18" height="18"></i>
+                    </button>
+                </form>
+
+                <!-- Task List Container -->
+                <div id="task-list" class="flex-1 overflow-y-auto pr-2 space-y-2 custom-scrollbar">
+                    <!-- Tasks will be injected here via JS -->
+                </div>
+
+                <!-- Empty State Template (Hidden by default) -->
+                <div id="empty-state" class="hidden h-full flex flex-col items-center justify-center text-zinc-600 space-y-2 min-h-[100px]">
+                    <div class="w-12 h-12 rounded-full bg-zinc-800/50 flex items-center justify-center">
+                        <i data-lucide="activity" class="opacity-50" width="20" height="20"></i>
+                    </div>
+                    <p class="text-sm">Belum ada target untuk hari ini.</p>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- 2. NOTES (Catatan Cepat) -->
+        <div class="bento-card md:col-span-1 md:row-span-1 bg-amber-900/10 border border-amber-900/20 rounded-3xl p-6 shadow-xl overflow-hidden">
+            <div class="flex items-center gap-2 mb-4 text-zinc-400">
+                <i data-lucide="sticky-note" width="18" height="18"></i>
+                <h3 class="text-xs font-bold uppercase tracking-wider">Catatan Cepat</h3>
+            </div>
+            <textarea
+                id="note-input"
+                placeholder="Tulis ide atau catatan di sini..."
+                class="flex-1 w-full bg-transparent resize-none focus:outline-none text-zinc-300 placeholder:text-zinc-600 text-sm leading-relaxed custom-scrollbar"
+            ></textarea>
+        </div>
+
+        <!-- 3. EMPTY SLOT (Placeholder) -->
+        <div class="bento-card md:col-span-1 md:row-span-1 bg-zinc-900/30 border border-dashed border-zinc-800 rounded-3xl p-6 shadow-xl overflow-hidden">
+            <div class="flex items-center gap-2 mb-4 text-zinc-400">
+                <i data-lucide="construction" width="18" height="18"></i>
+                <h3 class="text-xs font-bold uppercase tracking-wider">Coming Soon</h3>
+            </div>
+            <div class="h-full flex flex-col items-center justify-center text-zinc-700 text-center pb-8">
+                <div class="w-16 h-16 rounded-2xl bg-zinc-800/30 flex items-center justify-center mb-3 animate-pulse">
+                    <i data-lucide="plus" width="24" height="24"></i>
+                </div>
+                <p class="text-sm font-medium">Slot Kosong</p>
+                <p class="text-xs mt-1 max-w-[150px]">Area ini siap untuk fitur produktivitas baru Anda.</p>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // ==========================================
+        // KONFIGURASI GOOGLE SHEETS
+        // Ganti URL di bawah ini dengan URL Web App Script Anda
+        // Contoh: "https://script.google.com/macros/s/AKfycbx.../exec"
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz8y5ena3plYJoXwotwT-NakjvI23JB6y59Qo0R4jpV8JOj4tWEDIpKQJSvX1I2tII4/exec"; 
+        // ==========================================
+
+        // --- STATE MANAGEMENT ---
+        let currentDate = new Date();
+        let allTasks = JSON.parse(localStorage.getItem('productivity_tasks')) || {};
+        
+        // --- DOM ELEMENTS ---
+        const dateDisplay = document.getElementById('date-display');
+        const dateLabel = document.getElementById('date-label');
+        const taskListEl = document.getElementById('task-list');
+        const emptyStateEl = document.getElementById('empty-state');
+        const progressBar = document.getElementById('progress-bar');
+        const progressText = document.getElementById('progress-text');
+        const taskForm = document.getElementById('task-form');
+        const taskInput = document.getElementById('task-input');
+        const addTaskBtn = document.getElementById('add-task-btn');
+        const noteInput = document.getElementById('note-input');
+        const prevDateBtn = document.getElementById('prev-date-btn');
+        const nextDateBtn = document.getElementById('next-date-btn');
+        const syncBtn = document.getElementById('sync-btn'); 
+        const syncText = document.getElementById('sync-text');
+        const syncIcon = document.getElementById('sync-icon');
+
+        // --- HELPERS ---
+        const getDateKey = (date) => date.toISOString().split('T')[0];
+
+        const formatDateDisplay = (date) => {
+            return new Intl.DateTimeFormat('id-ID', { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            }).format(date);
+        };
+
+        const saveTasks = () => {
+            localStorage.setItem('productivity_tasks', JSON.stringify(allTasks));
+            renderTasks();
+            updateProgress();
+        };
+
+        // --- RENDERING FUNCTIONS ---
+        const renderDateHeader = () => {
+            const todayKey = getDateKey(new Date());
+            const currentKey = getDateKey(currentDate);
+            
+            dateLabel.textContent = currentKey === todayKey ? 'Hari Ini' : 'Tanggal';
+            dateDisplay.textContent = formatDateDisplay(currentDate);
+        };
+
+        const renderTasks = () => {
+            const key = getDateKey(currentDate);
+            const tasks = allTasks[key] || [];
+            
+            taskListEl.innerHTML = '';
+
+            if (tasks.length === 0) {
+                emptyStateEl.classList.remove('hidden');
+                taskListEl.classList.add('hidden');
+            } else {
+                emptyStateEl.classList.add('hidden');
+                taskListEl.classList.remove('hidden');
+
+                tasks.forEach(task => {
+                    const div = document.createElement('div');
+                    div.className = `group flex items-center gap-3 p-3 rounded-xl border transition-all duration-200 ${
+                        task.completed 
+                            ? 'bg-zinc-900/30 border-transparent opacity-60' 
+                            : 'bg-zinc-800/30 border-zinc-700/30 hover:border-zinc-600'
+                    }`;
+                    
+                    div.innerHTML = `
+                        <button onclick="toggleTask(${task.id})" class="flex-shrink-0 transition-colors ${task.completed ? 'text-emerald-500' : 'text-zinc-500 hover:text-zinc-300'}">
+                            <i data-lucide="${task.completed ? 'check-circle-2' : 'circle'}" width="22" height="22"></i>
+                        </button>
+                        
+                        <span class="flex-1 text-sm sm:text-base ${task.completed ? 'line-through text-zinc-500' : 'text-zinc-200'}">
+                            ${escapeHtml(task.text)}
+                        </span>
+
+                        <button onclick="deleteTask(${task.id})" class="opacity-0 group-hover:opacity-100 text-rose-500/70 hover:text-rose-500 p-1 transition-all" title="Hapus">
+                            <i data-lucide="trash-2" width="16" height="16"></i>
+                        </button>
+                    `;
+                    taskListEl.appendChild(div);
+                });
+            }
+            
+            lucide.createIcons();
+        };
+
+        const updateProgress = () => {
+            const key = getDateKey(currentDate);
+            const tasks = allTasks[key] || [];
+            
+            if (tasks.length === 0) {
+                progressBar.style.width = '0%';
+                progressText.textContent = '0%';
+                return;
+            }
+
+            const completedCount = tasks.filter(t => t.completed).length;
+            const percentage = Math.round((completedCount / tasks.length) * 100);
+            
+            progressBar.style.width = `${percentage}%`;
+            progressText.textContent = `${percentage}%`;
+        };
+
+        // --- GOOGLE SHEETS SYNC LOGIC ---
+        const syncToGoogleSheets = async () => {
+            if (GOOGLE_SCRIPT_URL.includes("https://script.google.com/macros/s/AKfycbz8y5ena3plYJoXwotwT-NakjvI23JB6y59Qo0R4jpV8JOj4tWEDIpKQJSvX1I2tII4/exec")) {
+                alert("Harap masukkan URL Google Apps Script Anda di dalam kode HTML (Variabel GOOGLE_SCRIPT_URL) terlebih dahulu.");
+                return;
+            }
+
+            // UI Loading State
+            const originalIcon = syncIcon.getAttribute('data-lucide');
+            const originalText = syncText.innerText;
+            
+            syncBtn.disabled = true;
+            syncText.innerText = "Menyimpan...";
+            
+            // Replace icon with spinner manually since lucide icons are replaced on load
+            const spinnerSvg = `<svg class="animate-spin-custom" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>`;
+            syncIcon.parentElement.innerHTML = `
+                <span id="sync-text" class="text-[10px] font-semibold uppercase tracking-wider hidden sm:inline group-hover:text-blue-400">Menyimpan...</span>
+                ${spinnerSvg}
+            `;
+
+            // 1. Prepare Data Payload
+            // Kita ubah struktur data agar mudah dibaca di Sheet: Array linear
+            const payloadTasks = [];
+            const dates = Object.keys(allTasks).sort();
+            
+            dates.forEach(date => {
+                const tasks = allTasks[date];
+                if (tasks && tasks.length > 0) {
+                    tasks.forEach(task => {
+                        payloadTasks.push({
+                            date: date,
+                            status: task.completed ? "Selesai" : "Belum",
+                            text: task.text
+                        });
+                    });
+                }
+            });
+
+            const payload = {
+                timestamp: new Date().toISOString(),
+                tasks: payloadTasks
+            };
+
+            // 2. Send to Google Apps Script
+            try {
+                // Gunakan 'no-cors' untuk menghindari error browser standar jika Script di set 'Anyone',
+                // tapi idealnya 'method: POST' dan body stringify.
+                await fetch(GOOGLE_SCRIPT_URL, {
+                    method: "POST",
+                    mode: "no-cors", // Penting agar tidak error CORS di browser
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(payload),
+                });
+
+                // Karena mode no-cors, kita asumsikan sukses jika tidak throw error
+                alert("Sukses! Data telah disinkronisasi ke Google Spreadsheet.");
+
+            } catch (error) {
+                console.error("Error Syncing:", error);
+                alert("Gagal sinkronisasi. Cek Console Log.");
+            } finally {
+                // Reset UI
+                location.reload(); // Reload simple untuk refresh UI icon, atau reset manual:
+            }
+        };
+
+        // --- EVENT HANDLERS ---
+
+        taskInput.addEventListener('input', (e) => {
+            const hasValue = e.target.value.trim().length > 0;
+            addTaskBtn.disabled = !hasValue;
+        });
+
+        taskForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const text = taskInput.value.trim();
+            if (!text) return;
+
+            const key = getDateKey(currentDate);
+            if (!allTasks[key]) allTasks[key] = [];
+
+            allTasks[key].push({
+                id: Date.now(),
+                text: text,
+                completed: false
+            });
+
+            taskInput.value = '';
+            addTaskBtn.disabled = true;
+            saveTasks();
+        });
+
+        window.toggleTask = (id) => {
+            const key = getDateKey(currentDate);
+            if (!allTasks[key]) return;
+
+            allTasks[key] = allTasks[key].map(t => 
+                t.id === id ? { ...t, completed: !t.completed } : t
+            );
+            saveTasks();
+        };
+
+        window.deleteTask = (id) => {
+            const key = getDateKey(currentDate);
+            if (!allTasks[key]) return;
+
+            allTasks[key] = allTasks[key].filter(t => t.id !== id);
+            saveTasks();
+        };
+
+        prevDateBtn.addEventListener('click', () => {
+            currentDate.setDate(currentDate.getDate() - 1);
+            updateAll();
+        });
+
+        nextDateBtn.addEventListener('click', () => {
+            currentDate.setDate(currentDate.getDate() + 1);
+            updateAll();
+        });
+
+        // Listener untuk tombol Sync
+        syncBtn.addEventListener('click', syncToGoogleSheets);
+
+        noteInput.value = localStorage.getItem('productivity_note') || '';
+        noteInput.addEventListener('input', (e) => {
+            localStorage.setItem('productivity_note', e.target.value);
+        });
+
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+        }
+
+        function updateAll() {
+            renderDateHeader();
+            renderTasks();
+            updateProgress();
+        }
+
+        updateAll();
+        lucide.createIcons();
+
+    </script>
+</body>
+</html>
