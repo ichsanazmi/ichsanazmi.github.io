@@ -228,6 +228,8 @@
             ></textarea>
         </div>
 
+        <!-- 4. YEAR PROGRESS (DIHAPUS) -->
+
     </div>
 
     <!-- --- MODAL / POPUP DESKRIPSI --- -->
@@ -299,16 +301,16 @@
         const prevDateBtn = document.getElementById('prev-date-btn');
         const nextDateBtn = document.getElementById('next-date-btn');
         const syncBtn = document.getElementById('sync-btn'); 
-        const syncNoteBtn = document.getElementById('sync-note-btn'); // New Note Sync Button
+        const syncNoteBtn = document.getElementById('sync-note-btn'); 
         
         // Clock & Calendar Elements
         const currentTimeEl = document.getElementById('current-time');
         const currentDayEl = document.getElementById('current-day');
         const calendarContainerEl = document.getElementById('calendar-wrapper'); 
 
-        // Mode Switch Elements - DIHAPUS
-        // const modeSwitchBtn = document.getElementById('mode-switch-btn');
-        // const modeIconContainerEl = document.getElementById('mode-icon-container');
+        // Year Progress Element (DIHAPUS)
+        // const yearProgressContainerEl = document.getElementById('year-progress-container');
+
 
         // Modal Elements
         const taskModal = document.getElementById('task-modal');
@@ -350,6 +352,10 @@
             updateProgress();
         };
 
+        // --- YEAR PROGRESS LOGIC (DIHAPUS) ---
+        // Hapus fungsi getYearProgress
+        // Hapus fungsi renderYearProgress
+
         // --- CLOCK & CALENDAR LOGIC ---
         let lastRenderedCalendarDay = null; 
 
@@ -371,6 +377,9 @@
                 }
                 lastRenderedCalendarDay = todayKey;
             }
+            
+            // Hapus: Update year progress
+            // renderYearProgress();
         };
 
         const changeCalendarMonth = (offset) => {
@@ -792,7 +801,6 @@
         });
 
         syncBtn.addEventListener('click', syncToGoogleSheets);
-        // Hapus modeSwitchBtn.addEventListener('click', toggleUIMode);
         syncNoteBtn.addEventListener('click', syncNotesToGoogleSheets); 
 
         noteInput.value = localStorage.getItem('productivity_note') || '';
@@ -817,6 +825,7 @@
             renderTasks();
             updateProgress();
             renderCalendar(currentCalendarDate);
+            // Hapus: renderYearProgress();
         }
 
         initializeUIMode();
