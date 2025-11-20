@@ -17,16 +17,14 @@
     <!-- Custom Styles and Tailwind Configuration -->
     <script>
         tailwind.config = {
-            // Hapus: darkMode: 'class',
             theme: {
                 extend: {
                     colors: {
-                        // Hanya definisikan skema Light Mode
                         'light-bg': '#f3f4f6',
                         'light-card': '#ffffff',
                         'light-border': '#e5e7eb',
-                        'light-text': '#1f2937', // dark gray for main text
-                        'light-subtext': '#6b7280', // muted gray for secondary text
+                        'light-text': '#1f2937', 
+                        'light-subtext': '#6b7280', 
                         'light-primary': '#10b981', // emerald
                         'light-accent': '#3b82f6', // blue
                     },
@@ -46,7 +44,7 @@
         /* Custom Font for Clock */
         .font-micro5 {
             font-family: 'Micro 5', sans-serif;
-            text-shadow: none; /* Hapus glow */
+            text-shadow: none;
         }
 
         /* Loading Spinner Animation */
@@ -79,18 +77,16 @@
         
     </style>
 </head>
-<!-- Terapkan kelas Light Mode sebagai default -->
 <body class="font-sans min-h-screen flex items-center justify-center p-4 sm:p-8 transition-colors duration-500 bg-light-bg text-light-text">
 
-    <!-- Main Grid Container: Ditingkatkan agar item baru muat -->
+    <!-- Main Grid Container -->
     <div class="w-full max-w-6xl grid grid-cols-1 md:grid-cols-3 gap-4 auto-rows-[minmax(180px,auto)]">
         
-        <!-- 1. WIDE CLOCK & CALENDAR (3x1) - MINIMALIS & TRANSPARAN -->
+        <!-- 1. WIDE CLOCK & CALENDAR (3x1) -->
         <div class="bento-card md:col-span-3 rounded-3xl p-3 overflow-hidden bg-transparent border-none shadow-none">
-            
             <div class="flex flex-col md:flex-row h-full items-start md:items-center justify-between gap-4 overflow-hidden py-0"> 
                 
-                <!-- Minimal Clock (Left/Center) -->
+                <!-- Minimal Clock -->
                 <div class="md:w-1/2 flex flex-col items-center sm:items-start justify-center pl-4 md:pl-0 w-full md:w-1/2"> 
                     <div id="current-time" class="text-huge sm:text-colossal font-extrabold font-micro5 tracking-tight transition-opacity duration-300 leading-none text-light-text">
                         --:--
@@ -100,25 +96,21 @@
                     </div>
                 </div>
 
-                <!-- Mini Calendar (Right) - TRANSPARAN & NAVIGASI -->
+                <!-- Mini Calendar -->
                 <div id="calendar-wrapper" class="hidden sm:flex md:w-1/2 justify-center md:justify-end pb-1 md:pb-0 pr-4 md:pr-0">
                     <!-- Calendar will be injected here via JS -->
                 </div>
-                
             </div>
         </div>
         
-        <!-- 2. DAILY TRACKER (Fitur Utama: 2x2) -->
+        <!-- 2. DAILY TRACKER -->
         <div class="bento-card md:col-span-2 md:row-span-2 rounded-3xl p-6 shadow-xl overflow-hidden transition-colors duration-500 bg-light-card border-light-border">
-            
             <div class="flex flex-col h-full overflow-hidden">
                 
-                <!-- Date Navigation BARU (Termasuk Tombol Sync Cloud) -->
-                <div class="flex items-center justify-between mb-4 p-3 rounded-2xl backdrop-blur-sm transition-colors duration-500 
-                    bg-gray-100/70 border-gray-300/50">
+                <!-- Date Navigation -->
+                <div class="flex items-center justify-between mb-4 p-3 rounded-2xl backdrop-blur-sm transition-colors duration-500 bg-gray-100/70 border-gray-300/50">
                     
-                    <button id="prev-date-btn" class="p-2 rounded-xl transition-colors duration-300 
-                        text-gray-600 hover:bg-gray-200">
+                    <button id="prev-date-btn" class="p-2 rounded-xl transition-colors duration-300 text-gray-600 hover:bg-gray-200">
                         <i data-lucide="chevron-left" width="20" height="20"></i>
                     </button>
                     
@@ -131,21 +123,24 @@
                         </div>
                     </div>
 
-                    <!-- Tombol Sync Cloud -->
-                    <button id="sync-btn" class="p-2 hover:text-blue-400 rounded-xl transition-all flex items-center gap-1 group 
-                        hover:bg-gray-200" title="Sinkronisasi ke Google Sheet">
-                        <span id="sync-text" class="text-[10px] font-semibold uppercase tracking-wider hidden sm:inline 
-                            text-light-subtext group-hover:text-light-accent">Sync Cloud</span>
-                        <i data-lucide="cloud-upload" width="16" height="16" class="text-light-subtext"></i>
-                    </button>
+                    <!-- Container Tombol Sync -->
+                    <div class="flex items-center gap-1 mx-2">
+                        <!-- Tombol Fetch -->
+                        <button id="fetch-btn" class="p-2 hover:text-blue-500 rounded-xl transition-all flex items-center gap-1 group hover:bg-blue-100/50 border border-transparent hover:border-blue-200" title="Ambil data dari Google Sheet (Download)">
+                            <i data-lucide="cloud-download" width="18" height="18" class="text-light-subtext group-hover:text-blue-500"></i>
+                        </button>
+
+                        <!-- Tombol Push -->
+                        <button id="push-btn" class="p-2 hover:text-emerald-500 rounded-xl transition-all flex items-center gap-1 group hover:bg-emerald-100/50 border border-transparent hover:border-emerald-200" title="Kirim data ke Google Sheet (Upload)">
+                            <i data-lucide="cloud-upload" width="18" height="18" class="text-light-subtext group-hover:text-emerald-500"></i>
+                        </button>
+                    </div>
                     
-                    <button id="next-date-btn" class="p-2 rounded-xl transition-colors duration-300 
-                        text-gray-600 hover:bg-gray-200">
+                    <button id="next-date-btn" class="p-2 rounded-xl transition-colors duration-300 text-gray-600 hover:bg-gray-200">
                         <i data-lucide="chevron-right" width="20" height="20"></i>
                     </button>
 
                 </div>
-                <!-- Akhir Date Navigation BARU -->
 
                 <!-- Progress Bar -->
                 <div class="mb-4">
@@ -158,111 +153,62 @@
                     </div>
                 </div>
 
-                <!-- Input Task Baru -->
-                <form id="task-form" class="mb-4 flex flex-col gap-2 p-3 rounded-xl border transition-colors duration-500 
-                    bg-gray-100/70 border-gray-300/50">
+                <!-- Input Task -->
+                <form id="task-form" class="mb-4 flex flex-col gap-2 p-3 rounded-xl border transition-colors duration-500 bg-gray-100/70 border-gray-300/50">
                     <div class="relative">
-                        <input
-                            type="text"
-                            id="task-input"
-                            placeholder="Judul tugas..."
-                            class="w-full rounded-lg py-2 pl-3 pr-10 focus:outline-none transition-all text-sm 
-                                bg-white/70 border-gray-300 focus:border-light-primary focus:bg-white text-light-text placeholder:text-gray-400
-                            "
-                            autocomplete="off"
-                        />
+                        <input type="text" id="task-input" placeholder="Judul tugas..." class="w-full rounded-lg py-2 pl-3 pr-10 focus:outline-none transition-all text-sm bg-white/70 border-gray-300 focus:border-light-primary focus:bg-white text-light-text placeholder:text-gray-400" autocomplete="off"/>
                     </div>
-                    <textarea
-                        id="task-desc-input"
-                        rows="1"
-                        placeholder="Deskripsi tambahan (opsional)..."
-                        class="w-full rounded-lg py-2 px-3 focus:outline-none transition-all text-xs resize-none
-                                bg-white/70 border-gray-300 focus:border-light-primary focus:bg-white text-light-text placeholder:text-gray-400
-                            "
-                    ></textarea>
+                    <textarea id="task-desc-input" rows="1" placeholder="Deskripsi tambahan (opsional)..." class="w-full rounded-lg py-2 px-3 focus:outline-none transition-all text-xs resize-none bg-white/70 border-gray-300 focus:border-light-primary focus:bg-white text-light-text placeholder:text-gray-400"></textarea>
                     
-                    <button 
-                        type="submit"
-                        id="add-task-btn"
-                        disabled
-                        class="self-end flex items-center gap-2 px-4 py-1.5 rounded-lg text-white text-xs font-medium transition-all bg-light-primary hover:bg-emerald-600 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
+                    <button type="submit" id="add-task-btn" disabled class="self-end flex items-center gap-2 px-4 py-1.5 rounded-lg text-white text-xs font-medium transition-all bg-light-primary hover:bg-emerald-600 disabled:opacity-50 disabled:cursor-not-allowed">
                         <i data-lucide="plus" width="14" height="14"></i>
                         <span>Tambah</span>
                     </button>
                 </form>
 
-                <!-- Task List Container -->
-                <div id="task-list" class="flex-1 overflow-y-auto pr-2 space-y-2 custom-scrollbar pb-2">
-                    <!-- Tasks will be injected here via JS -->
-                </div>
+                <!-- Task List -->
+                <div id="task-list" class="flex-1 overflow-y-auto pr-2 space-y-2 custom-scrollbar pb-2"></div>
 
-                <!-- Empty State Template -->
+                <!-- Empty State -->
                 <div id="empty-state" class="hidden h-full flex flex-col items-center justify-center space-y-2 min-h-[80px] text-gray-400">
                     <div class="w-10 h-10 rounded-full bg-gray-200/50 flex items-center justify-center">
                         <i data-lucide="activity" class="opacity-50" width="18" height="18"></i>
                     </div>
                     <p class="text-xs">Belum ada target untuk hari ini.</p>
                 </div>
-
             </div>
         </div>
 
-        <!-- 3. NOTES (Catatan Cepat: 1x2) -->
-        <div class="bento-card md:col-span-1 md:row-span-2 rounded-3xl p-6 shadow-xl overflow-hidden transition-colors duration-500 
-            bg-yellow-100/50 border-yellow-300/50">
+        <!-- 3. NOTES -->
+        <div class="bento-card md:col-span-1 md:row-span-2 rounded-3xl p-6 shadow-xl overflow-hidden transition-colors duration-500 bg-yellow-100/50 border-yellow-300/50">
             <div class="flex items-center justify-between mb-4 text-light-subtext">
                 <div class="flex items-center gap-2">
                     <i data-lucide="sticky-note" width="18" height="18"></i>
                     <h3 class="text-xs font-bold uppercase tracking-wider">Catatan Cepat</h3>
                 </div>
-                <button id="sync-note-btn" class="p-1 hover:text-blue-400 rounded-lg transition-all flex items-center group" title="Sinkronisasi Catatan ke Google Sheet">
-                    <i data-lucide="cloud-upload" width="16" height="16" class="text-light-subtext group-hover:text-light-accent"></i>
+                <button id="sync-note-btn" class="p-1 hover:text-yellow-600 rounded-lg transition-all flex items-center group" title="Simpan Catatan ke Google Sheet">
+                    <i data-lucide="cloud-upload" width="16" height="16" class="text-light-subtext group-hover:text-yellow-600"></i>
                 </button>
             </div>
-            <textarea
-                id="note-input"
-                placeholder="Tulis ide atau catatan di sini..."
-                class="flex-1 w-full h-full bg-transparent resize-none focus:outline-none text-sm leading-relaxed custom-scrollbar 
-                    text-light-text placeholder:text-gray-400"
-            ></textarea>
+            <textarea id="note-input" placeholder="Tulis ide atau catatan di sini..." class="flex-1 w-full h-full bg-transparent resize-none focus:outline-none text-sm leading-relaxed custom-scrollbar text-light-text placeholder:text-gray-400"></textarea>
         </div>
-
-        <!-- 4. YEAR PROGRESS (DIHAPUS) -->
 
     </div>
 
-    <!-- --- MODAL / POPUP DESKRIPSI --- -->
+    <!-- MODAL -->
     <div id="task-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
-        <!-- Backdrop -->
         <div id="modal-backdrop" class="absolute inset-0 backdrop-blur-sm transition-opacity opacity-0 bg-gray-900/80"></div>
-        
-        <!-- Modal Content -->
-        <div id="modal-content" class="relative border rounded-2xl max-w-md w-full p-6 shadow-2xl transform scale-95 transition-all opacity-0 flex flex-col max-h-[80vh] 
-            bg-light-card border-light-border">
-            
-            <!-- Close Button -->
-            <button id="close-modal-btn" class="absolute top-4 right-4 p-1 rounded-lg transition-all 
-                text-gray-500 hover:text-gray-900 hover:bg-gray-100">
+        <div id="modal-content" class="relative border rounded-2xl max-w-md w-full p-6 shadow-2xl transform scale-95 transition-all opacity-0 flex flex-col max-h-[80vh] bg-light-card border-light-border">
+            <button id="close-modal-btn" class="absolute top-4 right-4 p-1 rounded-lg transition-all text-gray-500 hover:text-gray-900 hover:bg-gray-100">
                 <i data-lucide="x" width="20" height="20"></i>
             </button>
-
-            <!-- Modal Header -->
             <div class="mb-4 pr-8">
                 <h3 id="modal-title" class="text-xl font-bold leading-snug break-words text-light-text">Judul Tugas</h3>
                 <div class="text-xs mt-1 font-mono text-light-subtext" id="modal-date">Tanggal</div>
             </div>
-
-            <!-- Divider -->
             <div class="h-px w-full mb-4 bg-gray-300"></div>
-
-            <!-- Modal Body (Scrollable) -->
             <div class="flex-1 overflow-y-auto custom-scrollbar pr-2">
-                <div id="modal-desc" class="text-sm leading-relaxed whitespace-pre-wrap break-words text-light-text">
-                    <!-- Deskripsi akan muncul di sini -->
-                </div>
-                
-                <!-- Placeholder jika kosong -->
+                <div id="modal-desc" class="text-sm leading-relaxed whitespace-pre-wrap break-words text-light-text"></div>
                 <div id="modal-no-desc" class="hidden flex flex-col items-center justify-center py-8 text-gray-400">
                     <i data-lucide="align-left" width="24" height="24" class="mb-2 opacity-50"></i>
                     <span class="text-xs italic">Tidak ada deskripsi tambahan.</span>
@@ -275,18 +221,14 @@
     <script>
         // ==========================================
         // KONFIGURASI GOOGLE SHEETS
+        // PASTEKAN URL WEB APP (DEPLOYMENT) BARU ANDA DI SINI SETELAH UPDATE BACKEND:
         const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz8y5ena3plYJoXwotwT-NakjvI23JB6y59Qo0R4jpV8JOj4tWEDIpKQJSvX1I2tII4/exec"; 
         // ==========================================
 
-        // --- STATE MANAGEMENT ---
         let currentDate = new Date();
         let allTasks = JSON.parse(localStorage.getItem('productivity_tasks')) || {};
-        
-        // State untuk Kalender (Bulan yang sedang dilihat)
         let currentCalendarDate = new Date(); 
         
-        // --- DOM ELEMENTS ---
-        const bodyEl = document.body;
         const dateDisplay = document.getElementById('date-display');
         const dateLabel = document.getElementById('date-label');
         const taskListEl = document.getElementById('task-list');
@@ -300,19 +242,12 @@
         const noteInput = document.getElementById('note-input');
         const prevDateBtn = document.getElementById('prev-date-btn');
         const nextDateBtn = document.getElementById('next-date-btn');
-        const syncBtn = document.getElementById('sync-btn'); 
+        const fetchBtn = document.getElementById('fetch-btn');
+        const pushBtn = document.getElementById('push-btn');
         const syncNoteBtn = document.getElementById('sync-note-btn'); 
-        
-        // Clock & Calendar Elements
         const currentTimeEl = document.getElementById('current-time');
         const currentDayEl = document.getElementById('current-day');
         const calendarContainerEl = document.getElementById('calendar-wrapper'); 
-
-        // Year Progress Element (DIHAPUS)
-        // const yearProgressContainerEl = document.getElementById('year-progress-container');
-
-
-        // Modal Elements
         const taskModal = document.getElementById('task-modal');
         const modalBackdrop = document.getElementById('modal-backdrop');
         const modalContent = document.getElementById('modal-content');
@@ -322,14 +257,8 @@
         const modalDesc = document.getElementById('modal-desc');
         const modalNoDesc = document.getElementById('modal-no-desc');
 
-        // --- UI MODE LOGIC (Sekarang hanya Light Mode) ---
-        const initializeUIMode = () => {
-            // Hapus semua logika mode UI, paksa ke Light Mode
-            bodyEl.classList.remove('dark');
-            bodyEl.classList.add('light'); // Hanya untuk referensi di JS rendering
-        };
+        const initializeUIMode = () => { document.body.classList.remove('dark'); document.body.classList.add('light'); };
 
-        // --- HELPERS ---
         const getDateKey = (date) => {
             const year = date.getFullYear();
             const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -338,12 +267,7 @@
         };
 
         const formatDateDisplay = (date) => {
-            return new Intl.DateTimeFormat('id-ID', { 
-                weekday: 'long', 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric' 
-            }).format(date);
+            return new Intl.DateTimeFormat('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }).format(date);
         };
 
         const saveTasks = () => {
@@ -352,23 +276,23 @@
             updateProgress();
         };
 
-        // --- YEAR PROGRESS LOGIC (DIHAPUS) ---
-        // Hapus fungsi getYearProgress
-        // Hapus fungsi renderYearProgress
+        const showSuccessFeedback = (btnElement, originalIconName = 'cloud-upload') => {
+            const originalHTML = btnElement.innerHTML;
+            btnElement.innerHTML = `<i data-lucide="check" width="18" height="18" class="text-emerald-500 animate-bounce"></i>`;
+            lucide.createIcons();
+            setTimeout(() => {
+                btnElement.innerHTML = originalHTML;
+                lucide.createIcons();
+                btnElement.disabled = false;
+            }, 2000);
+        };
 
         // --- CLOCK & CALENDAR LOGIC ---
         let lastRenderedCalendarDay = null; 
-
         const updateClock = () => {
             const now = new Date();
-            
-            const timeOptions = { hour: '2-digit', minute: '2-digit', hour12: false };
-            const timeString = now.toLocaleTimeString('en-US', timeOptions);
-            currentTimeEl.textContent = timeString;
-
-            const dateOptions = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
-            const dayString = now.toLocaleDateString('id-ID', dateOptions);
-            currentDayEl.textContent = dayString;
+            currentTimeEl.textContent = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
+            currentDayEl.textContent = now.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
 
             const todayKey = getDateKey(now);
             if (todayKey !== lastRenderedCalendarDay) {
@@ -377,9 +301,6 @@
                 }
                 lastRenderedCalendarDay = todayKey;
             }
-            
-            // Hapus: Update year progress
-            // renderYearProgress();
         };
 
         const changeCalendarMonth = (offset) => {
@@ -392,69 +313,33 @@
             const month = date.getMonth();
             const today = new Date();
             const todayKey = getDateKey(today);
-            
-            // --- Color Logic (Fixed to Light Mode) ---
-            const primaryColor = 'bg-light-accent';
-            const hoverColor = 'hover:bg-gray-200';
-            const textColor = 'text-light-text';
-            const ringColor = 'ring-light-accent/50';
-
             const firstDayOfMonth = new Date(year, month, 1).getDay();
             const daysInMonth = new Date(year, month + 1, 0).getDate();
-
             const monthName = new Intl.DateTimeFormat('id-ID', { month: 'long', year: 'numeric' }).format(date);
 
             let calendarHTML = `
                 <div class="p-1.5 w-full max-w-[200px] text-zinc-200">
-                    
-                    <!-- Navigasi Bulan -->
                     <div class="flex items-center justify-between font-semibold text-xs mb-1">
-                        <button onclick="changeCalendarMonth(-1)" class="p-0.5 rounded-lg transition-colors text-gray-600 hover:bg-gray-200">
-                            <i data-lucide="chevron-left" width="14" height="14"></i>
-                        </button>
+                        <button onclick="changeCalendarMonth(-1)" class="p-0.5 rounded-lg transition-colors text-gray-600 hover:bg-gray-200"><i data-lucide="chevron-left" width="14" height="14"></i></button>
                         <span class="text-light-text">${monthName}</span>
-                        <button onclick="changeCalendarMonth(1)" class="p-0.5 rounded-lg transition-colors text-gray-600 hover:bg-gray-200">
-                            <i data-lucide="chevron-right" width="14" height="14"></i>
-                        </button>
+                        <button onclick="changeCalendarMonth(1)" class="p-0.5 rounded-lg transition-colors text-gray-600 hover:bg-gray-200"><i data-lucide="chevron-right" width="14" height="14"></i></button>
                     </div>
-                    
-                    <!-- Nama Hari -->
                     <div class="grid grid-cols-7 gap-0.5 text-[10px] font-medium text-center mb-0.5">
-                        ${['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'].map(day => 
-                            `<div class="text-gray-500">${day}</div>`
-                        ).join('')}
+                        ${['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'].map(day => `<div class="text-gray-500">${day}</div>`).join('')}
                     </div>
-
-                    <!-- Tanggal -->
                     <div class="grid grid-cols-7 gap-0.5">
             `;
 
-            const startDayIndex = firstDayOfMonth;
-
-            for (let i = 0; i < startDayIndex; i++) {
-                calendarHTML += `<div></div>`;
-            }
+            for (let i = 0; i < firstDayOfMonth; i++) calendarHTML += `<div></div>`;
 
             for (let day = 1; day <= daysInMonth; day++) {
-                const dayDate = new Date(year, month, day);
-                const currentDateStr = getDateKey(dayDate);
-                const isToday = currentDateStr === todayKey;
-
+                const isToday = getDateKey(new Date(year, month, day)) === todayKey;
                 let dayClasses = `p-0.5 text-xs rounded-lg transition-all cursor-default text-center leading-tight`;
-                
-                if (isToday) {
-                    dayClasses += ` ${primaryColor} text-white font-bold shadow-md ring-1 ${ringColor}`;
-                } else {
-                    dayClasses += ` ${hoverColor} ${textColor}`;
-                }
-
+                dayClasses += isToday ? ` bg-light-accent text-white font-bold shadow-md ring-1 ring-light-accent/50` : ` hover:bg-gray-200 text-light-text`;
                 calendarHTML += `<div class="${dayClasses}">${day}</div>`;
             }
 
-            calendarHTML += `
-                    </div>
-                </div>
-            `;
+            calendarHTML += `</div></div>`;
             calendarContainerEl.innerHTML = calendarHTML; 
             lucide.createIcons();
         };
@@ -462,7 +347,7 @@
         window.changeCalendarMonth = changeCalendarMonth;
         setInterval(updateClock, 1000); 
 
-        // --- MODAL LOGIC ---
+        // --- RENDER TASKS ---
         const openModal = (taskId) => {
             const key = getDateKey(currentDate);
             const task = allTasks[key].find(t => t.id === taskId);
@@ -470,7 +355,6 @@
 
             modalTitle.textContent = task.text;
             modalDate.textContent = formatDateDisplay(currentDate);
-            
             if (task.description && task.description.trim()) {
                 modalDesc.textContent = task.description;
                 modalDesc.classList.remove('hidden');
@@ -479,58 +363,28 @@
                 modalDesc.classList.add('hidden');
                 modalNoDesc.classList.remove('hidden');
             }
-
             taskModal.classList.remove('hidden');
-            setTimeout(() => {
-                modalBackdrop.classList.remove('opacity-0');
-                modalContent.classList.remove('opacity-0', 'scale-95');
-            }, 10);
-            
+            setTimeout(() => { modalBackdrop.classList.remove('opacity-0'); modalContent.classList.remove('opacity-0', 'scale-95'); }, 10);
             lucide.createIcons();
         };
 
         const closeModal = () => {
             modalBackdrop.classList.add('opacity-0');
             modalContent.classList.add('opacity-0', 'scale-95');
-            
-            setTimeout(() => {
-                taskModal.classList.add('hidden');
-            }, 300);
+            setTimeout(() => { taskModal.classList.add('hidden'); }, 300);
         };
-
         closeModalBtn.addEventListener('click', closeModal);
         modalBackdrop.addEventListener('click', closeModal);
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && !taskModal.classList.contains('hidden')) {
-                closeModal();
-            }
-        });
 
-        // --- RENDERING FUNCTIONS ---
         const renderDateHeader = () => {
-            const todayKey = getDateKey(new Date());
-            const currentKey = getDateKey(currentDate);
-            
-            dateLabel.textContent = currentKey === todayKey ? 'Hari Ini' : 'Tanggal';
+            dateLabel.textContent = getDateKey(currentDate) === getDateKey(new Date()) ? 'Hari Ini' : 'Tanggal';
             dateDisplay.textContent = formatDateDisplay(currentDate);
         };
 
         const renderTasks = () => {
             const key = getDateKey(currentDate);
             const tasks = allTasks[key] || [];
-            
             taskListEl.innerHTML = '';
-
-            // --- Color Logic (Fixed to Light Mode) ---
-            const primaryColor = 'text-light-primary';
-            const secondaryTextColor = 'text-light-subtext';
-            const mainTextColor = 'text-light-text';
-            
-            // Backgrounds and Borders (used for non-completed tasks)
-            const baseBg = 'bg-gray-100/70';
-            const baseBorder = 'border-gray-300/50';
-            const hoverBg = 'hover:bg-gray-200/70';
-            const hoverBorder = 'hover:border-gray-400';
 
             if (tasks.length === 0) {
                 emptyStateEl.classList.remove('hidden');
@@ -538,300 +392,156 @@
             } else {
                 emptyStateEl.classList.add('hidden');
                 taskListEl.classList.remove('hidden');
-
                 tasks.forEach(task => {
                     const div = document.createElement('div');
-                    
                     const hasDesc = task.description && task.description.trim().length > 0;
-                    const descIndicator = hasDesc 
-                        ? `<i data-lucide="align-left" width="14" height="14" class="${secondaryTextColor} group-hover/text:text-emerald-400 transition-colors"></i>`
-                        : '';
-
+                    const descIndicator = hasDesc ? `<i data-lucide="align-left" width="14" height="14" class="text-light-subtext group-hover/text:text-light-primary transition-colors"></i>` : '';
+                    
                     let divClasses = `group flex items-center gap-3 p-3 rounded-xl border transition-all duration-200`;
-
                     let textClasses;
-                    let iconColor;
-                    
                     if (task.completed) {
-                        // Completed state
-                        divClasses += ` bg-gray-100/50 border-transparent opacity-60`; 
-                        textClasses = `line-through ${secondaryTextColor}`;
-                        iconColor = primaryColor;
+                        divClasses += ` bg-gray-100 border-transparent opacity-75`; 
+                        textClasses = `line-through text-light-subtext`;
                     } else {
-                        // Non-completed state
-                        divClasses += ` ${baseBg} ${baseBorder} ${hoverBg} ${hoverBorder}`;
-                        textClasses = `${mainTextColor} group-hover/text:text-light-text transition-colors`;
-                        iconColor = secondaryTextColor;
+                        divClasses += ` bg-white border-light-border hover:bg-gray-100`;
+                        textClasses = `text-light-text group-hover/text:text-light-primary transition-colors`;
                     }
-
                     div.className = divClasses;
-                    
                     div.innerHTML = `
-                        <button onclick="event.stopPropagation(); toggleTask(${task.id})" class="flex-shrink-0 transition-colors ${task.completed ? primaryColor : secondaryTextColor} p-1 hover:text-light-text">
-                            <i data-lucide="${task.completed ? 'check-circle-2' : 'circle'}" width="20" height="20"></i>
-                        </button>
-                        
-                        <div onclick="openModal(${task.id})" class="flex-1 min-w-0 cursor-pointer group/text flex items-center gap-2">
-                            <span class="truncate font-medium text-sm ${textClasses}">
-                                ${escapeHtml(task.text)}
-                            </span>
-                            ${descIndicator}
-                        </div>
-
-                        <button onclick="event.stopPropagation(); deleteTask(${task.id})" class="opacity-0 group-hover:opacity-100 text-rose-500/70 hover:text-rose-500 p-2 rounded-lg hover:bg-rose-500/10 transition-all" title="Hapus">
-                            <i data-lucide="trash-2" width="16" height="16"></i>
-                        </button>
+                        <button onclick="event.stopPropagation(); toggleTask(${task.id})" class="flex-shrink-0 transition-colors ${task.completed ? 'text-light-primary' : 'text-light-subtext'} p-1 hover:text-light-text"><i data-lucide="${task.completed ? 'check-circle-2' : 'circle'}" width="20" height="20"></i></button>
+                        <div onclick="openModal(${task.id})" class="flex-1 min-w-0 cursor-pointer group/text flex items-center gap-2"><span class="truncate font-medium text-sm ${textClasses}">${escapeHtml(task.text)}</span>${descIndicator}</div>
+                        <button onclick="event.stopPropagation(); deleteTask(${task.id})" class="opacity-0 group-hover:opacity-100 text-rose-500/70 hover:text-rose-600 p-2 rounded-lg hover:bg-rose-500/10 transition-all"><i data-lucide="trash-2" width="16" height="16"></i></button>
                     `;
                     taskListEl.appendChild(div);
                 });
             }
-            
             lucide.createIcons();
         };
 
         const updateProgress = () => {
-            const key = getDateKey(currentDate);
-            const tasks = allTasks[key] || [];
-            
-            if (tasks.length === 0) {
-                progressBar.style.width = '0%';
-                progressText.textContent = '0%';
-                return;
-            }
-
-            const completedCount = tasks.filter(t => t.completed).length;
-            const percentage = Math.round((completedCount / tasks.length) * 100);
-            
+            const tasks = allTasks[getDateKey(currentDate)] || [];
+            if (tasks.length === 0) { progressBar.style.width = '0%'; progressText.textContent = '0%'; return; }
+            const percentage = Math.round((tasks.filter(t => t.completed).length / tasks.length) * 100);
             progressBar.style.width = `${percentage}%`;
             progressText.textContent = `${percentage}%`;
         };
 
-        // --- GOOGLE SHEETS SYNC LOGIC: TASKS ---
-        const syncToGoogleSheets = async () => {
-            if (GOOGLE_SCRIPT_URL.includes("PASTE_YOUR")) {
-                alert("Harap konfigurasi URL Google Apps Script Anda terlebih dahulu.");
-                return;
+        // --- CLOUD SYNC ---
+        const handleSyncError = (error, btnElement, originalHTML) => {
+            console.error("Sync Error:", error);
+            let msg = error.message;
+            if (msg.includes("Aksi tidak dikenal")) {
+                msg = "BACKEND PERLU DIUPDATE. Mohon update kode Google Apps Script Anda dengan kode baru yang saya berikan.";
+            } else if (msg.includes("Failed to fetch")) {
+                msg = "Gagal koneksi internet.";
             }
+            alert(`Gagal: ${msg}`);
+            btnElement.innerHTML = originalHTML;
+            btnElement.disabled = false;
+            lucide.createIcons();
+        };
 
-            // UI Loading State
-            syncBtn.disabled = true;
-            const originalHTML = syncBtn.innerHTML;
-            const spinnerSvg = `<svg class="animate-spin-custom" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>`;
-            syncBtn.innerHTML = `<span class="text-[10px] font-semibold uppercase tracking-wider hidden sm:inline group-hover:text-blue-400">Memuat...</span>${spinnerSvg}`;
-
-            const payloadTasks = [];
-            const dates = Object.keys(allTasks);
-            
-            dates.forEach(date => {
-                const tasks = allTasks[date];
-                if (tasks && tasks.length > 0) {
-                    tasks.forEach(task => {
-                        payloadTasks.push({
-                            date: date, 
-                            status: task.completed ? "Selesai" : "Belum",
-                            text: task.text,
-                            description: task.description || "" 
-                        });
-                    });
-                }
-            });
-
-            const payload = { action: 'sync_tasks', tasks: payloadTasks };
+        const fetchTasksFromCloud = async () => {
+            if (GOOGLE_SCRIPT_URL.includes("PASTE_YOUR")) return alert("Harap konfigurasi URL Google Apps Script Anda terlebih dahulu.");
+            fetchBtn.disabled = true;
+            const originalHTML = fetchBtn.innerHTML;
+            fetchBtn.innerHTML = `<svg class="animate-spin-custom text-blue-500" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>`;
 
             try {
                 const response = await fetch(GOOGLE_SCRIPT_URL, {
-                    redirect: "follow",
-                    method: "POST",
-                    referrerPolicy: "no-referrer", 
-                    headers: { "Content-Type": "text/plain" },
-                    body: JSON.stringify(payload)
+                    redirect: "follow", method: "POST", referrerPolicy: "no-referrer", 
+                    headers: { "Content-Type": "text/plain" }, body: JSON.stringify({ action: 'fetch_tasks' })
                 });
-
-                if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
-
+                if (!response.ok) throw new Error(`HTTP error! ${response.status}`);
                 const resultData = await response.json();
-                
-                if(resultData.result === "error") throw new Error(resultData.message || "Backend error");
+                if(resultData.result === "error") throw new Error(resultData.message);
 
-                if (resultData.result === "success" && resultData.data) {
-                    const mergedTasks = {};
-
+                const mergedTasks = {};
+                if (resultData.data) {
                     resultData.data.forEach((item, index) => {
                         const dateKey = item.date; 
                         if (!mergedTasks[dateKey]) mergedTasks[dateKey] = [];
-                        
                         mergedTasks[dateKey].push({
-                            id: Date.now() + index, 
-                            text: item.text,
-                            description: item.description || "", 
-                            completed: item.status === "Selesai"
+                            id: Date.now() + index, text: item.text, description: item.description || "", completed: item.status === "Selesai"
                         });
                     });
-
-                    allTasks = mergedTasks;
-                    saveTasks(); 
-                    
-                    alert(`Sukses! Sinkronisasi tugas berhasil. Data dimuat dari cloud.`);
-                } else {
-                    throw new Error("Format respon server tidak sesuai");
                 }
-
-            } catch (error) {
-                console.error("Error Syncing Tasks:", error);
-                let msg = error.message;
-                if (msg.includes("Failed to fetch")) {
-                    msg = "Gagal koneksi. Pastikan deployment script di-set ke 'Anyone' (Siapa saja).";
-                }
-                alert(`Gagal sinkronisasi tugas: ${msg}`);
-            } finally {
-                // Reset UI state (tidak perlu reload penuh agar catatan tetap)
-                syncBtn.disabled = false;
-                syncBtn.innerHTML = originalHTML;
-                lucide.createIcons();
-            }
+                allTasks = mergedTasks;
+                saveTasks(); 
+                fetchBtn.innerHTML = originalHTML;
+                showSuccessFeedback(fetchBtn, 'cloud-download');
+            } catch (error) { handleSyncError(error, fetchBtn, originalHTML); }
         };
 
-        // --- GOOGLE SHEETS SYNC LOGIC: NOTES (NEW) ---
-        const syncNotesToGoogleSheets = async () => {
-            if (GOOGLE_SCRIPT_URL.includes("PASTE_YOUR")) {
-                alert("Harap konfigurasi URL Google Apps Script Anda terlebih dahulu.");
-                return;
-            }
+        const pushTasksToCloud = async () => {
+            if (GOOGLE_SCRIPT_URL.includes("PASTE_YOUR")) return alert("Harap konfigurasi URL Google Apps Script Anda terlebih dahulu.");
+            pushBtn.disabled = true;
+            const originalHTML = pushBtn.innerHTML;
+            pushBtn.innerHTML = `<svg class="animate-spin-custom text-emerald-500" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>`;
 
-            // UI Loading State
-            syncNoteBtn.disabled = true;
-            const originalHTML = syncNoteBtn.innerHTML; 
-            
-            const spinnerSvg = `<svg class="animate-spin-custom text-light-subtext" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>`;
-            syncNoteBtn.innerHTML = spinnerSvg; 
-
-            const noteContent = noteInput.value.trim();
-            const payload = { action: 'sync_notes', noteContent: noteContent };
+            const payloadTasks = [];
+            Object.keys(allTasks).forEach(date => {
+                (allTasks[date] || []).forEach(task => {
+                    payloadTasks.push({ date: date, status: task.completed ? "Selesai" : "Belum", text: task.text, description: task.description || "" });
+                });
+            });
 
             try {
                 const response = await fetch(GOOGLE_SCRIPT_URL, {
-                    redirect: "follow",
-                    method: "POST",
-                    referrerPolicy: "no-referrer", 
-                    headers: { "Content-Type": "text/plain" },
-                    body: JSON.stringify(payload)
+                    redirect: "follow", method: "POST", referrerPolicy: "no-referrer", 
+                    headers: { "Content-Type": "text/plain" }, body: JSON.stringify({ action: 'push_tasks', tasks: payloadTasks })
                 });
-
-                if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
-
+                if (!response.ok) throw new Error(`HTTP error! ${response.status}`);
                 const resultData = await response.json();
-                
-                if(resultData.result === "error") throw new Error(resultData.message || "Backend error");
+                if(resultData.result === "error") throw new Error(resultData.message);
 
-                alert(`Sukses! Catatan telah disimpan ke Spreadsheet 'Notes_DB'.`);
+                pushBtn.innerHTML = originalHTML;
+                showSuccessFeedback(pushBtn, 'cloud-upload');
+            } catch (error) { handleSyncError(error, pushBtn, originalHTML); }
+        };
 
-            } catch (error) {
-                console.error("Error Syncing Notes:", error);
-                let msg = error.message;
-                if (msg.includes("Failed to fetch")) {
-                    msg = "Gagal koneksi. Pastikan deployment script di-set ke 'Anyone' (Siapa saja).";
-                }
-                alert(`Gagal sinkronisasi catatan: ${msg}`);
-            } finally {
-                // Reset UI state
-                syncNoteBtn.disabled = false;
+        const syncNotesToGoogleSheets = async () => {
+            if (GOOGLE_SCRIPT_URL.includes("PASTE_YOUR")) return alert("Harap konfigurasi URL Google Apps Script Anda terlebih dahulu.");
+            syncNoteBtn.disabled = true;
+            const originalHTML = syncNoteBtn.innerHTML; 
+            syncNoteBtn.innerHTML = `<svg class="animate-spin-custom text-light-subtext" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>`;
+
+            try {
+                const response = await fetch(GOOGLE_SCRIPT_URL, {
+                    redirect: "follow", method: "POST", referrerPolicy: "no-referrer", 
+                    headers: { "Content-Type": "text/plain" }, body: JSON.stringify({ action: 'sync_notes', noteContent: noteInput.value.trim() })
+                });
+                if (!response.ok) throw new Error(`HTTP error! ${response.status}`);
+                const resultData = await response.json();
+                if(resultData.result === "error") throw new Error(resultData.message);
+
                 syncNoteBtn.innerHTML = originalHTML;
-                lucide.createIcons();
-            }
+                showSuccessFeedback(syncNoteBtn, 'cloud-upload');
+            } catch (error) { handleSyncError(error, syncNoteBtn, originalHTML); }
         };
 
-
-        // --- EVENT HANDLERS ---
-
-        taskInput.addEventListener('input', (e) => {
-            const hasValue = e.target.value.trim().length > 0;
-            addTaskBtn.disabled = !hasValue;
-        });
-
+        // --- EVENTS ---
+        taskInput.addEventListener('input', (e) => addTaskBtn.disabled = !e.target.value.trim().length);
         taskForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const text = taskInput.value.trim();
-            const desc = taskDescInput.value.trim(); 
-            if (!text) return;
-
-            const key = getDateKey(currentDate);
-            if (!allTasks[key]) allTasks[key] = [];
-
-            allTasks[key].push({
-                id: Date.now(),
-                text: text,
-                description: desc, 
-                completed: false
-            });
-
-            taskInput.value = '';
-            taskDescInput.value = ''; 
-            addTaskBtn.disabled = true;
-            saveTasks();
+            e.preventDefault(); const text = taskInput.value.trim(); if (!text) return;
+            const key = getDateKey(currentDate); if (!allTasks[key]) allTasks[key] = [];
+            allTasks[key].push({ id: Date.now(), text: text, description: taskDescInput.value.trim(), completed: false });
+            taskInput.value = ''; taskDescInput.value = ''; addTaskBtn.disabled = true; saveTasks();
         });
-
-        window.toggleTask = (id) => {
-            const key = getDateKey(currentDate);
-            if (!allTasks[key]) return;
-
-            allTasks[key] = allTasks[key].map(t => 
-                t.id === id ? { ...t, completed: !t.completed } : t
-            );
-            saveTasks();
-        };
-
-        window.deleteTask = (id) => {
-            const key = getDateKey(currentDate);
-            if (!allTasks[key]) return;
-
-            allTasks[key] = allTasks[key].filter(t => t.id !== id);
-            saveTasks();
-        };
-
+        window.toggleTask = (id) => { const key = getDateKey(currentDate); if(allTasks[key]) { allTasks[key] = allTasks[key].map(t => t.id === id ? { ...t, completed: !t.completed } : t); saveTasks(); }};
+        window.deleteTask = (id) => { const key = getDateKey(currentDate); if(allTasks[key]) { allTasks[key] = allTasks[key].filter(t => t.id !== id); saveTasks(); }};
         window.openModal = openModal;
-
-        prevDateBtn.addEventListener('click', () => {
-            currentDate.setDate(currentDate.getDate() - 1);
-            updateAll();
-        });
-
-        nextDateBtn.addEventListener('click', () => {
-            currentDate.setDate(currentDate.getDate() + 1);
-            updateAll();
-        });
-
-        syncBtn.addEventListener('click', syncToGoogleSheets);
+        prevDateBtn.addEventListener('click', () => { currentDate.setDate(currentDate.getDate() - 1); updateAll(); });
+        nextDateBtn.addEventListener('click', () => { currentDate.setDate(currentDate.getDate() + 1); updateAll(); });
+        fetchBtn.addEventListener('click', fetchTasksFromCloud);
+        pushBtn.addEventListener('click', pushTasksToCloud);
         syncNoteBtn.addEventListener('click', syncNotesToGoogleSheets); 
-
         noteInput.value = localStorage.getItem('productivity_note') || '';
-        noteInput.addEventListener('input', (e) => {
-            localStorage.setItem('productivity_note', e.target.value);
-        });
+        noteInput.addEventListener('input', (e) => localStorage.setItem('productivity_note', e.target.value));
+        function escapeHtml(text) { if (!text) return ''; const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }; return text.replace(/[&<>"']/g, function(m) { return map[m]; }); }
+        function updateAll() { renderDateHeader(); renderTasks(); updateProgress(); renderCalendar(currentCalendarDate); }
 
-        function escapeHtml(text) {
-            if (!text) return '';
-            const map = {
-                '&': '&amp;',
-                '<': '&lt;',
-                '>': '&gt;',
-                '"': '&quot;',
-                "'": '&#039;'
-            };
-            return text.replace(/[&<>"']/g, function(m) { return map[m]; });
-        }
-
-        function updateAll() {
-            renderDateHeader();
-            renderTasks();
-            updateProgress();
-            renderCalendar(currentCalendarDate);
-            // Hapus: renderYearProgress();
-        }
-
-        initializeUIMode();
-        updateClock(); 
-        updateAll();
-
+        initializeUIMode(); updateClock(); updateAll();
     </script>
 </body>
 </html>
