@@ -206,18 +206,26 @@
                 // 1. Format pesan
                 const pesanAwal = "Assalamu'alaikum kak, saya " + namaUser;
                 
-                // 2. Encode pesan agar valid di URL (mengubah spasi jadi %20, dll)
-                const pesanEncoded = encodeURIComponent(pesanAwal);
+                // 2. Encode pesan secara manual
+                // Mengganti petik satu (') menjadi %27 karena encodeURIComponent standar tidak mengubahnya
+                // Ini sering menjadi penyebab error 400 pada link WA
+                let pesanEncoded = encodeURIComponent(pesanAwal).replace(/'/g, "%27");
                 
-                // 3. Gabungkan dengan URL dasar
-                const linkWA = `https://wa.me/6285173025380?text=${pesanEncoded}`;
+                // 3. Gunakan api.whatsapp.com (lebih stabil daripada wa.me)
+                const linkWA = `https://api.whatsapp.com/send?phone=6285173025380&text=${pesanEncoded}`;
 
-                // 4. Redirect ke WhatsApp setelah jeda singkat (1 detik) agar user membaca pesan sukses
+                // 4. Buka Link
                 setTimeout(() => {
-                    window.location.href = linkWA; 
-                    // Atau gunakan window.open(linkWA, '_blank') jika ingin tab baru
+                    // Coba buka di tab baru dulu (lebih aman untuk mencegah error frame)
+                    const newWindow = window.open(linkWA, '_blank');
+                    
+                    // Jika popup blocker mencegah tab baru (newWindow null), lakukan redirect di tab yang sama
+                    if (!newWindow || newWindow.closed || typeof newWindow.closed == 'undefined') {
+                        window.location.href = linkWA;
+                    }
+                    
                     form.reset(); 
-                }, 1000);
+                }, 1500);
 
             } catch (error) {
                 console.error("Error saat mengirim data:", error);
