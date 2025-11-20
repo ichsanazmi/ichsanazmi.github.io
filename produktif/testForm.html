@@ -204,26 +204,18 @@
                 
                 // --- LOGIKA WHATSAPP ---
                 // 1. Format pesan
-                const pesanAwal = "Assalamu'alaikum kak, saya " + namaUser;
+                const waParams = new URLSearchParams({
+                    phone: '6285173025380',
+                    text: "Assalamu'alaikum kak, saya " + namaUser
+                });
+                const linkWA = `https://api.whatsapp.com/send?${waParams.toString()}`;
                 
-                // 2. Encode pesan secara manual
-                // Mengganti petik satu (') menjadi %27 karena encodeURIComponent standar tidak mengubahnya
-                // Ini sering menjadi penyebab error 400 pada link WA
-                let pesanEncoded = encodeURIComponent(pesanAwal).replace(/'/g, "%27");
-                
-                // 3. Gunakan api.whatsapp.com (lebih stabil daripada wa.me)
-                const linkWA = `https://api.whatsapp.com/send?phone=6285173025380&text=${pesanEncoded}`;
-
-                // 4. Buka Link
                 setTimeout(() => {
-                    // Coba buka di tab baru dulu (lebih aman untuk mencegah error frame)
                     const newWindow = window.open(linkWA, '_blank');
-                    
-                    // Jika popup blocker mencegah tab baru (newWindow null), lakukan redirect di tab yang sama
+                    // Fallback jika popup diblokir (umum di iframe)
                     if (!newWindow || newWindow.closed || typeof newWindow.closed == 'undefined') {
-                        window.location.href = linkWA;
+                        window.top.location.href = linkWA; // Mencoba memaksa navigasi top frame
                     }
-                    
                     form.reset(); 
                 }, 1500);
 
