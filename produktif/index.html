@@ -2,19 +2,25 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#f3f4f6">
+    <meta name="description" content="Aplikasi produktivitas harian dengan kalender dan catatan.">
     <title>Produktivitas Bento</title>
     
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="https://img.icons8.com/doodle/192/checklist--v1.png">
+
     <!-- Tailwind CSS (CDN) -->
     <script src="https://cdn.tailwindcss.com"></script>
 
-    <!-- Google Font: Micro 5 (Untuk Tampilan Jam) -->
+    <!-- Google Font: Micro 5 -->
     <link href="https://fonts.googleapis.com/css2?family=Micro+5&display=swap" rel="stylesheet">
     
     <!-- Lucide Icons (CDN) -->
     <script src="https://unpkg.com/lucide@latest"></script>
 
-    <!-- Custom Styles and Tailwind Configuration -->
+    <!-- Custom Styles -->
     <script>
         tailwind.config = {
             theme: {
@@ -25,8 +31,8 @@
                         'light-border': '#e5e7eb',
                         'light-text': '#1f2937', 
                         'light-subtext': '#6b7280', 
-                        'light-primary': '#10b981', // emerald
-                        'light-accent': '#3b82f6', // blue
+                        'light-primary': '#10b981',
+                        'light-accent': '#3b82f6',
                     },
                     fontSize: {
                         'huge': '8rem',
@@ -41,507 +47,365 @@
     </script>
     
     <style>
-        /* Custom Font for Clock */
-        .font-micro5 {
-            font-family: 'Micro 5', sans-serif;
-            text-shadow: none;
-        }
-
-        /* Loading Spinner Animation */
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        .animate-spin-custom {
-            animation: spin 1s linear infinite;
-        }
-
-        /* Scrollbar styles for Light Mode */
-        .custom-scrollbar::-webkit-scrollbar {
-            width: 6px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background-color: #9ca3af;
-            border-radius: 20px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-            background-color: #6b7280;
-        }
-
-        .bento-card {
-            display: flex;
-            flex-direction: column;
-        }
-        
+        .font-micro5 { font-family: 'Micro 5', sans-serif; text-shadow: none; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .animate-spin-custom { animation: spin 1s linear infinite; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #9ca3af; border-radius: 20px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background-color: #6b7280; }
+        .bento-card { display: flex; flex-direction: column; }
     </style>
 </head>
-<body class="font-sans min-h-screen flex items-center justify-center p-4 sm:p-8 transition-colors duration-500 bg-light-bg text-light-text">
+<body class="font-sans min-h-screen flex items-center justify-center p-4 sm:p-8 transition-colors duration-500 bg-light-bg text-light-text select-none">
 
-    <!-- Main Grid Container -->
     <div class="w-full max-w-6xl grid grid-cols-1 md:grid-cols-3 gap-4 auto-rows-[minmax(180px,auto)]">
         
-        <!-- 1. WIDE CLOCK & CALENDAR (3x1) -->
+        <!-- 1. CLOCK & CALENDAR -->
         <div class="bento-card md:col-span-3 rounded-3xl p-3 overflow-hidden bg-transparent border-none shadow-none">
             <div class="flex flex-col md:flex-row h-full items-start md:items-center justify-between gap-4 overflow-hidden py-0"> 
-                
-                <!-- Minimal Clock -->
                 <div class="md:w-1/2 flex flex-col items-center sm:items-start justify-center pl-4 md:pl-0 w-full md:w-1/2"> 
-                    <div id="current-time" class="text-huge sm:text-colossal font-extrabold font-micro5 tracking-tight transition-opacity duration-300 leading-none text-light-text">
-                        --:--
-                    </div>
-                    <div id="current-day" class="text-xs mt-[-1.5rem] sm:mt-[-3rem] text-light-subtext">
-                        --
-                    </div>
+                    <div id="current-time" class="text-huge sm:text-colossal font-extrabold font-micro5 tracking-tight leading-none text-light-text">--:--</div>
+                    <div id="current-day" class="text-xs mt-[-1.5rem] sm:mt-[-3rem] text-light-subtext">--</div>
                 </div>
-
-                <!-- Mini Calendar -->
-                <div id="calendar-wrapper" class="hidden sm:flex md:w-1/2 justify-center md:justify-end pb-1 md:pb-0 pr-4 md:pr-0">
-                    <!-- Calendar will be injected here via JS -->
-                </div>
+                <div id="calendar-wrapper" class="hidden sm:flex md:w-1/2 justify-center md:justify-end pb-1 md:pb-0 pr-4 md:pr-0"></div>
             </div>
         </div>
         
         <!-- 2. DAILY TRACKER -->
-        <div class="bento-card md:col-span-2 md:row-span-2 rounded-3xl p-6 shadow-xl overflow-hidden transition-colors duration-500 bg-light-card border-light-border">
+        <div class="bento-card md:col-span-2 md:row-span-2 rounded-3xl p-6 shadow-xl overflow-hidden bg-light-card border-light-border">
             <div class="flex flex-col h-full overflow-hidden">
                 
-                <!-- Date Navigation -->
-                <div class="flex items-center justify-between mb-4 p-3 rounded-2xl backdrop-blur-sm transition-colors duration-500 bg-gray-100/70 border-gray-300/50">
-                    
-                    <button id="prev-date-btn" class="p-2 rounded-xl transition-colors duration-300 text-gray-600 hover:bg-gray-200">
-                        <i data-lucide="chevron-left" width="20" height="20"></i>
-                    </button>
-                    
+                <!-- Controls -->
+                <div class="flex items-center justify-between mb-4 p-3 rounded-2xl backdrop-blur-sm bg-gray-100/70 border-gray-300/50">
+                    <button id="prev-date-btn" class="p-2 rounded-xl text-gray-600 hover:bg-gray-200"><i data-lucide="chevron-left" width="20" height="20"></i></button>
                     <div class="text-center flex-1 text-light-text">
-                        <div id="date-label" class="text-xs font-semibold uppercase tracking-widest text-light-subtext">
-                            Hari Ini
-                        </div>
-                        <div id="date-display" class="font-medium text-lg sm:text-xl">
-                            -
-                        </div>
+                        <div id="date-label" class="text-xs font-semibold uppercase tracking-widest text-light-subtext">Hari Ini</div>
+                        <div id="date-display" class="font-medium text-lg sm:text-xl">-</div>
                     </div>
-
-                    <!-- Container Tombol Sync -->
                     <div class="flex items-center gap-1 mx-2">
-                        <!-- Tombol Fetch -->
-                        <button id="fetch-btn" class="p-2 hover:text-blue-500 rounded-xl transition-all flex items-center gap-1 group hover:bg-blue-100/50 border border-transparent hover:border-blue-200" title="Ambil data dari Google Sheet (Download)">
-                            <i data-lucide="cloud-download" width="18" height="18" class="text-light-subtext group-hover:text-blue-500"></i>
-                        </button>
-
-                        <!-- Tombol Push -->
-                        <button id="push-btn" class="p-2 hover:text-emerald-500 rounded-xl transition-all flex items-center gap-1 group hover:bg-emerald-100/50 border border-transparent hover:border-emerald-200" title="Kirim data ke Google Sheet (Upload)">
-                            <i data-lucide="cloud-upload" width="18" height="18" class="text-light-subtext group-hover:text-emerald-500"></i>
-                        </button>
+                        <button id="fetch-btn" class="p-2 hover:text-blue-500 rounded-xl flex items-center gap-1 group hover:bg-blue-100/50" title="Ambil Tugas dari Cloud"><i data-lucide="cloud-download" width="18" height="18" class="text-light-subtext group-hover:text-blue-500"></i></button>
+                        <button id="push-btn" class="p-2 hover:text-emerald-500 rounded-xl flex items-center gap-1 group hover:bg-emerald-100/50" title="Simpan Tugas ke Cloud"><i data-lucide="cloud-upload" width="18" height="18" class="text-light-subtext group-hover:text-emerald-500"></i></button>
                     </div>
-                    
-                    <button id="next-date-btn" class="p-2 rounded-xl transition-colors duration-300 text-gray-600 hover:bg-gray-200">
-                        <i data-lucide="chevron-right" width="20" height="20"></i>
-                    </button>
-
+                    <button id="next-date-btn" class="p-2 rounded-xl text-gray-600 hover:bg-gray-200"><i data-lucide="chevron-right" width="20" height="20"></i></button>
                 </div>
 
-                <!-- Progress Bar -->
                 <div class="mb-4">
-                    <div class="flex justify-between text-xs mb-2 text-light-subtext">
-                        <span>Progres Harian</span>
-                        <span id="progress-text">0%</span>
-                    </div>
-                    <div class="h-2 rounded-full overflow-hidden bg-gray-200">
-                        <div id="progress-bar" class="h-full transition-all duration-500 ease-out bg-light-primary" style="width: 0%"></div>
-                    </div>
+                    <div class="flex justify-between text-xs mb-2 text-light-subtext"><span>Progres Harian</span><span id="progress-text">0%</span></div>
+                    <div class="h-2 rounded-full overflow-hidden bg-gray-200"><div id="progress-bar" class="h-full transition-all duration-500 ease-out bg-light-primary" style="width: 0%"></div></div>
                 </div>
 
-                <!-- Input Task -->
-                <form id="task-form" class="mb-4 flex flex-col gap-2 p-3 rounded-xl border transition-colors duration-500 bg-gray-100/70 border-gray-300/50">
-                    <div class="relative">
-                        <input type="text" id="task-input" placeholder="Judul tugas..." class="w-full rounded-lg py-2 pl-3 pr-10 focus:outline-none transition-all text-sm bg-white/70 border-gray-300 focus:border-light-primary focus:bg-white text-light-text placeholder:text-gray-400" autocomplete="off"/>
-                    </div>
-                    <textarea id="task-desc-input" rows="1" placeholder="Deskripsi tambahan (opsional)..." class="w-full rounded-lg py-2 px-3 focus:outline-none transition-all text-xs resize-none bg-white/70 border-gray-300 focus:border-light-primary focus:bg-white text-light-text placeholder:text-gray-400"></textarea>
-                    
-                    <button type="submit" id="add-task-btn" disabled class="self-end flex items-center gap-2 px-4 py-1.5 rounded-lg text-white text-xs font-medium transition-all bg-light-primary hover:bg-emerald-600 disabled:opacity-50 disabled:cursor-not-allowed">
-                        <i data-lucide="plus" width="14" height="14"></i>
-                        <span>Tambah</span>
-                    </button>
+                <form id="task-form" class="mb-4 flex flex-col gap-2 p-3 rounded-xl border bg-gray-100/70 border-gray-300/50">
+                    <div class="relative"><input type="text" id="task-input" placeholder="Judul tugas..." class="w-full rounded-lg py-2 pl-3 pr-10 focus:outline-none text-sm bg-white/70 border-gray-300 focus:border-light-primary focus:bg-white text-light-text placeholder:text-gray-400" autocomplete="off"/></div>
+                    <textarea id="task-desc-input" rows="1" placeholder="Deskripsi tambahan (opsional)..." class="w-full rounded-lg py-2 px-3 focus:outline-none text-xs resize-none bg-white/70 border-gray-300 focus:border-light-primary focus:bg-white text-light-text placeholder:text-gray-400"></textarea>
+                    <button type="submit" id="add-task-btn" disabled class="self-end flex items-center gap-2 px-4 py-1.5 rounded-lg text-white text-xs font-medium bg-light-primary hover:bg-emerald-600 disabled:opacity-50 disabled:cursor-not-allowed"><i data-lucide="plus" width="14" height="14"></i><span>Tambah</span></button>
                 </form>
 
-                <!-- Task List -->
                 <div id="task-list" class="flex-1 overflow-y-auto pr-2 space-y-2 custom-scrollbar pb-2"></div>
-
-                <!-- Empty State -->
                 <div id="empty-state" class="hidden h-full flex flex-col items-center justify-center space-y-2 min-h-[80px] text-gray-400">
-                    <div class="w-10 h-10 rounded-full bg-gray-200/50 flex items-center justify-center">
-                        <i data-lucide="activity" class="opacity-50" width="18" height="18"></i>
-                    </div>
-                    <p class="text-xs">Belum ada target untuk hari ini.</p>
+                    <div class="w-10 h-10 rounded-full bg-gray-200/50 flex items-center justify-center"><i data-lucide="activity" class="opacity-50" width="18" height="18"></i></div>
+                    <p class="text-xs">Belum ada target.</p>
                 </div>
             </div>
         </div>
 
         <!-- 3. NOTES -->
-        <div class="bento-card md:col-span-1 md:row-span-2 rounded-3xl p-6 shadow-xl overflow-hidden transition-colors duration-500 bg-yellow-100/50 border-yellow-300/50">
+        <div class="bento-card md:col-span-1 md:row-span-2 rounded-3xl p-6 shadow-xl overflow-hidden bg-yellow-100/50 border-yellow-300/50 flex flex-col">
             <div class="flex items-center justify-between mb-4 text-light-subtext">
-                <div class="flex items-center gap-2">
-                    <i data-lucide="sticky-note" width="18" height="18"></i>
-                    <h3 class="text-xs font-bold uppercase tracking-wider">Catatan Cepat</h3>
+                <div class="flex items-center gap-2"><i data-lucide="sticky-note" width="18" height="18"></i><h3 class="text-xs font-bold uppercase tracking-wider">Catatan</h3></div>
+                <div class="flex items-center gap-1">
+                    <button id="fetch-note-btn" class="p-1 hover:text-blue-600 rounded-lg flex items-center group" title="Ambil Catatan dari Cloud"><i data-lucide="cloud-download" width="16" height="16" class="text-light-subtext group-hover:text-blue-600"></i></button>
+                    <button id="sync-note-btn" class="p-1 hover:text-yellow-600 rounded-lg flex items-center group" title="Simpan Catatan ke Cloud"><i data-lucide="cloud-upload" width="16" height="16" class="text-light-subtext group-hover:text-yellow-600"></i></button>
                 </div>
-                <button id="sync-note-btn" class="p-1 hover:text-yellow-600 rounded-lg transition-all flex items-center group" title="Simpan Catatan ke Google Sheet">
-                    <i data-lucide="cloud-upload" width="16" height="16" class="text-light-subtext group-hover:text-yellow-600"></i>
+            </div>
+            <textarea id="note-input" placeholder="Tulis ide..." class="flex-1 w-full h-full bg-transparent resize-none focus:outline-none text-sm leading-relaxed custom-scrollbar text-light-text placeholder:text-gray-400"></textarea>
+            
+            <!-- INSTALL BUTTON AREA -->
+            <!-- Hapus 'hidden' agar default terlihat, lalu disembunyikan via JS jika sudah terinstall -->
+            <div id="pwa-install-area" class="mt-3 pt-3 border-t border-yellow-300/30">
+                <button id="install-btn" class="w-full flex items-center justify-center gap-2 bg-yellow-600/10 hover:bg-yellow-600/20 text-yellow-800 py-2 rounded-xl transition-colors text-xs font-bold uppercase tracking-wider">
+                    <i data-lucide="download" width="14"></i> <span id="install-text">Install Aplikasi</span>
                 </button>
             </div>
-            <textarea id="note-input" placeholder="Tulis ide atau catatan di sini..." class="flex-1 w-full h-full bg-transparent resize-none focus:outline-none text-sm leading-relaxed custom-scrollbar text-light-text placeholder:text-gray-400"></textarea>
         </div>
-
     </div>
 
-    <!-- MODAL -->
+    <!-- MODAL TASK -->
     <div id="task-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
         <div id="modal-backdrop" class="absolute inset-0 backdrop-blur-sm transition-opacity opacity-0 bg-gray-900/80"></div>
         <div id="modal-content" class="relative border rounded-2xl max-w-md w-full p-6 shadow-2xl transform scale-95 transition-all opacity-0 flex flex-col max-h-[80vh] bg-light-card border-light-border">
-            <button id="close-modal-btn" class="absolute top-4 right-4 p-1 rounded-lg transition-all text-gray-500 hover:text-gray-900 hover:bg-gray-100">
-                <i data-lucide="x" width="20" height="20"></i>
-            </button>
-            <div class="mb-4 pr-8">
-                <h3 id="modal-title" class="text-xl font-bold leading-snug break-words text-light-text">Judul Tugas</h3>
-                <div class="text-xs mt-1 font-mono text-light-subtext" id="modal-date">Tanggal</div>
-            </div>
+            <button id="close-modal-btn" class="absolute top-4 right-4 p-1 rounded-lg text-gray-500 hover:bg-gray-100"><i data-lucide="x" width="20" height="20"></i></button>
+            <div class="mb-4 pr-8"><h3 id="modal-title" class="text-xl font-bold leading-snug break-words text-light-text">Judul</h3><div class="text-xs mt-1 font-mono text-light-subtext" id="modal-date">Tanggal</div></div>
             <div class="h-px w-full mb-4 bg-gray-300"></div>
             <div class="flex-1 overflow-y-auto custom-scrollbar pr-2">
-                <div id="modal-desc" class="text-sm leading-relaxed whitespace-pre-wrap break-words text-light-text"></div>
-                <div id="modal-no-desc" class="hidden flex flex-col items-center justify-center py-8 text-gray-400">
-                    <i data-lucide="align-left" width="24" height="24" class="mb-2 opacity-50"></i>
-                    <span class="text-xs italic">Tidak ada deskripsi tambahan.</span>
-                </div>
+                <div id="modal-desc" class="text-sm leading-relaxed whitespace-pre-wrap text-light-text"></div>
+                <div id="modal-no-desc" class="hidden flex flex-col items-center justify-center py-8 text-gray-400"><i data-lucide="align-left" width="24" height="24" class="mb-2 opacity-50"></i><span class="text-xs italic">Kosong</span></div>
             </div>
         </div>
     </div>
 
-    <!-- JavaScript Logic -->
+    <!-- MODAL IOS INSTALL INSTRUCTIONS -->
+    <div id="ios-install-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+        <div id="ios-backdrop" class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity"></div>
+        <div class="relative bg-white rounded-3xl max-w-xs w-full p-6 shadow-2xl animate-bounce-in">
+            <div class="flex flex-col items-center text-center">
+                <div class="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center mb-4">
+                    <i data-lucide="share" width="24" class="text-blue-500"></i>
+                </div>
+                <h3 class="text-lg font-bold text-gray-800 mb-2">Install di iOS</h3>
+                <p class="text-sm text-gray-600 mb-4">Aplikasi ini bisa diinstall ke Home Screen Anda agar bekerja offline.</p>
+                <ol class="text-left text-sm text-gray-600 space-y-2 mb-6 list-decimal list-inside bg-gray-50 p-3 rounded-xl w-full">
+                    <li>Tap tombol <b>Share</b> <i data-lucide="share" width="12" class="inline"></i> di browser (Safari).</li>
+                    <li>Scroll ke bawah & pilih <b>"Add to Home Screen"</b>.</li>
+                    <li>Tap <b>Add</b> di pojok kanan atas.</li>
+                </ol>
+                <button id="close-ios-modal" class="w-full py-2 bg-blue-500 text-white rounded-xl font-semibold text-sm hover:bg-blue-600 transition">Saya Mengerti</button>
+            </div>
+        </div>
+    </div>
+
     <script>
-        // ==========================================
-        // KONFIGURASI GOOGLE SHEETS
-        // PASTEKAN URL WEB APP (DEPLOYMENT) BARU ANDA DI SINI SETELAH UPDATE BACKEND:
+        // GANTI URL INI DENGAN DEPLOYMENT BARU ANDA
         const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz8y5ena3plYJoXwotwT-NakjvI23JB6y59Qo0R4jpV8JOj4tWEDIpKQJSvX1I2tII4/exec"; 
-        // ==========================================
 
         let currentDate = new Date();
         let allTasks = JSON.parse(localStorage.getItem('productivity_tasks')) || {};
         let currentCalendarDate = new Date(); 
         
-        const dateDisplay = document.getElementById('date-display');
-        const dateLabel = document.getElementById('date-label');
-        const taskListEl = document.getElementById('task-list');
-        const emptyStateEl = document.getElementById('empty-state');
-        const progressBar = document.getElementById('progress-bar');
-        const progressText = document.getElementById('progress-text');
-        const taskForm = document.getElementById('task-form');
-        const taskInput = document.getElementById('task-input');
-        const taskDescInput = document.getElementById('task-desc-input');
-        const addTaskBtn = document.getElementById('add-task-btn');
-        const noteInput = document.getElementById('note-input');
-        const prevDateBtn = document.getElementById('prev-date-btn');
-        const nextDateBtn = document.getElementById('next-date-btn');
-        const fetchBtn = document.getElementById('fetch-btn');
-        const pushBtn = document.getElementById('push-btn');
-        const syncNoteBtn = document.getElementById('sync-note-btn'); 
-        const currentTimeEl = document.getElementById('current-time');
-        const currentDayEl = document.getElementById('current-day');
-        const calendarContainerEl = document.getElementById('calendar-wrapper'); 
-        const taskModal = document.getElementById('task-modal');
-        const modalBackdrop = document.getElementById('modal-backdrop');
-        const modalContent = document.getElementById('modal-content');
-        const closeModalBtn = document.getElementById('close-modal-btn');
-        const modalTitle = document.getElementById('modal-title');
-        const modalDate = document.getElementById('modal-date');
-        const modalDesc = document.getElementById('modal-desc');
-        const modalNoDesc = document.getElementById('modal-no-desc');
-
-        const initializeUIMode = () => { document.body.classList.remove('dark'); document.body.classList.add('light'); };
-
-        const getDateKey = (date) => {
-            const year = date.getFullYear();
-            const month = String(date.getMonth() + 1).padStart(2, '0');
-            const day = String(date.getDate()).padStart(2, '0');
-            return `${year}-${month}-${day}`;
+        // Elements
+        const els = {
+            dateDisplay: document.getElementById('date-display'),
+            dateLabel: document.getElementById('date-label'),
+            taskList: document.getElementById('task-list'),
+            emptyState: document.getElementById('empty-state'),
+            progress: document.getElementById('progress-bar'),
+            progressTxt: document.getElementById('progress-text'),
+            taskInput: document.getElementById('task-input'),
+            taskDesc: document.getElementById('task-desc-input'),
+            addBtn: document.getElementById('add-task-btn'),
+            note: document.getElementById('note-input'),
+            clock: document.getElementById('current-time'),
+            day: document.getElementById('current-day'),
+            calendar: document.getElementById('calendar-wrapper'),
+            fetchBtn: document.getElementById('fetch-btn'),
+            pushBtn: document.getElementById('push-btn'),
+            syncNoteBtn: document.getElementById('sync-note-btn'),
+            fetchNoteBtn: document.getElementById('fetch-note-btn'),
+            installArea: document.getElementById('pwa-install-area'),
+            installBtn: document.getElementById('install-btn'),
+            installText: document.getElementById('install-text'),
+            iosModal: document.getElementById('ios-install-modal'),
+            closeIosModal: document.getElementById('close-ios-modal'),
+            iosBackdrop: document.getElementById('ios-backdrop')
         };
 
-        const formatDateDisplay = (date) => {
-            return new Intl.DateTimeFormat('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }).format(date);
-        };
+        // --- PWA INSTALL LOGIC (Updated) ---
+        let deferredPrompt;
+        const isIos = /iPhone|iPad|iPod/.test(navigator.userAgent) && !window.MSStream;
+        // Cek apakah sudah mode Standalone (sudah diinstall)
+        const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
 
-        const saveTasks = () => {
-            localStorage.setItem('productivity_tasks', JSON.stringify(allTasks));
-            renderTasks();
-            updateProgress();
-        };
+        if (isStandalone) {
+            // Jika sudah terinstall, sembunyikan tombol install
+            els.installArea.classList.add('hidden');
+        } else {
+            // Jika belum terinstall, pastikan tombol muncul
+            els.installArea.classList.remove('hidden');
+            
+            if (isIos) {
+                els.installText.textContent = "Cara Install (iOS)";
+            } else {
+                els.installText.textContent = "Install Aplikasi";
+            }
+        }
 
-        const showSuccessFeedback = (btnElement, originalIconName = 'cloud-upload') => {
-            const originalHTML = btnElement.innerHTML;
-            btnElement.innerHTML = `<i data-lucide="check" width="18" height="18" class="text-emerald-500 animate-bounce"></i>`;
-            lucide.createIcons();
-            setTimeout(() => {
-                btnElement.innerHTML = originalHTML;
+        // 1. Tangkap event install (Android/Desktop)
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            els.installText.textContent = "Install Aplikasi";
+            els.installArea.classList.remove('hidden');
+        });
+
+        // 2. Handler Klik Tombol
+        els.installBtn.addEventListener('click', async () => {
+            if (deferredPrompt) {
+                // Jika event install otomatis tersedia
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') {
+                    deferredPrompt = null;
+                    els.installArea.classList.add('hidden');
+                }
+            } else if (isIos) {
+                // Tampilkan panduan iOS
+                els.iosModal.classList.remove('hidden');
                 lucide.createIcons();
-                btnElement.disabled = false;
-            }, 2000);
-        };
+            } else {
+                // Fallback: Browser tidak mendukung event otomatis (misal di dalam Iframe/Preview atau Firefox desktop tertentu)
+                alert("Untuk menginstall:\n1. Buka menu browser (titik tiga).\n2. Pilih 'Install App' atau 'Add to Home Screen'.");
+            }
+        });
 
-        // --- CLOCK & CALENDAR LOGIC ---
-        let lastRenderedCalendarDay = null; 
+        const closeIos = () => els.iosModal.classList.add('hidden');
+        els.closeIosModal.addEventListener('click', closeIos);
+        els.iosBackdrop.addEventListener('click', closeIos);
+
+        // --- SERVICE WORKER REGISTRATION ---
+        if ('serviceWorker' in navigator && (window.location.protocol === 'https:' || window.location.protocol === 'http:')) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('service-worker.js')
+                    .then(registration => console.log('SW Registered'))
+                    .catch(err => console.log('SW Failed:', err));
+            });
+        }
+
+        // --- APP LOGIC ---
+        const getDateKey = (d) => { const y=d.getFullYear(), m=String(d.getMonth()+1).padStart(2,'0'), day=String(d.getDate()).padStart(2,'0'); return `${y}-${m}-${day}`; };
+        const saveTasks = () => { localStorage.setItem('productivity_tasks', JSON.stringify(allTasks)); renderTasks(); updateProgress(); };
+        const showSuccess = (btn) => { const old=btn.innerHTML; btn.innerHTML=`<i data-lucide="check" width="16" height="16" class="text-emerald-500 animate-bounce"></i>`; lucide.createIcons(); setTimeout(()=>{btn.innerHTML=old; lucide.createIcons(); btn.disabled=false;},2000); };
+
+        // Clock
+        let lastCalDay = null;
         const updateClock = () => {
             const now = new Date();
-            currentTimeEl.textContent = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
-            currentDayEl.textContent = now.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
-
-            const todayKey = getDateKey(now);
-            if (todayKey !== lastRenderedCalendarDay) {
-                if (getDateKey(currentCalendarDate).substring(0, 7) === todayKey.substring(0, 7)) {
-                    renderCalendar(currentCalendarDate);
-                }
-                lastRenderedCalendarDay = todayKey;
-            }
+            els.clock.textContent = now.toLocaleTimeString('en-US', {hour:'2-digit',minute:'2-digit',hour12:false});
+            els.day.textContent = now.toLocaleDateString('id-ID', {weekday:'long',day:'numeric',month:'long',year:'numeric'});
+            if(getDateKey(now)!==lastCalDay) { if(getDateKey(currentCalendarDate).substring(0,7)===getDateKey(now).substring(0,7)) renderCalendar(currentCalendarDate); lastCalDay=getDateKey(now); }
         };
+        setInterval(updateClock, 1000);
 
-        const changeCalendarMonth = (offset) => {
-            currentCalendarDate.setMonth(currentCalendarDate.getMonth() + offset);
-            renderCalendar(currentCalendarDate);
-        };
-
+        // Calendar
+        window.changeCalendarMonth = (off) => { currentCalendarDate.setMonth(currentCalendarDate.getMonth()+off); renderCalendar(currentCalendarDate); };
         const renderCalendar = (date) => {
-            const year = date.getFullYear();
-            const month = date.getMonth();
-            const today = new Date();
-            const todayKey = getDateKey(today);
-            const firstDayOfMonth = new Date(year, month, 1).getDay();
-            const daysInMonth = new Date(year, month + 1, 0).getDate();
-            const monthName = new Intl.DateTimeFormat('id-ID', { month: 'long', year: 'numeric' }).format(date);
-
-            let calendarHTML = `
-                <div class="p-1.5 w-full max-w-[200px] text-zinc-200">
-                    <div class="flex items-center justify-between font-semibold text-xs mb-1">
-                        <button onclick="changeCalendarMonth(-1)" class="p-0.5 rounded-lg transition-colors text-gray-600 hover:bg-gray-200"><i data-lucide="chevron-left" width="14" height="14"></i></button>
-                        <span class="text-light-text">${monthName}</span>
-                        <button onclick="changeCalendarMonth(1)" class="p-0.5 rounded-lg transition-colors text-gray-600 hover:bg-gray-200"><i data-lucide="chevron-right" width="14" height="14"></i></button>
-                    </div>
-                    <div class="grid grid-cols-7 gap-0.5 text-[10px] font-medium text-center mb-0.5">
-                        ${['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'].map(day => `<div class="text-gray-500">${day}</div>`).join('')}
-                    </div>
-                    <div class="grid grid-cols-7 gap-0.5">
-            `;
-
-            for (let i = 0; i < firstDayOfMonth; i++) calendarHTML += `<div></div>`;
-
-            for (let day = 1; day <= daysInMonth; day++) {
-                const isToday = getDateKey(new Date(year, month, day)) === todayKey;
-                let dayClasses = `p-0.5 text-xs rounded-lg transition-all cursor-default text-center leading-tight`;
-                dayClasses += isToday ? ` bg-light-accent text-white font-bold shadow-md ring-1 ring-light-accent/50` : ` hover:bg-gray-200 text-light-text`;
-                calendarHTML += `<div class="${dayClasses}">${day}</div>`;
+            const y=date.getFullYear(), m=date.getMonth(), todayKey=getDateKey(new Date());
+            const firstDay=new Date(y,m,1).getDay(), daysInMonth=new Date(y,m+1,0).getDate();
+            const monthName=new Intl.DateTimeFormat('id-ID',{month:'long',year:'numeric'}).format(date);
+            let html = `<div class="p-1.5 w-full max-w-[200px] text-zinc-200"><div class="flex justify-between text-xs font-semibold mb-1"><button onclick="changeCalendarMonth(-1)" class="p-0.5 hover:bg-gray-200 rounded text-gray-600"><i data-lucide="chevron-left" width="14"></i></button><span class="text-light-text">${monthName}</span><button onclick="changeCalendarMonth(1)" class="p-0.5 hover:bg-gray-200 rounded text-gray-600"><i data-lucide="chevron-right" width="14"></i></button></div><div class="grid grid-cols-7 gap-0.5 text-[10px] text-center mb-0.5">${['M','S','S','R','K','J','S'].map(d=>`<div class="text-gray-400">${d}</div>`).join('')}</div><div class="grid grid-cols-7 gap-0.5">`;
+            for(let i=0;i<firstDay;i++) html+=`<div></div>`;
+            for(let i=1;i<=daysInMonth;i++) {
+                const isToday = getDateKey(new Date(y,m,i)) === todayKey;
+                html += `<div class="p-0.5 text-xs rounded text-center ${isToday?'bg-light-accent text-white font-bold shadow':'text-light-text hover:bg-gray-200'}">${i}</div>`;
             }
-
-            calendarHTML += `</div></div>`;
-            calendarContainerEl.innerHTML = calendarHTML; 
-            lucide.createIcons();
-        };
-        
-        window.changeCalendarMonth = changeCalendarMonth;
-        setInterval(updateClock, 1000); 
-
-        // --- RENDER TASKS ---
-        const openModal = (taskId) => {
-            const key = getDateKey(currentDate);
-            const task = allTasks[key].find(t => t.id === taskId);
-            if (!task) return;
-
-            modalTitle.textContent = task.text;
-            modalDate.textContent = formatDateDisplay(currentDate);
-            if (task.description && task.description.trim()) {
-                modalDesc.textContent = task.description;
-                modalDesc.classList.remove('hidden');
-                modalNoDesc.classList.add('hidden');
-            } else {
-                modalDesc.classList.add('hidden');
-                modalNoDesc.classList.remove('hidden');
-            }
-            taskModal.classList.remove('hidden');
-            setTimeout(() => { modalBackdrop.classList.remove('opacity-0'); modalContent.classList.remove('opacity-0', 'scale-95'); }, 10);
-            lucide.createIcons();
+            els.calendar.innerHTML = html + `</div></div>`; lucide.createIcons();
         };
 
-        const closeModal = () => {
-            modalBackdrop.classList.add('opacity-0');
-            modalContent.classList.add('opacity-0', 'scale-95');
-            setTimeout(() => { taskModal.classList.add('hidden'); }, 300);
-        };
-        closeModalBtn.addEventListener('click', closeModal);
-        modalBackdrop.addEventListener('click', closeModal);
-
-        const renderDateHeader = () => {
-            dateLabel.textContent = getDateKey(currentDate) === getDateKey(new Date()) ? 'Hari Ini' : 'Tanggal';
-            dateDisplay.textContent = formatDateDisplay(currentDate);
-        };
-
+        // Tasks
         const renderTasks = () => {
             const key = getDateKey(currentDate);
+            els.dateLabel.textContent = key === getDateKey(new Date()) ? 'Hari Ini' : 'Tanggal';
+            els.dateDisplay.textContent = new Intl.DateTimeFormat('id-ID',{weekday:'long',day:'numeric',month:'long'}).format(currentDate);
             const tasks = allTasks[key] || [];
-            taskListEl.innerHTML = '';
-
-            if (tasks.length === 0) {
-                emptyStateEl.classList.remove('hidden');
-                taskListEl.classList.add('hidden');
-            } else {
-                emptyStateEl.classList.add('hidden');
-                taskListEl.classList.remove('hidden');
-                tasks.forEach(task => {
+            els.taskList.innerHTML = '';
+            if(tasks.length===0) { els.emptyState.classList.remove('hidden'); els.taskList.classList.add('hidden'); }
+            else {
+                els.emptyState.classList.add('hidden'); els.taskList.classList.remove('hidden');
+                tasks.forEach(t => {
                     const div = document.createElement('div');
-                    const hasDesc = task.description && task.description.trim().length > 0;
-                    const descIndicator = hasDesc ? `<i data-lucide="align-left" width="14" height="14" class="text-light-subtext group-hover/text:text-light-primary transition-colors"></i>` : '';
-                    
-                    let divClasses = `group flex items-center gap-3 p-3 rounded-xl border transition-all duration-200`;
-                    let textClasses;
-                    if (task.completed) {
-                        divClasses += ` bg-gray-100 border-transparent opacity-75`; 
-                        textClasses = `line-through text-light-subtext`;
-                    } else {
-                        divClasses += ` bg-white border-light-border hover:bg-gray-100`;
-                        textClasses = `text-light-text group-hover/text:text-light-primary transition-colors`;
-                    }
-                    div.className = divClasses;
-                    div.innerHTML = `
-                        <button onclick="event.stopPropagation(); toggleTask(${task.id})" class="flex-shrink-0 transition-colors ${task.completed ? 'text-light-primary' : 'text-light-subtext'} p-1 hover:text-light-text"><i data-lucide="${task.completed ? 'check-circle-2' : 'circle'}" width="20" height="20"></i></button>
-                        <div onclick="openModal(${task.id})" class="flex-1 min-w-0 cursor-pointer group/text flex items-center gap-2"><span class="truncate font-medium text-sm ${textClasses}">${escapeHtml(task.text)}</span>${descIndicator}</div>
-                        <button onclick="event.stopPropagation(); deleteTask(${task.id})" class="opacity-0 group-hover:opacity-100 text-rose-500/70 hover:text-rose-600 p-2 rounded-lg hover:bg-rose-500/10 transition-all"><i data-lucide="trash-2" width="16" height="16"></i></button>
-                    `;
-                    taskListEl.appendChild(div);
+                    div.className = `group flex items-center gap-3 p-3 rounded-xl border transition-all ${t.completed ? 'bg-gray-100 border-transparent opacity-75' : 'bg-white border-light-border hover:bg-gray-100'}`;
+                    div.innerHTML = `<button onclick="toggleTask(${t.id})" class="p-1 ${t.completed?'text-light-primary':'text-light-subtext'}"><i data-lucide="${t.completed?'check-circle-2':'circle'}" width="20"></i></button><div onclick="openModal(${t.id})" class="flex-1 min-w-0 cursor-pointer flex items-center gap-2"><span class="truncate text-sm font-medium ${t.completed?'line-through text-light-subtext':'text-light-text'}">${escapeHtml(t.text)}</span>${t.description?`<i data-lucide="align-left" width="14" class="text-light-subtext"></i>`:''}</div><button onclick="deleteTask(${t.id})" class="opacity-0 group-hover:opacity-100 text-rose-500 p-2"><i data-lucide="trash-2" width="16"></i></button>`;
+                    els.taskList.appendChild(div);
                 });
             }
             lucide.createIcons();
         };
-
         const updateProgress = () => {
             const tasks = allTasks[getDateKey(currentDate)] || [];
-            if (tasks.length === 0) { progressBar.style.width = '0%'; progressText.textContent = '0%'; return; }
-            const percentage = Math.round((tasks.filter(t => t.completed).length / tasks.length) * 100);
-            progressBar.style.width = `${percentage}%`;
-            progressText.textContent = `${percentage}%`;
+            const pct = tasks.length ? Math.round((tasks.filter(t=>t.completed).length/tasks.length)*100) : 0;
+            els.progress.style.width = `${pct}%`; els.progressTxt.textContent = `${pct}%`;
         };
 
-        // --- CLOUD SYNC ---
-        const handleSyncError = (error, btnElement, originalHTML) => {
-            console.error("Sync Error:", error);
-            let msg = error.message;
-            if (msg.includes("Aksi tidak dikenal")) {
-                msg = "BACKEND PERLU DIUPDATE. Mohon update kode Google Apps Script Anda dengan kode baru yang saya berikan.";
-            } else if (msg.includes("Failed to fetch")) {
-                msg = "Gagal koneksi internet.";
-            }
-            alert(`Gagal: ${msg}`);
-            btnElement.innerHTML = originalHTML;
-            btnElement.disabled = false;
-            lucide.createIcons();
-        };
-
-        const fetchTasksFromCloud = async () => {
-            if (GOOGLE_SCRIPT_URL.includes("PASTE_YOUR")) return alert("Harap konfigurasi URL Google Apps Script Anda terlebih dahulu.");
-            fetchBtn.disabled = true;
-            const originalHTML = fetchBtn.innerHTML;
-            fetchBtn.innerHTML = `<svg class="animate-spin-custom text-blue-500" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>`;
-
-            try {
-                const response = await fetch(GOOGLE_SCRIPT_URL, {
-                    redirect: "follow", method: "POST", referrerPolicy: "no-referrer", 
-                    headers: { "Content-Type": "text/plain" }, body: JSON.stringify({ action: 'fetch_tasks' })
-                });
-                if (!response.ok) throw new Error(`HTTP error! ${response.status}`);
-                const resultData = await response.json();
-                if(resultData.result === "error") throw new Error(resultData.message);
-
-                const mergedTasks = {};
-                if (resultData.data) {
-                    resultData.data.forEach((item, index) => {
-                        const dateKey = item.date; 
-                        if (!mergedTasks[dateKey]) mergedTasks[dateKey] = [];
-                        mergedTasks[dateKey].push({
-                            id: Date.now() + index, text: item.text, description: item.description || "", completed: item.status === "Selesai"
-                        });
-                    });
-                }
-                allTasks = mergedTasks;
-                saveTasks(); 
-                fetchBtn.innerHTML = originalHTML;
-                showSuccessFeedback(fetchBtn, 'cloud-download');
-            } catch (error) { handleSyncError(error, fetchBtn, originalHTML); }
-        };
-
-        const pushTasksToCloud = async () => {
-            if (GOOGLE_SCRIPT_URL.includes("PASTE_YOUR")) return alert("Harap konfigurasi URL Google Apps Script Anda terlebih dahulu.");
-            pushBtn.disabled = true;
-            const originalHTML = pushBtn.innerHTML;
-            pushBtn.innerHTML = `<svg class="animate-spin-custom text-emerald-500" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>`;
-
-            const payloadTasks = [];
-            Object.keys(allTasks).forEach(date => {
-                (allTasks[date] || []).forEach(task => {
-                    payloadTasks.push({ date: date, status: task.completed ? "Selesai" : "Belum", text: task.text, description: task.description || "" });
-                });
-            });
-
-            try {
-                const response = await fetch(GOOGLE_SCRIPT_URL, {
-                    redirect: "follow", method: "POST", referrerPolicy: "no-referrer", 
-                    headers: { "Content-Type": "text/plain" }, body: JSON.stringify({ action: 'push_tasks', tasks: payloadTasks })
-                });
-                if (!response.ok) throw new Error(`HTTP error! ${response.status}`);
-                const resultData = await response.json();
-                if(resultData.result === "error") throw new Error(resultData.message);
-
-                pushBtn.innerHTML = originalHTML;
-                showSuccessFeedback(pushBtn, 'cloud-upload');
-            } catch (error) { handleSyncError(error, pushBtn, originalHTML); }
-        };
-
-        const syncNotesToGoogleSheets = async () => {
-            if (GOOGLE_SCRIPT_URL.includes("PASTE_YOUR")) return alert("Harap konfigurasi URL Google Apps Script Anda terlebih dahulu.");
-            syncNoteBtn.disabled = true;
-            const originalHTML = syncNoteBtn.innerHTML; 
-            syncNoteBtn.innerHTML = `<svg class="animate-spin-custom text-light-subtext" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>`;
-
-            try {
-                const response = await fetch(GOOGLE_SCRIPT_URL, {
-                    redirect: "follow", method: "POST", referrerPolicy: "no-referrer", 
-                    headers: { "Content-Type": "text/plain" }, body: JSON.stringify({ action: 'sync_notes', noteContent: noteInput.value.trim() })
-                });
-                if (!response.ok) throw new Error(`HTTP error! ${response.status}`);
-                const resultData = await response.json();
-                if(resultData.result === "error") throw new Error(resultData.message);
-
-                syncNoteBtn.innerHTML = originalHTML;
-                showSuccessFeedback(syncNoteBtn, 'cloud-upload');
-            } catch (error) { handleSyncError(error, syncNoteBtn, originalHTML); }
-        };
-
-        // --- EVENTS ---
-        taskInput.addEventListener('input', (e) => addTaskBtn.disabled = !e.target.value.trim().length);
-        taskForm.addEventListener('submit', (e) => {
-            e.preventDefault(); const text = taskInput.value.trim(); if (!text) return;
-            const key = getDateKey(currentDate); if (!allTasks[key]) allTasks[key] = [];
-            allTasks[key].push({ id: Date.now(), text: text, description: taskDescInput.value.trim(), completed: false });
-            taskInput.value = ''; taskDescInput.value = ''; addTaskBtn.disabled = true; saveTasks();
+        // Actions
+        els.taskInput.addEventListener('input', e => els.addBtn.disabled = !e.target.value.trim());
+        document.getElementById('task-form').addEventListener('submit', e => {
+            e.preventDefault(); const txt=els.taskInput.value.trim(); if(!txt)return;
+            const key=getDateKey(currentDate); if(!allTasks[key]) allTasks[key]=[];
+            allTasks[key].push({id:Date.now(), text:txt, description:els.taskDesc.value.trim(), completed:false});
+            els.taskInput.value=''; els.taskDesc.value=''; els.addBtn.disabled=true; saveTasks();
         });
-        window.toggleTask = (id) => { const key = getDateKey(currentDate); if(allTasks[key]) { allTasks[key] = allTasks[key].map(t => t.id === id ? { ...t, completed: !t.completed } : t); saveTasks(); }};
-        window.deleteTask = (id) => { const key = getDateKey(currentDate); if(allTasks[key]) { allTasks[key] = allTasks[key].filter(t => t.id !== id); saveTasks(); }};
-        window.openModal = openModal;
-        prevDateBtn.addEventListener('click', () => { currentDate.setDate(currentDate.getDate() - 1); updateAll(); });
-        nextDateBtn.addEventListener('click', () => { currentDate.setDate(currentDate.getDate() + 1); updateAll(); });
-        fetchBtn.addEventListener('click', fetchTasksFromCloud);
-        pushBtn.addEventListener('click', pushTasksToCloud);
-        syncNoteBtn.addEventListener('click', syncNotesToGoogleSheets); 
-        noteInput.value = localStorage.getItem('productivity_note') || '';
-        noteInput.addEventListener('input', (e) => localStorage.setItem('productivity_note', e.target.value));
-        function escapeHtml(text) { if (!text) return ''; const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }; return text.replace(/[&<>"']/g, function(m) { return map[m]; }); }
-        function updateAll() { renderDateHeader(); renderTasks(); updateProgress(); renderCalendar(currentCalendarDate); }
 
-        initializeUIMode(); updateClock(); updateAll();
+        window.toggleTask = id => { const k=getDateKey(currentDate); if(allTasks[k]) { allTasks[k]=allTasks[k].map(t=>t.id===id?{...t,completed:!t.completed}:t); saveTasks(); }};
+        window.deleteTask = id => { const k=getDateKey(currentDate); if(allTasks[k]) { allTasks[k]=allTasks[k].filter(t=>t.id!==id); saveTasks(); }};
+        
+        // Modal
+        const modal = document.getElementById('task-modal');
+        const modalBg = document.getElementById('modal-backdrop');
+        const modalCon = document.getElementById('modal-content');
+        window.openModal = id => {
+            const t = (allTasks[getDateKey(currentDate)]||[]).find(x=>x.id===id); if(!t)return;
+            document.getElementById('modal-title').textContent=t.text; document.getElementById('modal-date').textContent=getDateKey(currentDate);
+            const desc=document.getElementById('modal-desc'), noDesc=document.getElementById('modal-no-desc');
+            if(t.description){desc.textContent=t.description;desc.classList.remove('hidden');noDesc.classList.add('hidden');}
+            else{desc.classList.add('hidden');noDesc.classList.remove('hidden');}
+            modal.classList.remove('hidden'); setTimeout(()=>{modalBg.classList.remove('opacity-0');modalCon.classList.remove('opacity-0','scale-95');},10); lucide.createIcons();
+        };
+        const closeModal = () => { modalBg.classList.add('opacity-0'); modalCon.classList.add('opacity-0','scale-95'); setTimeout(()=>modal.classList.add('hidden'),300); };
+        document.getElementById('close-modal-btn').addEventListener('click',closeModal); modalBg.addEventListener('click',closeModal);
+
+        // Navigation
+        document.getElementById('prev-date-btn').addEventListener('click', ()=>{currentDate.setDate(currentDate.getDate()-1);renderTasks();updateProgress();});
+        document.getElementById('next-date-btn').addEventListener('click', ()=>{currentDate.setDate(currentDate.getDate()+1);renderTasks();updateProgress();});
+
+        // Cloud Logic
+        const handleCloudAction = async (btn, action, payload = {}) => {
+            if(GOOGLE_SCRIPT_URL.includes("PASTE_YOUR")) return alert("Konfigurasi URL Script dulu!");
+            btn.disabled = true; 
+            const oldIcon = btn.innerHTML;
+            btn.innerHTML = `<svg class="animate-spin-custom text-current" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>`;
+            
+            try {
+                const res = await fetch(GOOGLE_SCRIPT_URL, {method:'POST',body:JSON.stringify({action, ...payload})});
+                const json = await res.json();
+                if(json.result === 'success') return json;
+                else throw new Error(json.message);
+            } catch(e) {
+                alert(`Gagal: ${e.message}`);
+                return null;
+            } finally {
+                if(btn.innerHTML !== oldIcon) { // If not showing success
+                     btn.innerHTML = oldIcon; lucide.createIcons(); btn.disabled = false;
+                }
+            }
+        };
+
+        els.fetchBtn.addEventListener('click', async () => {
+            const res = await handleCloudAction(els.fetchBtn, 'fetch_tasks');
+            if(res && res.data) {
+                const merged={}; 
+                res.data.forEach((item,i)=>{ 
+                    const k=item.date; if(!merged[k])merged[k]=[]; 
+                    merged[k].push({id:Date.now()+i,text:item.text,description:item.description||"",completed:item.status==="Selesai"}); 
+                });
+                allTasks=merged; saveTasks(); showSuccess(els.fetchBtn);
+            }
+        });
+
+        els.pushBtn.addEventListener('click', async () => {
+            const tasksPayload = []; Object.keys(allTasks).forEach(d=>allTasks[d].forEach(t=>tasksPayload.push({date:d,status:t.completed?"Selesai":"Belum",text:t.text,description:t.description||""})));
+            const res = await handleCloudAction(els.pushBtn, 'push_tasks', {tasks: tasksPayload});
+            if(res) showSuccess(els.pushBtn);
+        });
+
+        els.syncNoteBtn.addEventListener('click', async () => {
+            const res = await handleCloudAction(els.syncNoteBtn, 'sync_notes', {noteContent: els.note.value});
+            if(res) showSuccess(els.syncNoteBtn);
+        });
+
+        // --- LOGIKA TOMBOL BARU: FETCH NOTE ---
+        els.fetchNoteBtn.addEventListener('click', async () => {
+            const res = await handleCloudAction(els.fetchNoteBtn, 'fetch_notes');
+            if(res) {
+                els.note.value = res.data || "";
+                localStorage.setItem('productivity_note', els.note.value);
+                showSuccess(els.fetchNoteBtn);
+            }
+        });
+
+        els.note.value = localStorage.getItem('productivity_note')||'';
+        els.note.addEventListener('input', e=>localStorage.setItem('productivity_note',e.target.value));
+        function escapeHtml(t){if(!t)return'';return t.replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));}
+        
+        updateClock(); renderTasks(); updateProgress(); renderCalendar(currentCalendarDate);
     </script>
 </body>
 </html>
