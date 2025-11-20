@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulir Kontak Responsif</title>
+    <!-- Memuat Tailwind CSS melalui CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Menggunakan font Inter sebagai standar */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+        }
+        /* Custom style untuk menghilangkan panah pada input number/tel di browser tertentu */
+        input[type='tel']::-webkit-outer-spin-button,
+        input[type='tel']::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type='tel'] {
+            -moz-appearance: textfield;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4 sm:p-6">
+
+    <!-- Container Utama Formulir -->
+    <div class="w-full max-w-lg bg-white shadow-2xl rounded-2xl p-6 sm:p-8 lg:p-10">
+        
+        <h1 class="text-3xl font-extrabold text-gray-900 mb-6 border-b pb-3">
+            Data Kontak & Profil
+        </h1>
+        
+        <form id="contactForm" onsubmit="submitForm(event)" class="space-y-6">
+            
+            <!-- PESAN STATUS (Akan diisi oleh JavaScript) -->
+            <div id="statusMessage" class="hidden p-3 rounded-xl text-center font-medium"></div>
+
+            <!-- 1. Nama Lengkap -->
+            <div>
+                <label for="nama" class="block text-sm font-medium text-gray-700 mb-1">
+                    Nama Lengkap
+                </label>
+                <input 
+                    type="text" 
+                    id="nama" 
+                    name="Nama" 
+                    required
+                    placeholder="Masukkan nama Anda"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-150"
+                >
+            </div>
+
+            <!-- 2. Nomor Telepon -->
+            <div>
+                <label for="telepon" class="block text-sm font-medium text-gray-700 mb-1">
+                    Nomor Telepon
+                </label>
+                <input 
+                    type="tel" 
+                    id="telepon" 
+                    name="Nomor_Telepon" 
+                    pattern="[0-9]{10,14}" 
+                    title="Contoh: 081234567890 (10-14 digit)" 
+                    required
+                    placeholder="Contoh: 081234567890"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-150"
+                >
+            </div>
+
+            <!-- 3. Email -->
+            <div>
+                <label for="email" class="block text-sm font-medium text-gray-700 mb-1">
+                    Email
+                </label>
+                <input 
+                    type="email" 
+                    id="email" 
+                    name="Email" 
+                    required
+                    placeholder="Contoh: nama@domain.com"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-150"
+                >
+            </div>
+
+            <!-- 4. Jenis Kelamin -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    Jenis Kelamin
+                </label>
+                <div class="flex flex-wrap gap-4">
+                    
+                    <!-- Pilihan Laki-laki -->
+                    <div class="flex items-center">
+                        <input 
+                            type="radio" 
+                            id="laki-laki" 
+                            name="Jenis_Kelamin" 
+                            value="Laki-laki" 
+                            required
+                            class="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500 rounded-full"
+                        >
+                        <label for="laki-laki" class="ml-2 text-sm text-gray-700">Laki-laki</label>
+                    </div>
+
+                    <!-- Pilihan Perempuan -->
+                    <div class="flex items-center">
+                        <input 
+                            type="radio" 
+                            id="perempuan" 
+                            name="Jenis_Kelamin" 
+                            value="Perempuan"
+                            class="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500 rounded-full"
+                        >
+                        <label for="perempuan" class="ml-2 text-sm text-gray-700">Perempuan</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5. Domisili (Input Teks Manual) -->
+            <div>
+                <label for="domisili" class="block text-sm font-medium text-gray-700 mb-1">
+                    Domisili (Kota/Kabupaten)
+                </label>
+                <input 
+                    type="text" 
+                    id="domisili" 
+                    name="Domisili" 
+                    required
+                    placeholder="Contoh: Bandung, Jawa Barat"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-150"
+                >
+            </div>
+
+            <!-- Tombol Submit -->
+            <div class="pt-2">
+                <button 
+                    type="submit"
+                    id="submitButton"
+                    class="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-lg text-lg font-semibold text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-200 transform hover:scale-[1.01] active:scale-95"
+                >
+                    Kirim Data & Chat WA
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // PASTIKAN URL INI SESUAI DENGAN HASIL DEPLOY TERBARU ANDA
+        // Jika Anda melakukan "New Deployment", URL pasti berubah.
+        const APPSSCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyk66-Gw4aNoj_nEnsPuucpyycVVdWkQT08R3UB6BBTMOTtsJDcENZQT6eWz9aTfZ644Q/exec'; 
+        
+        const form = document.getElementById('contactForm');
+        const submitButton = document.getElementById('submitButton');
+        const statusMessage = document.getElementById('statusMessage');
+
+        function showMessage(message, type) {
+            statusMessage.textContent = message;
+            statusMessage.className = `p-3 rounded-xl text-center font-medium mb-4`;
+            statusMessage.classList.remove('hidden');
+
+            if (type === 'success') {
+                statusMessage.classList.add('bg-green-100', 'text-green-700');
+            } else if (type === 'error') {
+                statusMessage.classList.add('bg-red-100', 'text-red-700');
+            } else if (type === 'loading') {
+                statusMessage.classList.add('bg-blue-100', 'text-blue-700');
+            }
+        }
+
+            async function submitForm(event) {
+            event.preventDefault(); // Mencegah pengiriman formulir standar
+
+            if (APPSSCRIPT_URL === 'YOUR_APPS_SCRIPT_WEB_APP_URL') {
+                showMessage("ERROR: Ganti 'YOUR_APPS_SCRIPT_WEB_APP_URL' dengan URL Apps Script Anda.", 'error');
+                return;
+            }
+
+            // Ambil nama untuk WhatsApp sebelum proses pengiriman
+            const namaUser = document.getElementById('nama').value;
+
+            showMessage("Mengirim data...", 'loading');
+            submitButton.disabled = true;
+            submitButton.innerHTML = '<svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Memproses...';
+
+            // Mengambil data formulir
+            const formData = new FormData(form);
+            
+            // Konversi FormData ke objek URLSearchParams
+            const urlEncodedData = new URLSearchParams(formData).toString();
+
+            try {
+                const response = await fetch(APPSSCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors', // Penting untuk Apps Script saat menggunakan form submission
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: urlEncodedData
+                });
+
+                // Jika berhasil (diasumsikan berhasil karena no-cors tidak melempar error status)
+                showMessage("✅ Data berhasil! Mengalihkan ke WhatsApp...", 'success');
+                
+                // --- LOGIKA WHATSAPP ---
+                // 1. Format pesan
+                const pesanAwal = "Assalamu'alaikum kak, saya " + namaUser;
+                
+                // 2. Encode pesan agar valid di URL (mengubah spasi jadi %20, dll)
+                const pesanEncoded = encodeURIComponent(pesanAwal);
+                
+                // 3. Gabungkan dengan URL dasar
+                const linkWA = `https://wa.me/6285173025380?text=${pesanEncoded}`;
+
+                // 4. Redirect ke WhatsApp setelah jeda singkat (1 detik) agar user membaca pesan sukses
+                setTimeout(() => {
+                    window.location.href = linkWA; 
+                    // Atau gunakan window.open(linkWA, '_blank') jika ingin tab baru
+                    form.reset(); 
+                }, 1000);
+
+            } catch (error) {
+                console.error("Error saat mengirim data:", error);
+                showMessage("❌ Gagal mengirim data. Cek URL Apps Script Anda atau koneksi internet.", 'error');
+                submitButton.disabled = false;
+                submitButton.innerHTML = 'Kirim Data & Chat WA';
+            } finally {
+                // Bagian finally dihapus/disesuaikan karena kita melakukan redirect
+                // Jika error, tombol akan di-enable kembali di blok catch
+            }
+        }
+    </script>
+</body>
+</html>
