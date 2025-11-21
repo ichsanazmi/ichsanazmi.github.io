@@ -32,6 +32,10 @@
                         'light-subtext': '#6b7280', 
                         'light-primary': '#10b981',
                         'light-accent': '#3b82f6',
+                        'q1': '#fee2e2', // Urgent & Important (Red)
+                        'q2': '#d1fae5', // Not Urgent & Important (Green)
+                        'q3': '#ffedd5', // Urgent & Not Important (Orange)
+                        'q4': '#f3f4f6', // Not Urgent & Not Important (Gray)
                     },
                     fontFamily: {
                         'micro5': ['Micro 5', 'sans-serif'],
@@ -99,28 +103,64 @@
             background-color: #f3f4f6;
             border-radius: 0.5rem;
         }
+
+        /* Matrix Styles */
+        .matrix-quadrant { transition: all 0.2s; }
+        .matrix-quadrant.drag-over { background-color: rgba(0,0,0,0.05); border: 2px dashed #9ca3af; }
+        .matrix-card { cursor: pointer; touch-action: none; user-select: none; transition: transform 0.1s; }
+        .matrix-card.selected { border: 2px solid #3b82f6; transform: scale(1.02); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); z-index: 10; }
     </style>
 </head>
 <body class="bg-light-bg text-light-text overflow-hidden">
 
+    <!-- === POMODORO FAB (Floating Action Button) === -->
+    <div class="fixed bottom-24 right-4 z-50 flex flex-col items-end gap-2">
+        <!-- Timer Display (Hidden by default) -->
+        <div id="pomo-timer-display" class="hidden bg-gray-900 text-white px-3 py-1 rounded-lg font-micro5 text-2xl shadow-lg mb-1 select-none animate-bounce">
+            00:00
+        </div>
+        
+        <!-- Control Buttons (Visible when running) -->
+        <button id="pomo-stop-btn" class="hidden bg-gray-200 text-gray-700 p-3 rounded-full shadow-xl hover:bg-gray-300 transition-all active:scale-95 mb-2" title="Stop Timer">
+            <i data-lucide="square" width="20" height="20" fill="currentColor"></i>
+        </button>
+
+        <!-- FAB Button (Start/Menu) -->
+        <button id="pomo-fab" class="bg-red-500 hover:bg-red-600 text-white p-4 rounded-full shadow-xl transition-transform hover:scale-110 active:scale-95 flex items-center justify-center group">
+            <i data-lucide="timer" width="24" height="24"></i>
+            <span class="absolute right-full mr-3 px-2 py-1 bg-gray-800 text-white text-[10px] rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50 shadow-lg">Pomodoro</span>
+        </button>
+
+        <!-- Mini Menu (Hidden) -->
+        <div id="pomo-menu" class="hidden absolute bottom-16 right-0 bg-white rounded-2xl p-4 shadow-2xl border border-gray-100 w-48 origin-bottom-right transition-all transform scale-95 opacity-0">
+            <h4 class="text-xs font-bold uppercase text-gray-500 mb-2">Set Timer (Menit)</h4>
+            <div class="flex gap-2 mb-3">
+                <button class="pomo-preset bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded-lg text-xs transition" data-time="25">25</button>
+                <button class="pomo-preset bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded-lg text-xs transition" data-time="15">15</button>
+                <button class="pomo-preset bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded-lg text-xs transition" data-time="5">5</button>
+            </div>
+            <input type="number" id="pomo-input" placeholder="Custom..." class="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm mb-3 focus:outline-none focus:border-red-500">
+            <button id="pomo-start" class="w-full bg-red-500 text-white py-1.5 rounded-lg text-xs font-bold hover:bg-red-600 transition">START</button>
+        </div>
+    </div>
+
     <!-- === NAVIGATION (Floating BOTTOM) === -->
-    <nav class="fixed bottom-6 left-1/2 transform -translate-x-1/2 flex flex-row gap-3 p-2 bg-white/80 backdrop-blur-md border border-white/50 shadow-xl rounded-2xl z-50 transition-all duration-300 scale-90 origin-bottom">
+    <nav class="fixed bottom-6 left-1/2 transform -translate-x-1/2 flex flex-row gap-2 p-2 bg-white/80 backdrop-blur-md border border-white/50 shadow-xl rounded-2xl z-50 transition-all duration-300 scale-90 origin-bottom overflow-x-auto max-w-[90vw]">
         <button class="nav-btn active group relative flex items-center justify-center p-2.5 rounded-xl text-light-subtext hover:bg-gray-50 hover:text-light-primary transition-all duration-200" data-target="slide-1">
             <i data-lucide="clock" width="20" height="20"></i>
-            <span class="absolute bottom-full mb-3 left-1/2 transform -translate-x-1/2 px-2 py-1 bg-gray-800 text-white text-[10px] rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50 shadow-lg">Fokus</span>
         </button>
         <button class="nav-btn group relative flex items-center justify-center p-2.5 rounded-xl text-light-subtext hover:bg-gray-50 hover:text-light-primary transition-all duration-200" data-target="slide-2">
             <i data-lucide="layout-grid" width="20" height="20"></i>
-            <span class="absolute bottom-full mb-3 left-1/2 transform -translate-x-1/2 px-2 py-1 bg-gray-800 text-white text-[10px] rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50 shadow-lg">Tracker</span>
         </button>
         <button class="nav-btn group relative flex items-center justify-center p-2.5 rounded-xl text-light-subtext hover:bg-gray-50 hover:text-light-primary transition-all duration-200" data-target="slide-3">
             <i data-lucide="palette" width="20" height="20"></i>
-            <span class="absolute bottom-full mb-3 left-1/2 transform -translate-x-1/2 px-2 py-1 bg-gray-800 text-white text-[10px] rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50 shadow-lg">Kanvas</span>
         </button>
-        <!-- NEW GAME BUTTON -->
+        <button class="nav-btn group relative flex items-center justify-center p-2.5 rounded-xl text-light-subtext hover:bg-gray-50 hover:text-light-primary transition-all duration-200" data-target="slide-5">
+            <i data-lucide="columns-2" width="20" height="20"></i>
+            <span class="absolute bottom-full mb-3 left-1/2 transform -translate-x-1/2 px-2 py-1 bg-gray-800 text-white text-[10px] rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50 shadow-lg">Matrix</span>
+        </button>
         <button class="nav-btn group relative flex items-center justify-center p-2.5 rounded-xl text-light-subtext hover:bg-gray-50 hover:text-light-primary transition-all duration-200" data-target="slide-4">
             <i data-lucide="gamepad-2" width="20" height="20"></i>
-            <span class="absolute bottom-full mb-3 left-1/2 transform -translate-x-1/2 px-2 py-1 bg-gray-800 text-white text-[10px] rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50 shadow-lg">Arcade</span>
         </button>
     </nav>
 
@@ -233,11 +273,69 @@
         <canvas id="drawing-canvas" class="w-full h-full block"></canvas>
     </div>
 
-    <!-- === SLIDE 4: ARCADE (NEW) === -->
+    <!-- === SLIDE 5: EISENHOWER MATRIX (Updated) === -->
+    <div id="slide-5" class="slide-container flex-col h-full">
+        <div class="w-full max-w-6xl mx-auto flex flex-col lg:flex-row gap-4 h-full pb-24">
+            
+            <!-- Matrix Quadrants (2x2 Grid) -->
+            <div class="flex-1 grid grid-cols-2 grid-rows-2 gap-2 min-h-[50vh]">
+                <!-- Q1 -->
+                <div class="bg-red-50 border border-red-100 rounded-2xl p-2 flex flex-col matrix-quadrant relative" data-quadrant="q1" onclick="handleMatrixClick('q1')">
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="text-[10px] font-bold text-red-600 uppercase tracking-widest">Urgent & Important</span>
+                        <span class="bg-red-200 text-red-700 text-[10px] px-1.5 rounded-full" id="count-q1">0</span>
+                    </div>
+                    <div class="flex-1 overflow-y-auto custom-scrollbar content-area space-y-1.5"></div>
+                </div>
+                <!-- Q2 -->
+                <div class="bg-emerald-50 border border-emerald-100 rounded-2xl p-2 flex flex-col matrix-quadrant relative" data-quadrant="q2" onclick="handleMatrixClick('q2')">
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="text-[10px] font-bold text-emerald-600 uppercase tracking-widest">Not Urgent & Important</span>
+                        <span class="bg-emerald-200 text-emerald-700 text-[10px] px-1.5 rounded-full" id="count-q2">0</span>
+                    </div>
+                    <div class="flex-1 overflow-y-auto custom-scrollbar content-area space-y-1.5"></div>
+                </div>
+                <!-- Q3 -->
+                <div class="bg-orange-50 border border-orange-100 rounded-2xl p-2 flex flex-col matrix-quadrant relative" data-quadrant="q3" onclick="handleMatrixClick('q3')">
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="text-[10px] font-bold text-orange-600 uppercase tracking-widest">Urgent & Not Imp.</span>
+                        <span class="bg-orange-200 text-orange-700 text-[10px] px-1.5 rounded-full" id="count-q3">0</span>
+                    </div>
+                    <div class="flex-1 overflow-y-auto custom-scrollbar content-area space-y-1.5"></div>
+                </div>
+                <!-- Q4 -->
+                <div class="bg-gray-100 border border-gray-200 rounded-2xl p-2 flex flex-col matrix-quadrant relative" data-quadrant="q4" onclick="handleMatrixClick('q4')">
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="text-[10px] font-bold text-gray-600 uppercase tracking-widest">Delete / Delegate</span>
+                        <span class="bg-gray-300 text-gray-700 text-[10px] px-1.5 rounded-full" id="count-q4">0</span>
+                    </div>
+                    <div class="flex-1 overflow-y-auto custom-scrollbar content-area space-y-1.5"></div>
+                </div>
+            </div>
+
+            <!-- Inbox List (Right/Bottom) -->
+            <div class="lg:w-72 bg-white border border-gray-200 rounded-2xl p-4 flex flex-col shadow-sm h-[35vh] lg:h-auto">
+                <div class="flex justify-between items-center mb-3">
+                    <div class="flex flex-col">
+                        <span class="text-sm font-bold text-gray-700">INBOX TUGAS</span>
+                        <span class="text-[10px] text-gray-400">Dari semua tugas yang belum selesai</span>
+                    </div>
+                    <span class="bg-gray-100 text-gray-600 text-xs font-bold px-2 py-0.5 rounded-lg" id="count-inbox">0</span>
+                </div>
+                <div class="text-[10px] text-gray-400 mb-2 italic bg-gray-50 p-2 rounded border border-dashed">
+                    <i data-lucide="info" width="10" class="inline mr-1"></i>Tap tugas lalu tap kuadran untuk memindahkan.
+                </div>
+                <div id="matrix-inbox" class="flex-1 overflow-y-auto custom-scrollbar space-y-2 p-1 content-area" data-quadrant="inbox" onclick="handleMatrixClick('inbox')">
+                    <!-- Inbox items here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- === SLIDE 4: ARCADE === -->
     <div id="slide-4" class="slide-container flex-col">
         <h2 class="text-2xl font-bold text-center mb-6 font-micro5 tracking-widest text-light-text text-5xl">ARCADE ZONE</h2>
         <div class="w-full max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-20">
-            
             <!-- Game 1: Pixel Bird -->
             <div class="col-span-1 bg-white rounded-3xl p-4 shadow-lg border border-gray-200 flex flex-col items-center relative overflow-hidden h-[400px]">
                 <div class="absolute top-0 left-0 w-full h-1 bg-black"></div>
@@ -258,21 +356,12 @@
                     <span>V 1.0</span>
                 </div>
             </div>
-
             <!-- Placeholder 1 -->
             <div class="col-span-1 bg-gray-100 rounded-3xl p-6 border-2 border-dashed border-gray-300 flex flex-col items-center justify-center text-gray-400 h-[400px] hover:bg-gray-50 transition-colors">
                 <i data-lucide="ghost" width="48" class="mb-4 opacity-50"></i>
                 <h3 class="font-pixel text-xs mb-2">COMING SOON</h3>
                 <p class="text-xs text-center opacity-60">More pixel games cooking...</p>
             </div>
-
-            <!-- Placeholder 2 -->
-            <div class="col-span-1 bg-gray-100 rounded-3xl p-6 border-2 border-dashed border-gray-300 flex flex-col items-center justify-center text-gray-400 h-[400px] hover:bg-gray-50 transition-colors">
-                <i data-lucide="joystick" width="48" class="mb-4 opacity-50"></i>
-                <h3 class="font-pixel text-xs mb-2">COMING SOON</h3>
-                <p class="text-xs text-center opacity-60">Retro snake?</p>
-            </div>
-
         </div>
     </div>
 
@@ -325,8 +414,8 @@
                 document.getElementById(target).classList.add('active');
                 
                 if(target === 'slide-3') setTimeout(resizeCanvas, 100);
+                if(target === 'slide-5') renderMatrix(); // Re-render matrix on view
                 
-                // Game logic: Stop game if leaving slide 4
                 if(target !== 'slide-4') {
                     gameRunning = false;
                 } else {
@@ -335,12 +424,165 @@
             });
         });
 
-        // --- GLOBAL STATE ---
+        // --- POMODORO LOGIC (UPDATED) ---
+        const pomoFab = document.getElementById('pomo-fab');
+        const pomoStopBtn = document.getElementById('pomo-stop-btn');
+        const pomoMenu = document.getElementById('pomo-menu');
+        const pomoInput = document.getElementById('pomo-input');
+        const pomoStart = document.getElementById('pomo-start');
+        const pomoDisplay = document.getElementById('pomo-timer-display');
+        const pomoPresets = document.querySelectorAll('.pomo-preset');
+        
+        let pomoInterval;
+        let pomoTimeLeft = 0;
+        let isPomoRunning = false;
+
+        // Toggle Menu
+        pomoFab.addEventListener('click', (e) => {
+            if(isPomoRunning) return; 
+            pomoMenu.classList.toggle('hidden');
+            setTimeout(() => {
+                pomoMenu.classList.toggle('scale-95');
+                pomoMenu.classList.toggle('opacity-0');
+            }, 10);
+            e.stopPropagation();
+        });
+        
+        document.addEventListener('click', (e) => {
+            if(!pomoMenu.contains(e.target) && !pomoFab.contains(e.target)) {
+                pomoMenu.classList.add('scale-95', 'opacity-0');
+                setTimeout(() => pomoMenu.classList.add('hidden'), 200);
+            }
+        });
+
+        pomoPresets.forEach(btn => {
+            btn.addEventListener('click', () => { pomoInput.value = btn.dataset.time; });
+        });
+
+        function formatTime(seconds) {
+            const m = Math.floor(seconds / 60).toString().padStart(2,'0');
+            const s = (seconds % 60).toString().padStart(2,'0');
+            return `${m}:${s}`;
+        }
+
+        function stopPomodoro() {
+            clearInterval(pomoInterval);
+            isPomoRunning = false;
+            pomoDisplay.classList.add('hidden');
+            pomoStopBtn.classList.add('hidden');
+            pomoFab.classList.remove('hidden'); // Show FAB again
+            pomoFab.disabled = false;
+        }
+
+        pomoStopBtn.addEventListener('click', stopPomodoro);
+
+        pomoStart.addEventListener('click', () => {
+            const minutes = parseInt(pomoInput.value);
+            if(!minutes || minutes <= 0) return alert("Masukkan waktu yang valid!");
+            
+            pomoTimeLeft = minutes * 60;
+            isPomoRunning = true;
+            
+            pomoMenu.classList.add('hidden');
+            pomoDisplay.classList.remove('hidden');
+            pomoStopBtn.classList.remove('hidden'); // Show stop button
+            pomoDisplay.textContent = formatTime(pomoTimeLeft);
+
+            pomoInterval = setInterval(() => {
+                pomoTimeLeft--;
+                pomoDisplay.textContent = formatTime(pomoTimeLeft);
+                if(pomoTimeLeft <= 0) {
+                    stopPomodoro();
+                    if("vibrate" in navigator) navigator.vibrate([200, 100, 200]);
+                    alert("Waktu Habis! Istirahat sejenak.");
+                }
+            }, 1000);
+        });
+
+        // --- EISENHOWER MATRIX LOGIC (INTEGRATED) ---
+        let selectedTask = null; // For tap-to-move
+
+        function renderMatrix() {
+            // 1. Clear UI
+            ['q1', 'q2', 'q3', 'q4', 'inbox'].forEach(id => {
+                const container = document.querySelector(`[data-quadrant="${id}"] .content-area`) || document.getElementById('matrix-inbox');
+                if(container) container.innerHTML = '';
+                const countEl = document.getElementById(`count-${id}`);
+                if(countEl) countEl.textContent = '0';
+            });
+
+            // 2. Fetch Unfinished Tasks from All Dates
+            const counts = { q1:0, q2:0, q3:0, q4:0, inbox:0 };
+            
+            // Iterate all dates in allTasks
+            Object.keys(allTasks).forEach(dateKey => {
+                allTasks[dateKey].forEach(task => {
+                    // Only process unfinished tasks
+                    if (!task.completed) {
+                        const quadrant = task.quadrant || 'inbox';
+                        const container = document.querySelector(`[data-quadrant="${quadrant}"] .content-area`) || document.getElementById('matrix-inbox');
+                        
+                        if (container) {
+                            const div = document.createElement('div');
+                            div.className = `matrix-card bg-white p-2 rounded shadow-sm text-[11px] border border-gray-100 break-words leading-tight ${selectedTask === task.id ? 'selected' : ''}`;
+                            div.textContent = task.text;
+                            
+                            // Date Label
+                            const dateSpan = document.createElement('div');
+                            dateSpan.className = "text-[9px] text-gray-400 mt-1";
+                            dateSpan.textContent = dateKey;
+                            div.appendChild(dateSpan);
+
+                            // Selection logic (Tap to move)
+                            div.onclick = (e) => {
+                                e.stopPropagation();
+                                if (selectedTask === task.id) selectedTask = null; 
+                                else selectedTask = task.id;
+                                renderMatrix();
+                            };
+
+                            container.appendChild(div);
+                            if(counts[quadrant] !== undefined) counts[quadrant]++;
+                        }
+                    }
+                });
+            });
+
+            // 3. Update counts
+            Object.keys(counts).forEach(k => {
+                const el = document.getElementById(`count-${k}`);
+                if(el) el.textContent = counts[k];
+            });
+        }
+
+        function handleMatrixClick(targetQuadrant) {
+            if (selectedTask !== null) {
+                // Find the task across all dates
+                let found = false;
+                Object.keys(allTasks).forEach(dateKey => {
+                    if (found) return;
+                    const taskIndex = allTasks[dateKey].findIndex(t => t.id === selectedTask);
+                    if (taskIndex > -1) {
+                        // Update quadrant
+                        allTasks[dateKey][taskIndex].quadrant = targetQuadrant === 'inbox' ? null : targetQuadrant;
+                        found = true;
+                    }
+                });
+
+                if (found) {
+                    selectedTask = null;
+                    saveTasks(); // Save main task storage
+                    renderMatrix(); // Re-render Matrix
+                }
+            }
+        }
+
+        // --- GLOBAL STATE & EXISTING LOGIC ---
         let currentDate = new Date();
         let allTasks = JSON.parse(localStorage.getItem('productivity_tasks')) || {};
         let currentCalendarDate = new Date();
 
-        // --- SLIDE 1 LOGIC (BIG CLOCK & QUOTE) ---
+        // --- SLIDE 1 LOGIC ---
         const s1Time = document.getElementById('s1-time');
         const s1Date = document.getElementById('s1-date');
         const s1Quote = document.getElementById('s1-quote');
@@ -380,22 +622,19 @@
             iosBackdrop: document.getElementById('ios-backdrop')
         };
 
-        // PWA Install
+        // PWA Install Logic (Existing)
         let deferredPrompt;
         const isIos = /iPhone|iPad|iPod/.test(navigator.userAgent) && !window.MSStream;
         const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
-        
         if(!isStandalone) {
             els.installArea.classList.remove('hidden');
             if(isIos) els.installText.textContent = "Cara Install (iOS)";
         }
-
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault(); deferredPrompt = e;
             els.installArea.classList.remove('hidden');
             els.installText.textContent = "Install Aplikasi";
         });
-
         els.installBtn.addEventListener('click', async () => {
             if (deferredPrompt) {
                 deferredPrompt.prompt();
@@ -465,7 +704,7 @@
             historyStep++;
             if (historyStep < history.length) { history.length = historyStep; }
             history.push(canvas.toDataURL());
-            if(history.length > 20) { history.shift(); historyStep--; } // Limit history
+            if(history.length > 20) { history.shift(); historyStep--; } 
         }
 
         function undo() {
@@ -488,17 +727,13 @@
 
         function resizeCanvas() {
             const container = document.getElementById('slide-3');
-            // Save content before resize
             const temp = canvas.toDataURL();
             canvas.width = container.clientWidth;
             canvas.height = container.clientHeight;
             ctx.lineCap = 'round'; ctx.lineJoin = 'round';
             ctx.lineWidth = widthSlider.value;
             ctx.strokeStyle = isEraser ? '#f9fafb' : colorPicker.value;
-            
-            // Restore content or init history
             if(history.length === 0) {
-                // Init white background
                 ctx.fillStyle = "transparent"; 
                 ctx.fillRect(0,0,canvas.width,canvas.height);
                 saveHistory(); 
@@ -577,7 +812,7 @@
 
         function jump() {
             if(!gameRunning) return;
-            bird.dy = -4.5; // Jump strength
+            bird.dy = -4.5;
         }
 
         function drawPixel(x, y, w, h, color) {
@@ -588,11 +823,10 @@
         function gameLoop() {
             if (!gameRunning) return;
 
-            // Logic
-            bird.dy += 0.25; // Gravity
+            bird.dy += 0.25;
             bird.y += bird.dy;
 
-            if (frame % 100 === 0) { // Spawn Pipe
+            if (frame % 100 === 0) {
                 const gap = 100;
                 const minHeight = 20;
                 const maxPos = gameCanvas.height - gap - minHeight;
@@ -600,45 +834,27 @@
                 pipes.push({ x: gameCanvas.width, top: topHeight, gap: gap, passed: false });
             }
 
-            // Drawing
             gameCtx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
-            
-            // Bird (Black Box)
             drawPixel(bird.x, bird.y, bird.w, bird.h, '#1f2937');
 
-            // Pipes
             for (let i = 0; i < pipes.length; i++) {
                 let p = pipes[i];
-                p.x -= 2; // Speed
-                
-                // Draw Top Pipe
+                p.x -= 2;
                 drawPixel(p.x, 0, 20, p.top, '#1f2937');
-                // Draw Bottom Pipe
                 drawPixel(p.x, p.top + p.gap, 20, gameCanvas.height - (p.top + p.gap), '#1f2937');
 
-                // Collision
-                if (
-                    bird.x < p.x + 20 &&
-                    bird.x + bird.w > p.x &&
-                    (bird.y < p.top || bird.y + bird.h > p.top + p.gap)
-                ) {
+                if (bird.x < p.x + 20 && bird.x + bird.w > p.x && (bird.y < p.top || bird.y + bird.h > p.top + p.gap)) {
                     gameOver();
                 }
-
-                // Score
                 if (p.x + 20 < bird.x && !p.passed) {
                     gameScore++;
                     scoreEl.textContent = gameScore;
                     p.passed = true;
                 }
-
                 if (p.x < -20) { pipes.shift(); i--; }
             }
 
-            // Ground/Ceiling collision
-            if (bird.y + bird.h > gameCanvas.height || bird.y < 0) {
-                gameOver();
-            }
+            if (bird.y + bird.h > gameCanvas.height || bird.y < 0) { gameOver(); }
 
             frame++;
             requestAnimationFrame(gameLoop);
@@ -656,14 +872,11 @@
             startBtn.textContent = "TRY AGAIN";
         }
 
-        // Controls
         startBtn.addEventListener('click', () => { resetGame(); });
         gameCanvas.addEventListener('mousedown', (e) => { e.preventDefault(); jump(); });
         gameCanvas.addEventListener('touchstart', (e) => { e.preventDefault(); jump(); }, {passive:false});
         window.addEventListener('keydown', (e) => { if(e.code === 'Space' && document.getElementById('slide-4').classList.contains('active')) { e.preventDefault(); if(!gameRunning && !gameOverlay.classList.contains('hidden')) resetGame(); else jump(); } });
-
         window.addEventListener('resize', resizeGameCanvas);
-
 
         // --- HELPERS ---
         function renderCalendar(date, container, wide = false) {
@@ -751,10 +964,9 @@
         }
 
         resizeCanvas(); 
-        // Init Canvas History for blank state
         setTimeout(() => { saveHistory(); }, 500); 
         
-        updateSlide1(); updateSlide2Clock(); renderTasks(); renderCalendar(new Date(), els.s2CalWrapper, true); lucide.createIcons();
+        updateSlide1(); updateSlide2Clock(); renderTasks(); renderCalendar(new Date(), els.s2CalWrapper, true); renderMatrix(); lucide.createIcons();
     </script>
 </body>
 </html>
