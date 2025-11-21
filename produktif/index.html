@@ -63,15 +63,15 @@
             width: 100%;
             overflow-y: auto;
             overflow-x: hidden;
-            padding-left: 4rem; 
+            /* UPDATED PADDING FOR BOTTOM NAV */
+            padding-left: 1rem; 
             padding-right: 1rem;
             padding-top: 1rem;
-            padding-bottom: 1rem;
+            padding-bottom: 6rem; /* Extra space at bottom for nav */
         }
         
-        @media (max-width: 640px) {
-            .slide-container { padding-left: 3.5rem; }
-        }
+        /* Removed the specific left padding for mobile since nav is now at bottom */
+        /* @media (max-width: 640px) { ... } */
 
         #slide-3.slide-container { padding: 0 !important; overflow: hidden; }
         .slide-container.active { display: flex; opacity: 1; }
@@ -99,19 +99,23 @@
 </head>
 <body class="bg-light-bg text-light-text overflow-hidden">
 
-    <!-- === NAVIGATION (Floating Left) === -->
-    <nav class="fixed left-2 sm:left-3 top-1/2 transform -translate-y-1/2 flex flex-col gap-3 p-2 bg-white/80 backdrop-blur-md border border-white/50 shadow-xl rounded-2xl z-50 transition-all duration-300 scale-90 origin-left">
+    <!-- === NAVIGATION (Floating BOTTOM) === -->
+    <!-- Changed: fixed bottom-6, left-1/2, flex-row, origin-bottom -->
+    <nav class="fixed bottom-6 left-1/2 transform -translate-x-1/2 flex flex-row gap-3 p-2 bg-white/80 backdrop-blur-md border border-white/50 shadow-xl rounded-2xl z-50 transition-all duration-300 scale-90 origin-bottom">
         <button class="nav-btn active group relative flex items-center justify-center p-2.5 rounded-xl text-light-subtext hover:bg-gray-50 hover:text-light-primary transition-all duration-200" data-target="slide-1">
             <i data-lucide="clock" width="20" height="20"></i>
-            <span class="absolute left-full ml-3 px-2 py-1 bg-gray-800 text-white text-[10px] rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50 shadow-lg">Fokus</span>
+            <!-- Changed tooltip position to bottom-full (top) -->
+            <span class="absolute bottom-full mb-3 left-1/2 transform -translate-x-1/2 px-2 py-1 bg-gray-800 text-white text-[10px] rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50 shadow-lg">Fokus</span>
         </button>
         <button class="nav-btn group relative flex items-center justify-center p-2.5 rounded-xl text-light-subtext hover:bg-gray-50 hover:text-light-primary transition-all duration-200" data-target="slide-2">
             <i data-lucide="layout-grid" width="20" height="20"></i>
-            <span class="absolute left-full ml-3 px-2 py-1 bg-gray-800 text-white text-[10px] rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50 shadow-lg">Tracker</span>
+            <!-- Changed tooltip position to bottom-full (top) -->
+            <span class="absolute bottom-full mb-3 left-1/2 transform -translate-x-1/2 px-2 py-1 bg-gray-800 text-white text-[10px] rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50 shadow-lg">Tracker</span>
         </button>
         <button class="nav-btn group relative flex items-center justify-center p-2.5 rounded-xl text-light-subtext hover:bg-gray-50 hover:text-light-primary transition-all duration-200" data-target="slide-3">
             <i data-lucide="palette" width="20" height="20"></i>
-            <span class="absolute left-full ml-3 px-2 py-1 bg-gray-800 text-white text-[10px] rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50 shadow-lg">Kanvas</span>
+            <!-- Changed tooltip position to bottom-full (top) -->
+            <span class="absolute bottom-full mb-3 left-1/2 transform -translate-x-1/2 px-2 py-1 bg-gray-800 text-white text-[10px] rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50 shadow-lg">Kanvas</span>
         </button>
     </nav>
 
