@@ -32,10 +32,10 @@
                         'light-subtext': '#6b7280', 
                         'light-primary': '#10b981',
                         'light-accent': '#3b82f6',
-                        'q1': '#fee2e2', // Urgent & Important (Red)
-                        'q2': '#d1fae5', // Not Urgent & Important (Green)
-                        'q3': '#ffedd5', // Urgent & Not Important (Orange)
-                        'q4': '#f3f4f6', // Not Urgent & Not Important (Gray)
+                        'q1': '#fee2e2', 
+                        'q2': '#d1fae5', 
+                        'q3': '#ffedd5', 
+                        'q4': '#f3f4f6', 
                     },
                     fontFamily: {
                         'micro5': ['Micro 5', 'sans-serif'],
@@ -98,10 +98,11 @@
         [contenteditable]:focus { outline: none; }
 
         /* Game Canvas */
-        #game-canvas {
+        #game-canvas, #tetris-canvas {
             image-rendering: pixelated;
             background-color: #f3f4f6;
             border-radius: 0.5rem;
+            touch-action: none; /* Prevent scroll while playing */
         }
 
         /* Matrix Styles */
@@ -113,25 +114,14 @@
 </head>
 <body class="bg-light-bg text-light-text overflow-hidden">
 
-    <!-- === POMODORO FAB (Floating Action Button) === -->
+    <!-- === POMODORO FAB === -->
     <div class="fixed bottom-24 right-4 z-50 flex flex-col items-end gap-2">
-        <!-- Timer Display (Hidden by default) -->
-        <div id="pomo-timer-display" class="hidden bg-gray-900 text-white px-3 py-1 rounded-lg font-micro5 text-2xl shadow-lg mb-1 select-none animate-bounce">
-            00:00
-        </div>
-        
-        <!-- Control Buttons (Visible when running) -->
-        <button id="pomo-stop-btn" class="hidden bg-gray-200 text-gray-700 p-3 rounded-full shadow-xl hover:bg-gray-300 transition-all active:scale-95 mb-2" title="Stop Timer">
-            <i data-lucide="square" width="20" height="20" fill="currentColor"></i>
-        </button>
-
-        <!-- FAB Button (Start/Menu) -->
+        <div id="pomo-timer-display" class="hidden bg-gray-900 text-white px-3 py-1 rounded-lg font-micro5 text-2xl shadow-lg mb-1 select-none animate-bounce">00:00</div>
+        <button id="pomo-stop-btn" class="hidden bg-gray-200 text-gray-700 p-3 rounded-full shadow-xl hover:bg-gray-300 transition-all active:scale-95 mb-2" title="Stop Timer"><i data-lucide="square" width="20" height="20" fill="currentColor"></i></button>
         <button id="pomo-fab" class="bg-red-500 hover:bg-red-600 text-white p-4 rounded-full shadow-xl transition-transform hover:scale-110 active:scale-95 flex items-center justify-center group">
             <i data-lucide="timer" width="24" height="24"></i>
             <span class="absolute right-full mr-3 px-2 py-1 bg-gray-800 text-white text-[10px] rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50 shadow-lg">Pomodoro</span>
         </button>
-
-        <!-- Mini Menu (Hidden) -->
         <div id="pomo-menu" class="hidden absolute bottom-16 right-0 bg-white rounded-2xl p-4 shadow-2xl border border-gray-100 w-48 origin-bottom-right transition-all transform scale-95 opacity-0">
             <h4 class="text-xs font-bold uppercase text-gray-500 mb-2">Set Timer (Menit)</h4>
             <div class="flex gap-2 mb-3">
@@ -144,24 +134,13 @@
         </div>
     </div>
 
-    <!-- === NAVIGATION (Floating BOTTOM) === -->
+    <!-- === NAVIGATION === -->
     <nav class="fixed bottom-6 left-1/2 transform -translate-x-1/2 flex flex-row gap-2 p-2 bg-white/80 backdrop-blur-md border border-white/50 shadow-xl rounded-2xl z-50 transition-all duration-300 scale-90 origin-bottom overflow-x-auto max-w-[90vw]">
-        <button class="nav-btn active group relative flex items-center justify-center p-2.5 rounded-xl text-light-subtext hover:bg-gray-50 hover:text-light-primary transition-all duration-200" data-target="slide-1">
-            <i data-lucide="clock" width="20" height="20"></i>
-        </button>
-        <button class="nav-btn group relative flex items-center justify-center p-2.5 rounded-xl text-light-subtext hover:bg-gray-50 hover:text-light-primary transition-all duration-200" data-target="slide-2">
-            <i data-lucide="layout-grid" width="20" height="20"></i>
-        </button>
-        <button class="nav-btn group relative flex items-center justify-center p-2.5 rounded-xl text-light-subtext hover:bg-gray-50 hover:text-light-primary transition-all duration-200" data-target="slide-3">
-            <i data-lucide="palette" width="20" height="20"></i>
-        </button>
-        <button class="nav-btn group relative flex items-center justify-center p-2.5 rounded-xl text-light-subtext hover:bg-gray-50 hover:text-light-primary transition-all duration-200" data-target="slide-5">
-            <i data-lucide="columns-2" width="20" height="20"></i>
-            <span class="absolute bottom-full mb-3 left-1/2 transform -translate-x-1/2 px-2 py-1 bg-gray-800 text-white text-[10px] rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50 shadow-lg">Matrix</span>
-        </button>
-        <button class="nav-btn group relative flex items-center justify-center p-2.5 rounded-xl text-light-subtext hover:bg-gray-50 hover:text-light-primary transition-all duration-200" data-target="slide-4">
-            <i data-lucide="gamepad-2" width="20" height="20"></i>
-        </button>
+        <button class="nav-btn active group relative flex items-center justify-center p-2.5 rounded-xl text-light-subtext hover:bg-gray-50 hover:text-light-primary transition-all duration-200" data-target="slide-1"><i data-lucide="clock" width="20" height="20"></i></button>
+        <button class="nav-btn group relative flex items-center justify-center p-2.5 rounded-xl text-light-subtext hover:bg-gray-50 hover:text-light-primary transition-all duration-200" data-target="slide-2"><i data-lucide="layout-grid" width="20" height="20"></i></button>
+        <button class="nav-btn group relative flex items-center justify-center p-2.5 rounded-xl text-light-subtext hover:bg-gray-50 hover:text-light-primary transition-all duration-200" data-target="slide-3"><i data-lucide="palette" width="20" height="20"></i></button>
+        <button class="nav-btn group relative flex items-center justify-center p-2.5 rounded-xl text-light-subtext hover:bg-gray-50 hover:text-light-primary transition-all duration-200" data-target="slide-5"><i data-lucide="columns-2" width="20" height="20"></i><span class="absolute bottom-full mb-3 left-1/2 transform -translate-x-1/2 px-2 py-1 bg-gray-800 text-white text-[10px] rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50 shadow-lg">Matrix</span></button>
+        <button class="nav-btn group relative flex items-center justify-center p-2.5 rounded-xl text-light-subtext hover:bg-gray-50 hover:text-light-primary transition-all duration-200" data-target="slide-4"><i data-lucide="gamepad-2" width="20" height="20"></i></button>
     </nav>
 
     <!-- === SLIDE 1: TIME & FOCUS === -->
@@ -180,8 +159,7 @@
     <!-- === SLIDE 2: PRODUCTIVITY === -->
     <div id="slide-2" class="slide-container flex-col">
         <div class="w-full max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-4 auto-rows-[minmax(180px,auto)]">
-            
-            <!-- 1. WIDE CLOCK & CALENDAR -->
+            <!-- 1. WIDE CLOCK -->
             <div class="col-span-full bg-transparent rounded-3xl p-2 overflow-hidden">
                 <div class="flex flex-col md:flex-row h-full items-start md:items-center justify-between gap-4 overflow-hidden py-0"> 
                     <div class="md:w-1/2 flex flex-col items-center sm:items-start justify-center pl-4 md:pl-0 w-full md:w-1/2"> 
@@ -191,8 +169,7 @@
                     <div id="s2-calendar-wrapper" class="hidden sm:flex md:w-1/2 justify-center md:justify-end pb-1 md:pb-0 pr-4 md:pr-0"></div>
                 </div>
             </div>
-            
-            <!-- 2. DAILY TRACKER -->
+            <!-- 2. TRACKER -->
             <div class="col-span-full md:col-span-2 bg-white rounded-3xl p-5 shadow-sm border border-light-border flex flex-col h-full overflow-hidden">
                 <div class="flex items-center justify-between mb-4 p-2 rounded-2xl bg-gray-50 border border-gray-200">
                     <button id="prev-date-btn" class="p-2 hover:bg-white rounded-xl transition"><i data-lucide="chevron-left" width="20"></i></button>
@@ -206,12 +183,10 @@
                     </div>
                     <button id="next-date-btn" class="p-2 hover:bg-white rounded-xl transition"><i data-lucide="chevron-right" width="20"></i></button>
                 </div>
-
                 <div class="mb-4 px-1">
                     <div class="flex justify-between text-xs mb-1 text-light-subtext"><span>Progres</span><span id="progress-text">0%</span></div>
                     <div class="h-1.5 rounded-full bg-gray-100"><div id="progress-bar" class="h-full bg-light-primary rounded-full transition-all duration-500" style="width: 0%"></div></div>
                 </div>
-
                 <form id="task-form" class="mb-3 flex gap-2">
                     <div class="flex-1 flex flex-col gap-2">
                         <input type="text" id="task-input" placeholder="Tugas baru..." class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-light-primary transition">
@@ -219,14 +194,10 @@
                     </div>
                     <button type="submit" id="add-task-btn" disabled class="bg-light-primary text-white rounded-xl px-4 hover:bg-emerald-600 disabled:opacity-50 transition flex items-center justify-center"><i data-lucide="plus" width="20"></i></button>
                 </form>
-
                 <div id="task-list" class="flex-1 overflow-y-auto custom-scrollbar space-y-2 pr-1"></div>
-                <div id="empty-state" class="hidden h-full flex flex-col items-center justify-center text-gray-300">
-                    <i data-lucide="check-circle" width="32"></i><span class="text-xs mt-2">Tidak ada tugas</span>
-                </div>
+                <div id="empty-state" class="hidden h-full flex flex-col items-center justify-center text-gray-300"><i data-lucide="check-circle" width="32"></i><span class="text-xs mt-2">Tidak ada tugas</span></div>
             </div>
-
-            <!-- 3. Quick Notes -->
+            <!-- 3. NOTES -->
             <div class="col-span-full md:col-span-1 bg-yellow-50 rounded-3xl p-5 shadow-sm border border-yellow-200 flex flex-col h-full min-h-[300px]">
                 <div class="flex justify-between items-center mb-2 text-yellow-800/70">
                     <div class="flex items-center gap-2"><i data-lucide="sticky-note" width="16"></i><span class="text-xs font-bold uppercase">Catatan</span></div>
@@ -236,20 +207,16 @@
                     </div>
                 </div>
                 <textarea id="note-input" class="flex-1 w-full bg-transparent resize-none outline-none text-sm text-gray-700 placeholder:text-yellow-800/30 leading-relaxed custom-scrollbar" placeholder="Tulis catatan di sini..."></textarea>
-                
                 <div id="pwa-install-area" class="hidden mt-3 pt-3 border-t border-yellow-200">
-                    <button id="install-btn" class="w-full flex items-center justify-center gap-2 bg-yellow-600/10 hover:bg-yellow-600/20 text-yellow-800 py-2 rounded-xl transition-colors text-xs font-bold uppercase tracking-wider">
-                        <i data-lucide="download" width="14"></i> <span id="install-text">Install Aplikasi</span>
-                    </button>
+                    <button id="install-btn" class="w-full flex items-center justify-center gap-2 bg-yellow-600/10 hover:bg-yellow-600/20 text-yellow-800 py-2 rounded-xl transition-colors text-xs font-bold uppercase tracking-wider"><i data-lucide="download" width="14"></i> <span id="install-text">Install Aplikasi</span></button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- === SLIDE 3: INFINITE CANVAS === -->
+    <!-- === SLIDE 3: CANVAS === -->
     <div id="slide-3" class="slide-container relative bg-gray-50">
         <div class="absolute top-4 left-1/2 transform -translate-x-1/2 bg-white/90 backdrop-blur px-4 py-2 rounded-full shadow-lg border border-gray-200 flex items-center gap-4 z-10 overflow-x-auto max-w-[95vw] custom-scrollbar">
-            <!-- Colors & Size -->
             <div class="flex items-center gap-2 border-r border-gray-200 pr-4">
                 <input type="color" id="draw-color" value="#1f2937" class="w-8 h-8 rounded-full cursor-pointer border-none p-0 bg-transparent">
             </div>
@@ -257,12 +224,10 @@
                 <i data-lucide="circle" width="8"></i>
                 <input type="range" id="draw-width" min="1" max="20" value="3" class="w-16 accent-light-primary h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer">
             </div>
-            <!-- Tools -->
             <div class="flex items-center gap-2">
                 <button id="tool-pen" class="p-2 bg-gray-100 rounded-lg text-light-primary active-tool transition"><i data-lucide="pen" width="18"></i></button>
                 <button id="tool-eraser" class="p-2 hover:bg-gray-100 rounded-lg text-light-subtext transition"><i data-lucide="eraser" width="18"></i></button>
                 <div class="w-px h-6 bg-gray-200 mx-1"></div>
-                <!-- NEW UNDO REDO -->
                 <button id="action-undo" class="p-2 hover:bg-blue-50 text-gray-600 hover:text-blue-500 rounded-lg transition" title="Undo"><i data-lucide="undo" width="18"></i></button>
                 <button id="action-redo" class="p-2 hover:bg-blue-50 text-gray-600 hover:text-blue-500 rounded-lg transition" title="Redo"><i data-lucide="redo" width="18"></i></button>
                 <div class="w-px h-6 bg-gray-200 mx-1"></div>
@@ -273,61 +238,29 @@
         <canvas id="drawing-canvas" class="w-full h-full block"></canvas>
     </div>
 
-    <!-- === SLIDE 5: EISENHOWER MATRIX (Updated) === -->
+    <!-- === SLIDE 5: MATRIX === -->
     <div id="slide-5" class="slide-container flex-col h-full">
         <div class="w-full max-w-6xl mx-auto flex flex-col lg:flex-row gap-4 h-full pb-24">
-            
-            <!-- Matrix Quadrants (2x2 Grid) -->
             <div class="flex-1 grid grid-cols-2 grid-rows-2 gap-2 min-h-[50vh]">
-                <!-- Q1 -->
                 <div class="bg-red-50 border border-red-100 rounded-2xl p-2 flex flex-col matrix-quadrant relative" data-quadrant="q1" onclick="handleMatrixClick('q1')">
-                    <div class="flex justify-between items-center mb-1">
-                        <span class="text-[10px] font-bold text-red-600 uppercase tracking-widest">Urgent & Important</span>
-                        <span class="bg-red-200 text-red-700 text-[10px] px-1.5 rounded-full" id="count-q1">0</span>
-                    </div>
-                    <div class="flex-1 overflow-y-auto custom-scrollbar content-area space-y-1.5"></div>
+                    <div class="flex justify-between items-center mb-1"><span class="text-[10px] font-bold text-red-600 uppercase tracking-widest">Urgent & Important</span><span class="bg-red-200 text-red-700 text-[10px] px-1.5 rounded-full" id="count-q1">0</span></div><div class="flex-1 overflow-y-auto custom-scrollbar content-area space-y-1.5"></div>
                 </div>
-                <!-- Q2 -->
                 <div class="bg-emerald-50 border border-emerald-100 rounded-2xl p-2 flex flex-col matrix-quadrant relative" data-quadrant="q2" onclick="handleMatrixClick('q2')">
-                    <div class="flex justify-between items-center mb-1">
-                        <span class="text-[10px] font-bold text-emerald-600 uppercase tracking-widest">Not Urgent & Important</span>
-                        <span class="bg-emerald-200 text-emerald-700 text-[10px] px-1.5 rounded-full" id="count-q2">0</span>
-                    </div>
-                    <div class="flex-1 overflow-y-auto custom-scrollbar content-area space-y-1.5"></div>
+                    <div class="flex justify-between items-center mb-1"><span class="text-[10px] font-bold text-emerald-600 uppercase tracking-widest">Not Urgent & Important</span><span class="bg-emerald-200 text-emerald-700 text-[10px] px-1.5 rounded-full" id="count-q2">0</span></div><div class="flex-1 overflow-y-auto custom-scrollbar content-area space-y-1.5"></div>
                 </div>
-                <!-- Q3 -->
                 <div class="bg-orange-50 border border-orange-100 rounded-2xl p-2 flex flex-col matrix-quadrant relative" data-quadrant="q3" onclick="handleMatrixClick('q3')">
-                    <div class="flex justify-between items-center mb-1">
-                        <span class="text-[10px] font-bold text-orange-600 uppercase tracking-widest">Urgent & Not Imp.</span>
-                        <span class="bg-orange-200 text-orange-700 text-[10px] px-1.5 rounded-full" id="count-q3">0</span>
-                    </div>
-                    <div class="flex-1 overflow-y-auto custom-scrollbar content-area space-y-1.5"></div>
+                    <div class="flex justify-between items-center mb-1"><span class="text-[10px] font-bold text-orange-600 uppercase tracking-widest">Urgent & Not Imp.</span><span class="bg-orange-200 text-orange-700 text-[10px] px-1.5 rounded-full" id="count-q3">0</span></div><div class="flex-1 overflow-y-auto custom-scrollbar content-area space-y-1.5"></div>
                 </div>
-                <!-- Q4 -->
                 <div class="bg-gray-100 border border-gray-200 rounded-2xl p-2 flex flex-col matrix-quadrant relative" data-quadrant="q4" onclick="handleMatrixClick('q4')">
-                    <div class="flex justify-between items-center mb-1">
-                        <span class="text-[10px] font-bold text-gray-600 uppercase tracking-widest">Delete / Delegate</span>
-                        <span class="bg-gray-300 text-gray-700 text-[10px] px-1.5 rounded-full" id="count-q4">0</span>
-                    </div>
-                    <div class="flex-1 overflow-y-auto custom-scrollbar content-area space-y-1.5"></div>
+                    <div class="flex justify-between items-center mb-1"><span class="text-[10px] font-bold text-gray-600 uppercase tracking-widest">Delete / Delegate</span><span class="bg-gray-300 text-gray-700 text-[10px] px-1.5 rounded-full" id="count-q4">0</span></div><div class="flex-1 overflow-y-auto custom-scrollbar content-area space-y-1.5"></div>
                 </div>
             </div>
-
-            <!-- Inbox List (Right/Bottom) -->
             <div class="lg:w-72 bg-white border border-gray-200 rounded-2xl p-4 flex flex-col shadow-sm h-[35vh] lg:h-auto">
                 <div class="flex justify-between items-center mb-3">
-                    <div class="flex flex-col">
-                        <span class="text-sm font-bold text-gray-700">INBOX TUGAS</span>
-                        <span class="text-[10px] text-gray-400">Dari semua tugas yang belum selesai</span>
-                    </div>
-                    <span class="bg-gray-100 text-gray-600 text-xs font-bold px-2 py-0.5 rounded-lg" id="count-inbox">0</span>
+                    <div class="flex flex-col"><span class="text-sm font-bold text-gray-700">INBOX TUGAS</span><span class="text-[10px] text-gray-400">Dari semua tugas yang belum selesai</span></div><span class="bg-gray-100 text-gray-600 text-xs font-bold px-2 py-0.5 rounded-lg" id="count-inbox">0</span>
                 </div>
-                <div class="text-[10px] text-gray-400 mb-2 italic bg-gray-50 p-2 rounded border border-dashed">
-                    <i data-lucide="info" width="10" class="inline mr-1"></i>Tap tugas lalu tap kuadran untuk memindahkan.
-                </div>
-                <div id="matrix-inbox" class="flex-1 overflow-y-auto custom-scrollbar space-y-2 p-1 content-area" data-quadrant="inbox" onclick="handleMatrixClick('inbox')">
-                    <!-- Inbox items here -->
-                </div>
+                <div class="text-[10px] text-gray-400 mb-2 italic bg-gray-50 p-2 rounded border border-dashed"><i data-lucide="info" width="10" class="inline mr-1"></i>Tap tugas lalu tap kuadran untuk memindahkan.</div>
+                <div id="matrix-inbox" class="flex-1 overflow-y-auto custom-scrollbar space-y-2 p-1 content-area" data-quadrant="inbox" onclick="handleMatrixClick('inbox')"></div>
             </div>
         </div>
     </div>
@@ -340,58 +273,67 @@
             <div class="col-span-1 bg-white rounded-3xl p-4 shadow-lg border border-gray-200 flex flex-col items-center relative overflow-hidden h-[400px]">
                 <div class="absolute top-0 left-0 w-full h-1 bg-black"></div>
                 <div class="w-full flex justify-between items-center mb-2 px-2">
-                    <span class="font-pixel text-[10px] uppercase">Pixel Bird</span>
-                    <span id="game-score" class="font-pixel text-sm">0</span>
+                    <span class="font-pixel text-[10px] uppercase">Pixel Bird</span><span id="game-score" class="font-pixel text-sm">0</span>
                 </div>
                 <div class="relative w-full flex-1 bg-gray-100 rounded-xl overflow-hidden border-4 border-gray-800">
                     <canvas id="game-canvas" class="w-full h-full block"></canvas>
-                    <!-- Game Overlay -->
                     <div id="game-overlay" class="absolute inset-0 bg-black/10 backdrop-blur-[2px] flex flex-col items-center justify-center z-10">
                         <p class="font-pixel text-xs text-gray-800 mb-4 text-center leading-loose">TAP / SPACE<br>TO JUMP</p>
                         <button id="start-game-btn" class="bg-black text-white font-pixel text-[10px] px-4 py-3 rounded shadow-lg hover:scale-105 transition-transform">START GAME</button>
                     </div>
                 </div>
+                <div class="w-full mt-3 flex justify-between text-[10px] font-mono text-gray-400"><span>High Score: <span id="high-score">0</span></span><span>V 1.0</span></div>
+            </div>
+
+            <!-- Game 2: Pixel Tetris (NEW) -->
+            <div class="col-span-1 bg-white rounded-3xl p-4 shadow-lg border border-gray-200 flex flex-col items-center relative overflow-hidden h-[400px]">
+                <div class="absolute top-0 left-0 w-full h-1 bg-black"></div>
+                <div class="w-full flex justify-between items-center mb-2 px-2">
+                    <span class="font-pixel text-[10px] uppercase">Pixel Tetris</span>
+                    <div class="text-right">
+                        <div class="font-pixel text-[8px] text-gray-400">LVL <span id="tetris-level-disp">1</span></div>
+                        <div id="tetris-score" class="font-pixel text-sm">0</div>
+                    </div>
+                </div>
+                <div class="relative w-full flex-1 bg-gray-100 rounded-xl overflow-hidden border-4 border-gray-800">
+                    <canvas id="tetris-canvas" class="w-full h-full block"></canvas>
+                    <!-- Tetris Overlay -->
+                    <div id="tetris-overlay" class="absolute inset-0 bg-black/10 backdrop-blur-[2px] flex flex-col items-center justify-center z-10">
+                        <p class="font-pixel text-xs text-gray-800 mb-4 text-center leading-loose">TAP TO ROTATE<br>HOLD TO DROP</p>
+                        <button id="start-tetris-btn" class="bg-black text-white font-pixel text-[10px] px-4 py-3 rounded shadow-lg hover:scale-105 transition-transform">START GAME</button>
+                    </div>
+                </div>
                 <div class="w-full mt-3 flex justify-between text-[10px] font-mono text-gray-400">
-                    <span>High Score: <span id="high-score">0</span></span>
+                    <span>High Score: <span id="tetris-high-score">0</span></span>
                     <span>V 1.0</span>
                 </div>
             </div>
-            <!-- Placeholder 1 -->
+
+            <!-- Placeholder -->
             <div class="col-span-1 bg-gray-100 rounded-3xl p-6 border-2 border-dashed border-gray-300 flex flex-col items-center justify-center text-gray-400 h-[400px] hover:bg-gray-50 transition-colors">
-                <i data-lucide="ghost" width="48" class="mb-4 opacity-50"></i>
+                <i data-lucide="joystick" width="48" class="mb-4 opacity-50"></i>
                 <h3 class="font-pixel text-xs mb-2">COMING SOON</h3>
                 <p class="text-xs text-center opacity-60">More pixel games cooking...</p>
             </div>
         </div>
     </div>
 
-    <!-- MODAL -->
+    <!-- MODALS (Task & iOS) -->
     <div id="task-modal" class="fixed inset-0 z-[60] hidden flex items-center justify-center p-4">
         <div id="modal-backdrop" class="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity opacity-0"></div>
         <div id="modal-content" class="relative bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl transform scale-95 transition-all opacity-0 flex flex-col max-h-[60vh]">
-            <div class="flex justify-between items-start mb-2">
-                <h3 id="modal-title" class="text-lg font-bold text-light-text leading-snug"></h3>
-                <button id="close-modal-btn" class="text-gray-400 hover:text-gray-600"><i data-lucide="x" width="20"></i></button>
-            </div>
-            <div id="modal-date" class="text-xs font-mono text-light-subtext mb-4"></div>
-            <div class="h-px w-full bg-gray-100 mb-4"></div>
-            <div id="modal-desc" class="text-sm text-gray-600 whitespace-pre-wrap overflow-y-auto"></div>
-            <div id="modal-no-desc" class="hidden text-center text-xs text-gray-400 py-4">Tidak ada deskripsi.</div>
+            <div class="flex justify-between items-start mb-2"><h3 id="modal-title" class="text-lg font-bold text-light-text leading-snug"></h3><button id="close-modal-btn" class="text-gray-400 hover:text-gray-600"><i data-lucide="x" width="20"></i></button></div>
+            <div id="modal-date" class="text-xs font-mono text-light-subtext mb-4"></div><div class="h-px w-full bg-gray-100 mb-4"></div>
+            <div id="modal-desc" class="text-sm text-gray-600 whitespace-pre-wrap overflow-y-auto"></div><div id="modal-no-desc" class="hidden text-center text-xs text-gray-400 py-4">Tidak ada deskripsi.</div>
         </div>
     </div>
-    
-    <!-- IOS INSTRUCTION MODAL -->
     <div id="ios-install-modal" class="fixed inset-0 z-[60] hidden flex items-center justify-center p-4">
         <div id="ios-backdrop" class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity"></div>
         <div class="relative bg-white rounded-3xl max-w-xs w-full p-6 shadow-2xl">
             <div class="flex flex-col items-center text-center">
                 <div class="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center mb-4"><i data-lucide="share" width="24" class="text-blue-500"></i></div>
                 <h3 class="text-lg font-bold text-gray-800 mb-2">Install di iOS</h3>
-                <ol class="text-left text-sm text-gray-600 space-y-2 mb-6 list-decimal list-inside bg-gray-50 p-3 rounded-xl w-full">
-                    <li>Tap tombol <b>Share</b> <i data-lucide="share" width="12" class="inline"></i> di Safari.</li>
-                    <li>Pilih <b>"Add to Home Screen"</b>.</li>
-                    <li>Tap <b>Add</b>.</li>
-                </ol>
+                <ol class="text-left text-sm text-gray-600 space-y-2 mb-6 list-decimal list-inside bg-gray-50 p-3 rounded-xl w-full"><li>Tap tombol <b>Share</b> <i data-lucide="share" width="12" class="inline"></i> di Safari.</li><li>Pilih <b>"Add to Home Screen"</b>.</li><li>Tap <b>Add</b>.</li></ol>
                 <button id="close-ios-modal" class="w-full py-2 bg-blue-500 text-white rounded-xl font-semibold text-sm hover:bg-blue-600 transition">Saya Mengerti</button>
             </div>
         </div>
@@ -414,581 +356,390 @@
                 document.getElementById(target).classList.add('active');
                 
                 if(target === 'slide-3') setTimeout(resizeCanvas, 100);
-                if(target === 'slide-5') renderMatrix(); // Re-render matrix on view
+                if(target === 'slide-5') renderMatrix(); 
                 
+                // Pause Arcade games if leaving Slide 4
                 if(target !== 'slide-4') {
                     gameRunning = false;
+                    tetrisRunning = false; // Stop Tetris too
                 } else {
                     resizeGameCanvas();
+                    resizeTetrisCanvas();
                 }
             });
         });
 
-        // --- POMODORO LOGIC (UPDATED) ---
-        const pomoFab = document.getElementById('pomo-fab');
-        const pomoStopBtn = document.getElementById('pomo-stop-btn');
-        const pomoMenu = document.getElementById('pomo-menu');
-        const pomoInput = document.getElementById('pomo-input');
-        const pomoStart = document.getElementById('pomo-start');
-        const pomoDisplay = document.getElementById('pomo-timer-display');
-        const pomoPresets = document.querySelectorAll('.pomo-preset');
-        
-        let pomoInterval;
-        let pomoTimeLeft = 0;
-        let isPomoRunning = false;
+        // --- POMODORO LOGIC ---
+        const pomoFab=document.getElementById('pomo-fab'),pomoStopBtn=document.getElementById('pomo-stop-btn'),pomoMenu=document.getElementById('pomo-menu'),pomoInput=document.getElementById('pomo-input'),pomoStart=document.getElementById('pomo-start'),pomoDisplay=document.getElementById('pomo-timer-display'),pomoPresets=document.querySelectorAll('.pomo-preset');
+        let pomoInterval,pomoTimeLeft=0,isPomoRunning=false;
 
-        // Toggle Menu
         pomoFab.addEventListener('click', (e) => {
             if(isPomoRunning) return;
-            // Request notification permission on first click
-            if (Notification.permission !== "granted" && Notification.permission !== "denied") {
-                Notification.requestPermission();
-            } 
+            if(Notification.permission!=="granted"&&Notification.permission!=="denied")Notification.requestPermission();
             pomoMenu.classList.toggle('hidden');
-            setTimeout(() => {
-                pomoMenu.classList.toggle('scale-95');
-                pomoMenu.classList.toggle('opacity-0');
-            }, 10);
+            setTimeout(()=>{pomoMenu.classList.toggle('scale-95');pomoMenu.classList.toggle('opacity-0');},10);
             e.stopPropagation();
         });
-        
         document.addEventListener('click', (e) => {
-            if(!pomoMenu.contains(e.target) && !pomoFab.contains(e.target)) {
-                pomoMenu.classList.add('scale-95', 'opacity-0');
-                setTimeout(() => pomoMenu.classList.add('hidden'), 200);
+            if(!pomoMenu.contains(e.target)&&!pomoFab.contains(e.target)) {
+                pomoMenu.classList.add('scale-95','opacity-0');setTimeout(()=>pomoMenu.classList.add('hidden'),200);
             }
         });
-
-        pomoPresets.forEach(btn => {
-            btn.addEventListener('click', () => { pomoInput.value = btn.dataset.time; });
+        pomoPresets.forEach(btn=>{btn.addEventListener('click',()=>{pomoInput.value=btn.dataset.time;});});
+        function formatTime(seconds){const m=Math.floor(seconds/60).toString().padStart(2,'0'),s=(seconds%60).toString().padStart(2,'0');return `${m}:${s}`;}
+        function showNotification(title,body){if(Notification.permission==="granted"){new Notification(title,{body,icon:'https://img.icons8.com/doodle/192/checklist--v1.png'});}}
+        function stopPomodoro(){clearInterval(pomoInterval);isPomoRunning=false;pomoDisplay.classList.add('hidden');pomoStopBtn.classList.add('hidden');pomoFab.classList.remove('hidden');pomoFab.disabled=false;}
+        pomoStopBtn.addEventListener('click',stopPomodoro);
+        pomoStart.addEventListener('click',()=>{
+            const minutes=parseInt(pomoInput.value);if(!minutes||minutes<=0)return alert("Masukkan waktu yang valid!");
+            pomoTimeLeft=minutes*60;isPomoRunning=true;
+            pomoMenu.classList.add('hidden');pomoDisplay.classList.remove('hidden');pomoStopBtn.classList.remove('hidden');pomoDisplay.textContent=formatTime(pomoTimeLeft);
+            if(Notification.permission!=="granted"&&Notification.permission!=="denied")Notification.requestPermission();
+            pomoInterval=setInterval(()=>{
+                pomoTimeLeft--;pomoDisplay.textContent=formatTime(pomoTimeLeft);
+                if(pomoTimeLeft<=0){stopPomodoro();if("vibrate"in navigator)navigator.vibrate([200,100,200]);alert("Waktu Habis! Istirahat sejenak.");showNotification("Waktu Habis!","Sesi Pomodoro Anda telah selesai. Istirahat sejenak!");}
+            },1000);
         });
 
-        function formatTime(seconds) {
-            const m = Math.floor(seconds / 60).toString().padStart(2,'0');
-            const s = (seconds % 60).toString().padStart(2,'0');
-            return `${m}:${s}`;
-        }
-
-        function showNotification(title, body) {
-            if (Notification.permission === "granted") {
-                new Notification(title, { body, icon: 'https://img.icons8.com/doodle/192/checklist--v1.png' });
-            }
-        }
-
-        function stopPomodoro() {
-            clearInterval(pomoInterval);
-            isPomoRunning = false;
-            pomoDisplay.classList.add('hidden');
-            pomoStopBtn.classList.add('hidden');
-            pomoFab.classList.remove('hidden'); // Show FAB again
-            pomoFab.disabled = false;
-        }
-
-        pomoStopBtn.addEventListener('click', stopPomodoro);
-
-        pomoStart.addEventListener('click', () => {
-            const minutes = parseInt(pomoInput.value);
-            if(!minutes || minutes <= 0) return alert("Masukkan waktu yang valid!");
-            
-            pomoTimeLeft = minutes * 60;
-            isPomoRunning = true;
-            
-            pomoMenu.classList.add('hidden');
-            pomoDisplay.classList.remove('hidden');
-            pomoStopBtn.classList.remove('hidden'); // Show stop button
-            pomoDisplay.textContent = formatTime(pomoTimeLeft);
-
-            if (Notification.permission !== "granted" && Notification.permission !== "denied") {
-                Notification.requestPermission();
-            }
-
-            pomoInterval = setInterval(() => {
-                pomoTimeLeft--;
-                pomoDisplay.textContent = formatTime(pomoTimeLeft);
-                if(pomoTimeLeft <= 0) {
-                    stopPomodoro();
-                    if("vibrate" in navigator) navigator.vibrate([200, 100, 200]);
-                    alert("Waktu Habis! Istirahat sejenak.");
-                    showNotification("Waktu Habis!", "Sesi Pomodoro Anda telah selesai. Istirahat sejenak!");
-                }
-            }, 1000);
-        });
-
-        // --- EISENHOWER MATRIX LOGIC (INTEGRATED) ---
-        let selectedTask = null; // For tap-to-move
-
+        // --- EISENHOWER MATRIX LOGIC ---
+        let selectedTask = null; 
         function renderMatrix() {
-            // 1. Clear UI
-            ['q1', 'q2', 'q3', 'q4', 'inbox'].forEach(id => {
-                const container = document.querySelector(`[data-quadrant="${id}"] .content-area`) || document.getElementById('matrix-inbox');
-                if(container) container.innerHTML = '';
-                const countEl = document.getElementById(`count-${id}`);
-                if(countEl) countEl.textContent = '0';
-            });
-
-            // 2. Fetch Unfinished Tasks from All Dates
-            const counts = { q1:0, q2:0, q3:0, q4:0, inbox:0 };
-            
-            // Iterate all dates in allTasks
-            Object.keys(allTasks).forEach(dateKey => {
-                allTasks[dateKey].forEach(task => {
-                    // Only process unfinished tasks
-                    if (!task.completed) {
-                        const quadrant = task.quadrant || 'inbox';
-                        const container = document.querySelector(`[data-quadrant="${quadrant}"] .content-area`) || document.getElementById('matrix-inbox');
-                        
-                        if (container) {
-                            const div = document.createElement('div');
-                            div.className = `matrix-card bg-white p-2 rounded shadow-sm text-[11px] border border-gray-100 break-words leading-tight ${selectedTask === task.id ? 'selected' : ''}`;
-                            div.textContent = task.text;
-                            
-                            // Date Label
-                            const dateSpan = document.createElement('div');
-                            dateSpan.className = "text-[9px] text-gray-400 mt-1";
-                            dateSpan.textContent = dateKey;
-                            div.appendChild(dateSpan);
-
-                            // Selection logic (Tap to move)
-                            div.onclick = (e) => {
-                                e.stopPropagation();
-                                if (selectedTask === task.id) selectedTask = null; 
-                                else selectedTask = task.id;
-                                renderMatrix();
-                            };
-
-                            container.appendChild(div);
-                            if(counts[quadrant] !== undefined) counts[quadrant]++;
+            ['q1','q2','q3','q4','inbox'].forEach(id=>{const c=document.querySelector(`[data-quadrant="${id}"] .content-area`)||document.getElementById('matrix-inbox');if(c)c.innerHTML='';const el=document.getElementById(`count-${id}`);if(el)el.textContent='0';});
+            const counts={q1:0,q2:0,q3:0,q4:0,inbox:0};
+            Object.keys(allTasks).forEach(dateKey=>{
+                allTasks[dateKey].forEach(task=>{
+                    if(!task.completed){
+                        const q=task.quadrant||'inbox';
+                        const c=document.querySelector(`[data-quadrant="${q}"] .content-area`)||document.getElementById('matrix-inbox');
+                        if(c){
+                            const div=document.createElement('div');
+                            div.className=`matrix-card bg-white p-2 rounded shadow-sm text-[11px] border border-gray-100 break-words leading-tight ${selectedTask===task.id?'selected':''}`;
+                            div.innerHTML=`${task.text}<div class="text-[9px] text-gray-400 mt-1">${dateKey}</div>`;
+                            div.onclick=(e)=>{e.stopPropagation();if(selectedTask===task.id)selectedTask=null;else selectedTask=task.id;renderMatrix();};
+                            c.appendChild(div);if(counts[q]!==undefined)counts[q]++;
                         }
                     }
                 });
             });
-
-            // 3. Update counts
-            Object.keys(counts).forEach(k => {
-                const el = document.getElementById(`count-${k}`);
-                if(el) el.textContent = counts[k];
-            });
+            Object.keys(counts).forEach(k=>{const el=document.getElementById(`count-${k}`);if(el)el.textContent=counts[k];});
         }
-
         function handleMatrixClick(targetQuadrant) {
-            if (selectedTask !== null) {
-                // Find the task across all dates
-                let found = false;
-                Object.keys(allTasks).forEach(dateKey => {
-                    if (found) return;
-                    const taskIndex = allTasks[dateKey].findIndex(t => t.id === selectedTask);
-                    if (taskIndex > -1) {
-                        // Update quadrant
-                        allTasks[dateKey][taskIndex].quadrant = targetQuadrant === 'inbox' ? null : targetQuadrant;
-                        found = true;
+            if(selectedTask!==null){
+                let found=false;
+                Object.keys(allTasks).forEach(dateKey=>{
+                    if(found)return;const idx=allTasks[dateKey].findIndex(t=>t.id===selectedTask);
+                    if(idx>-1){allTasks[dateKey][idx].quadrant=targetQuadrant==='inbox'?null:targetQuadrant;found=true;}
+                });
+                if(found){selectedTask=null;saveTasks();renderMatrix();}
+            }
+        }
+
+        // --- GLOBAL STATE & CORE ---
+        let currentDate=new Date(),allTasks=JSON.parse(localStorage.getItem('productivity_tasks'))||{},currentCalendarDate=new Date();
+        const s1Time=document.getElementById('s1-time'),s1Date=document.getElementById('s1-date'),s1Quote=document.getElementById('s1-quote');
+        function updateSlide1(){const now=new Date();s1Time.textContent=now.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:false});s1Date.textContent=now.toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'});}
+        s1Quote.textContent=localStorage.getItem('productivity_quote')||"Make today count.";s1Quote.addEventListener('input',e=>localStorage.setItem('productivity_quote',e.target.textContent));
+
+        const els={
+            dateDisplay:document.getElementById('date-display'),dateLabel:document.getElementById('date-label'),taskList:document.getElementById('task-list'),emptyState:document.getElementById('empty-state'),progress:document.getElementById('progress-bar'),progressTxt:document.getElementById('progress-text'),taskInput:document.getElementById('task-input'),taskDesc:document.getElementById('task-desc-input'),addBtn:document.getElementById('add-task-btn'),note:document.getElementById('note-input'),fetchBtn:document.getElementById('fetch-btn'),pushBtn:document.getElementById('push-btn'),syncNoteBtn:document.getElementById('sync-note-btn'),fetchNoteBtn:document.getElementById('fetch-note-btn'),installArea:document.getElementById('pwa-install-area'),installBtn:document.getElementById('install-btn'),installText:document.getElementById('install-text'),s2Time:document.getElementById('s2-time'),s2Date:document.getElementById('s2-date'),s2CalWrapper:document.getElementById('s2-calendar-wrapper'),iosModal:document.getElementById('ios-install-modal'),closeIosModal:document.getElementById('close-ios-modal'),iosBackdrop:document.getElementById('ios-backdrop')
+        };
+
+        // PWA Install
+        let deferredPrompt;const isIos=/iPhone|iPad|iPod/.test(navigator.userAgent)&&!window.MSStream;
+        const isStandalone=window.matchMedia('(display-mode: standalone)').matches||window.navigator.standalone;
+        if(!isStandalone){els.installArea.classList.remove('hidden');if(isIos)els.installText.textContent="Cara Install (iOS)";}
+        window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;els.installArea.classList.remove('hidden');els.installText.textContent="Install Aplikasi";});
+        els.installBtn.addEventListener('click',async()=>{
+            if(deferredPrompt){deferredPrompt.prompt();const{outcome}=await deferredPrompt.userChoice;if(outcome==='accepted'){deferredPrompt=null;els.installArea.classList.add('hidden');}}else if(isIos){els.iosModal.classList.remove('hidden');lucide.createIcons();}else{alert("Silakan install melalui menu browser Anda.");}
+        });
+        const closeIos=()=>els.iosModal.classList.add('hidden');els.closeIosModal.addEventListener('click',closeIos);els.iosBackdrop.addEventListener('click',closeIos);
+
+        const getDateKey=d=>{const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0');return `${y}-${m}-${day}`;};
+        const saveTasks=()=>{localStorage.setItem('productivity_tasks',JSON.stringify(allTasks));renderTasks();renderCalendar(new Date(),els.s2CalWrapper,true);renderMatrix();};
+        function updateSlide2Clock(){const now=new Date();els.s2Time.textContent=now.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:false});els.s2Date.textContent=now.toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'});if(now.getSeconds()===0)renderCalendar(now,els.s2CalWrapper,true);}
+
+        function renderTasks(){
+            const key=getDateKey(currentDate);els.dateLabel.textContent=key===getDateKey(new Date())?'HARI INI':'TANGGAL';els.dateDisplay.textContent=new Intl.DateTimeFormat('id-ID',{weekday:'long',day:'numeric',month:'long'}).format(currentDate);
+            const tasks=allTasks[key]||[];els.taskList.innerHTML='';
+            const pct=tasks.length?Math.round((tasks.filter(t=>t.completed).length/tasks.length)*100):0;els.progress.style.width=`${pct}%`;els.progressTxt.textContent=`${pct}%`;
+            if(tasks.length===0){els.emptyState.classList.remove('hidden');els.taskList.classList.add('hidden');}else{els.emptyState.classList.add('hidden');els.taskList.classList.remove('hidden');tasks.forEach(t=>{const div=document.createElement('div');div.className=`flex items-center gap-3 p-3 rounded-xl border transition-all ${t.completed?'bg-gray-100 border-transparent opacity-60':'bg-white border-light-border'}`;div.innerHTML=`<button onclick="toggleTask(${t.id})" class="${t.completed?'text-light-primary':'text-gray-400'}"><i data-lucide="${t.completed?'check-circle-2':'circle'}" width="20"></i></button><div onclick="openModal(${t.id})" class="flex-1 min-w-0 cursor-pointer"><span class="truncate text-sm ${t.completed?'line-through text-gray-400':'text-light-text'}">${t.text}</span></div><button onclick="deleteTask(${t.id})" class="text-red-400 hover:text-red-600"><i data-lucide="trash-2" width="16"></i></button>`;els.taskList.appendChild(div);});}
+            lucide.createIcons();
+        }
+
+        // --- CANVAS & UNDO ---
+        const canvas=document.getElementById('drawing-canvas'),ctx=canvas.getContext('2d',{willReadFrequently:true});
+        const colorPicker=document.getElementById('draw-color'),widthSlider=document.getElementById('draw-width'),btnPen=document.getElementById('tool-pen'),btnEraser=document.getElementById('tool-eraser'),btnClear=document.getElementById('action-clear'),btnSave=document.getElementById('action-save'),btnUndo=document.getElementById('action-undo'),btnRedo=document.getElementById('action-redo');
+        let isDrawing=false,isEraser=false,lastX=0,lastY=0,history=[],historyStep=-1;
+        function saveHistory(){historyStep++;if(historyStep<history.length)history.length=historyStep;history.push(canvas.toDataURL());if(history.length>20){history.shift();historyStep--;}}
+        function undo(){if(historyStep>0){historyStep--;const img=new Image();img.src=history[historyStep];img.onload=()=>{ctx.clearRect(0,0,canvas.width,canvas.height);ctx.drawImage(img,0,0);}}}
+        function redo(){if(historyStep<history.length-1){historyStep++;const img=new Image();img.src=history[historyStep];img.onload=()=>{ctx.clearRect(0,0,canvas.width,canvas.height);ctx.drawImage(img,0,0);}}}
+        function resizeCanvas(){const temp=canvas.toDataURL();canvas.width=document.getElementById('slide-3').clientWidth;canvas.height=document.getElementById('slide-3').clientHeight;ctx.lineCap='round';ctx.lineJoin='round';ctx.lineWidth=widthSlider.value;ctx.strokeStyle=isEraser?'#f9fafb':colorPicker.value;if(history.length===0){ctx.fillStyle="transparent";ctx.fillRect(0,0,canvas.width,canvas.height);saveHistory();}else{const img=new Image();img.src=temp;img.onload=()=>ctx.drawImage(img,0,0);}}
+        window.addEventListener('resize',resizeCanvas);
+        function getPos(e){const r=canvas.getBoundingClientRect(),cx=e.touches?e.touches[0].clientX:e.clientX,cy=e.touches?e.touches[0].clientY:e.clientY;return{x:cx-r.left,y:cy-r.top};}
+        function startDrawing(e){isDrawing=true;const p=getPos(e);lastX=p.x;lastY=p.y;}
+        function draw(e){if(!isDrawing)return;e.preventDefault();const p=getPos(e);ctx.beginPath();ctx.moveTo(lastX,lastY);ctx.lineTo(p.x,p.y);ctx.stroke();lastX=p.x;lastY=p.y;}
+        function stopDrawing(){if(isDrawing){isDrawing=false;saveHistory();}}
+        canvas.addEventListener('mousedown',startDrawing);canvas.addEventListener('mousemove',draw);canvas.addEventListener('mouseup',stopDrawing);canvas.addEventListener('mouseout',stopDrawing);canvas.addEventListener('touchstart',startDrawing,{passive:false});canvas.addEventListener('touchmove',draw,{passive:false});canvas.addEventListener('touchend',stopDrawing);
+        btnUndo.addEventListener('click',undo);btnRedo.addEventListener('click',redo);
+        colorPicker.addEventListener('input',e=>{if(!isEraser)ctx.strokeStyle=e.target.value;});widthSlider.addEventListener('input',e=>{ctx.lineWidth=e.target.value;});
+        btnPen.addEventListener('click',()=>{isEraser=false;ctx.strokeStyle=colorPicker.value;btnPen.classList.add('bg-gray-100','text-light-primary');btnEraser.classList.remove('bg-gray-100','text-light-primary');});
+        btnEraser.addEventListener('click',()=>{isEraser=true;ctx.strokeStyle='#f9fafb';btnEraser.classList.add('bg-gray-100','text-light-primary');btnPen.classList.remove('bg-gray-100','text-light-primary');});
+        btnClear.addEventListener('click',()=>{if(confirm('Hapus semua?')){ctx.clearRect(0,0,canvas.width,canvas.height);saveHistory();}});
+        btnSave.addEventListener('click',()=>{const l=document.createElement('a');l.download=`sketch-${Date.now()}.png`;l.href=canvas.toDataURL();l.click();});
+
+        // --- GAME 1: PIXEL BIRD ---
+        const gameCanvas=document.getElementById('game-canvas'),gameCtx=gameCanvas.getContext('2d'),startBtn=document.getElementById('start-game-btn'),gameOverlay=document.getElementById('game-overlay'),scoreEl=document.getElementById('game-score'),highScoreEl=document.getElementById('high-score');
+        let bird={x:30,y:150,w:12,h:12,dy:0},pipes=[],frame=0,gameScore=0,gameRunning=false,highScore=localStorage.getItem('pixelbird_hs')||0;highScoreEl.textContent=highScore;
+        function resizeGameCanvas(){const p=gameCanvas.parentElement;gameCanvas.width=p.clientWidth;gameCanvas.height=p.clientHeight;}
+        function resetGame(){bird.y=gameCanvas.height/2;bird.dy=0;pipes=[];frame=0;gameScore=0;scoreEl.textContent=0;gameRunning=true;gameOverlay.classList.add('hidden');gameLoop();}
+        function jump(){if(!gameRunning)return;bird.dy=-4.5;}
+        function drawPixel(x,y,w,h,c){gameCtx.fillStyle=c;gameCtx.fillRect(Math.floor(x),Math.floor(y),w,h);}
+        function gameLoop(){
+            if(!gameRunning)return;bird.dy+=0.25;bird.y+=bird.dy;
+            if(frame%100===0){const g=100,min=20,max=gameCanvas.height-g-min,top=Math.floor(Math.random()*(max-min+1)+min);pipes.push({x:gameCanvas.width,top:top,gap:g,passed:false});}
+            gameCtx.clearRect(0,0,gameCanvas.width,gameCanvas.height);drawPixel(bird.x,bird.y,bird.w,bird.h,'#1f2937');
+            for(let i=0;i<pipes.length;i++){
+                let p=pipes[i];p.x-=2;drawPixel(p.x,0,20,p.top,'#1f2937');drawPixel(p.x,p.top+p.gap,20,gameCanvas.height-(p.top+p.gap),'#1f2937');
+                if(bird.x<p.x+20&&bird.x+bird.w>p.x&&(bird.y<p.top||bird.y+bird.h>p.top+p.gap))gameOver();
+                if(p.x+20<bird.x&&!p.passed){gameScore++;scoreEl.textContent=gameScore;p.passed=true;}if(p.x<-20){pipes.shift();i--;}
+            }
+            if(bird.y+bird.h>gameCanvas.height||bird.y<0)gameOver();
+            frame++;requestAnimationFrame(gameLoop);
+        }
+        function gameOver(){gameRunning=false;if(gameScore>highScore){highScore=gameScore;localStorage.setItem('pixelbird_hs',highScore);highScoreEl.textContent=highScore;}gameOverlay.classList.remove('hidden');document.querySelector('#game-overlay p').innerHTML="GAME OVER<br>SCORE: "+gameScore;startBtn.textContent="TRY AGAIN";}
+        startBtn.addEventListener('click',()=>{resetGame();});gameCanvas.addEventListener('mousedown',e=>{e.preventDefault();jump();});gameCanvas.addEventListener('touchstart',e=>{e.preventDefault();jump();},{passive:false});
+        window.addEventListener('keydown',e=>{if(e.code==='Space'&&document.getElementById('slide-4').classList.contains('active')){e.preventDefault();if(!gameRunning&&!gameOverlay.classList.contains('hidden'))resetGame();else jump();}});
+        window.addEventListener('resize',resizeGameCanvas);
+
+        // --- GAME 2: PIXEL TETRIS (NEW) ---
+        const tCanvas = document.getElementById('tetris-canvas'), tCtx = tCanvas.getContext('2d'), tStartBtn = document.getElementById('start-tetris-btn'), tOverlay = document.getElementById('tetris-overlay'), tScoreEl = document.getElementById('tetris-score'), tLevelEl = document.getElementById('tetris-level-disp'), tHighScoreEl = document.getElementById('tetris-high-score');
+        
+        const ROW=20, COL=10; let SQ=20, VACANT='#f3f4f6';
+        let tBoard=[], tScore=0, tLevel=1, tGameRunning=false, tHighScore=localStorage.getItem('pixeltetris_hs')||0; tHighScoreEl.textContent=tHighScore;
+        
+        // Renamed shape functions to avoid global scope conflicts
+        const PIECES = [
+            [TetrisZ,"#1f2937"], [TetrisS,"#1f2937"], [TetrisT,"#1f2937"], [TetrisO,"#1f2937"], [TetrisL,"#1f2937"], [TetrisI,"#1f2937"], [TetrisJ,"#1f2937"]
+        ];
+        // Shapes logic with namespacing
+        function TetrisZ(){return[[1,1,0],[0,1,1],[0,0,0]];} 
+        function TetrisS(){return[[0,1,1],[1,1,0],[0,0,0]];} 
+        function TetrisT(){return[[0,1,0],[1,1,1],[0,0,0]];} 
+        function TetrisO(){return[[0,0,0,0],[0,1,1,0],[0,1,1,0],[0,0,0,0]];} 
+        function TetrisL(){return[[0,0,1],[1,1,1],[0,0,0]];} 
+        function TetrisI(){return[[0,1,0,0],[0,1,0,0],[0,1,0,0],[0,1,0,0]];} 
+        function TetrisJ(){return[[1,0,0],[1,1,1],[0,0,0]];}
+        
+        let tPiece, tDropStart = Date.now(), tTouchStart = 0, tIsTouch = false;
+
+        function resizeTetrisCanvas() {
+            const p = tCanvas.parentElement;
+            tCanvas.width = p.clientWidth;
+            tCanvas.height = p.clientHeight;
+            SQ = Math.floor(tCanvas.height / ROW);
+        }
+
+        function drawSquare(x, y, color) {
+            tCtx.fillStyle = color;
+            tCtx.fillRect(x*SQ, y*SQ, SQ, SQ);
+            tCtx.strokeStyle = "#e5e7eb";
+            tCtx.strokeRect(x*SQ, y*SQ, SQ, SQ);
+        }
+
+        function initBoard() {
+            tBoard = [];
+            for(let r=0; r<ROW; r++){
+                tBoard[r] = [];
+                for(let c=0; c<COL; c++){
+                    tBoard[r][c] = VACANT;
+                }
+            }
+        }
+
+        function drawBoard(){ for(let r=0; r<ROW; r++){ for(let c=0; c<COL; c++){ drawSquare(c, r, tBoard[r][c]); } } }
+
+        class Piece {
+            constructor(tetromino, color){
+                this.tetromino = tetromino;
+                this.color = color;
+                this.tetrominoN = 0; // rotation index
+                this.activeTetromino = this.tetromino[this.tetrominoN]();
+                this.x = 3;
+                this.y = -2;
+            }
+            fill(color){
+                for(let r=0; r<this.activeTetromino.length; r++){
+                    for(let c=0; c<this.activeTetromino.length; c++){
+                        if(this.activeTetromino[r][c]){ drawSquare(this.x + c, this.y + r, color); }
                     }
-                });
-
-                if (found) {
-                    selectedTask = null;
-                    saveTasks(); // Save main task storage
-                    renderMatrix(); // Re-render Matrix
                 }
+            }
+            draw(){ this.fill(this.color); }
+            unDraw(){ this.fill(VACANT); }
+            moveDown(){
+                if(!this.collision(0,1,this.activeTetromino)){
+                    this.unDraw(); this.y++; this.draw();
+                } else {
+                    this.lock();
+                    tPiece = randomPiece();
+                }
+            }
+            moveRight(){
+                if(!this.collision(1,0,this.activeTetromino)){ this.unDraw(); this.x++; this.draw(); }
+            }
+            moveLeft(){
+                if(!this.collision(-1,0,this.activeTetromino)){ this.unDraw(); this.x--; this.draw(); }
+            }
+            rotate(){
+                let nextPattern = this.tetromino[(this.tetrominoN + 1) % this.tetromino.length];
+                let kick = 0;
+                if(this.collision(0,0,nextPattern())){
+                    if(this.x > COL/2){ kick = -1; } else { kick = 1; } // Wall kick simple
+                }
+                if(!this.collision(kick,0,nextPattern())){
+                    this.unDraw();
+                    this.x += kick;
+                    this.tetrominoN = (this.tetrominoN + 1) % this.tetromino.length;
+                    this.activeTetromino = this.tetromino[this.tetrominoN]();
+                    this.draw();
+                }
+            }
+            lock(){
+                for(let r=0; r<this.activeTetromino.length; r++){
+                    for(let c=0; c<this.activeTetromino.length; c++){
+                        if(!this.activeTetromino[r][c]) continue;
+                        if(this.y + r < 0){
+                            // Game Over
+                            tGameRunning = false;
+                            if(tScore > tHighScore) { tHighScore = tScore; localStorage.setItem('pixeltetris_hs', tHighScore); tHighScoreEl.textContent = tHighScore; }
+                            tOverlay.classList.remove('hidden');
+                            document.querySelector('#tetris-overlay p').innerHTML = "GAME OVER<br>SCORE: " + tScore;
+                            tStartBtn.textContent = "TRY AGAIN";
+                            return;
+                        }
+                        tBoard[this.y + r][this.x + c] = this.color;
+                    }
+                }
+                // Remove full rows
+                for(let r=0; r<ROW; r++){
+                    let isRowFull = true;
+                    for(let c=0; c<COL; c++){
+                        if(tBoard[r][c] == VACANT){ isRowFull = false; break; }
+                    }
+                    if(isRowFull){
+                        for(let y=r; y>1; y--){
+                            for(let c=0; c<COL; c++){ tBoard[y][c] = tBoard[y-1][c]; }
+                        }
+                        for(let c=0; c<COL; c++){ tBoard[0][c] = VACANT; }
+                        tScore += 10;
+                    }
+                }
+                tLevel = Math.floor(tScore / 50) + 1;
+                tScoreEl.textContent = tScore;
+                tLevelEl.textContent = tLevel;
+                drawBoard();
+            }
+            collision(x,y,piece){
+                for(let r=0; r<piece.length; r++){
+                    for(let c=0; c<piece.length; c++){
+                        if(!piece[r][c]) continue;
+                        let newX = this.x + c + x;
+                        let newY = this.y + r + y;
+                        if(newX < 0 || newX >= COL || newY >= ROW){ return true; }
+                        if(newY < 0) continue;
+                        if(tBoard[newY][newX] != VACANT){ return true; }
+                    }
+                }
+                return false;
             }
         }
 
-        // --- GLOBAL STATE & EXISTING LOGIC ---
-        let currentDate = new Date();
-        let allTasks = JSON.parse(localStorage.getItem('productivity_tasks')) || {};
-        let currentCalendarDate = new Date();
-
-        // --- SLIDE 1 LOGIC ---
-        const s1Time = document.getElementById('s1-time');
-        const s1Date = document.getElementById('s1-date');
-        const s1Quote = document.getElementById('s1-quote');
-
-        function updateSlide1() {
-            const now = new Date();
-            s1Time.textContent = now.toLocaleTimeString('en-US', {hour:'2-digit',minute:'2-digit',hour12:false});
-            s1Date.textContent = now.toLocaleDateString('id-ID', {weekday:'long', day:'numeric', month:'long', year:'numeric'});
+        function randomPiece(){
+            let r = Math.floor(Math.random() * PIECES.length);
+            return new Piece(PIECES[r][0], PIECES[r][1]);
         }
-        s1Quote.textContent = localStorage.getItem('productivity_quote') || "Make today count.";
-        s1Quote.addEventListener('input', (e) => localStorage.setItem('productivity_quote', e.target.textContent));
 
-        // --- SLIDE 2 LOGIC ---
-        const els = {
-            dateDisplay: document.getElementById('date-display'),
-            dateLabel: document.getElementById('date-label'),
-            taskList: document.getElementById('task-list'),
-            emptyState: document.getElementById('empty-state'),
-            progress: document.getElementById('progress-bar'),
-            progressTxt: document.getElementById('progress-text'),
-            taskInput: document.getElementById('task-input'),
-            taskDesc: document.getElementById('task-desc-input'),
-            addBtn: document.getElementById('add-task-btn'),
-            note: document.getElementById('note-input'),
-            fetchBtn: document.getElementById('fetch-btn'),
-            pushBtn: document.getElementById('push-btn'),
-            syncNoteBtn: document.getElementById('sync-note-btn'),
-            fetchNoteBtn: document.getElementById('fetch-note-btn'),
-            installArea: document.getElementById('pwa-install-area'),
-            installBtn: document.getElementById('install-btn'),
-            installText: document.getElementById('install-text'),
-            s2Time: document.getElementById('s2-time'), 
-            s2Date: document.getElementById('s2-date'), 
-            s2CalWrapper: document.getElementById('s2-calendar-wrapper'),
-            iosModal: document.getElementById('ios-install-modal'),
-            closeIosModal: document.getElementById('close-ios-modal'),
-            iosBackdrop: document.getElementById('ios-backdrop')
-        };
+        function drop(){
+            if(!tGameRunning) return;
+            let now = Date.now();
+            let delta = now - tDropStart;
+            
+            // Speed logic: Level 1 = 1000ms, Level 10 = 100ms
+            let speed = Math.max(100, 1000 - (tLevel * 50));
+            
+            // Fast drop if touching and holding
+            if(tIsTouch && (now - tTouchStart > 200)) speed = 50; 
 
-        // PWA Install Logic (Existing)
-        let deferredPrompt;
-        const isIos = /iPhone|iPad|iPod/.test(navigator.userAgent) && !window.MSStream;
-        const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
-        if(!isStandalone) {
-            els.installArea.classList.remove('hidden');
-            if(isIos) els.installText.textContent = "Cara Install (iOS)";
+            if(delta > speed){
+                tPiece.moveDown();
+                tDropStart = Date.now();
+            }
+            requestAnimationFrame(drop);
         }
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault(); deferredPrompt = e;
-            els.installArea.classList.remove('hidden');
-            els.installText.textContent = "Install Aplikasi";
+
+        function startTetris(){
+            initBoard();
+            drawBoard();
+            tScore = 0; tLevel = 1;
+            tScoreEl.textContent = 0; tLevelEl.textContent = 1;
+            tPiece = randomPiece();
+            tDropStart = Date.now();
+            tGameRunning = true;
+            tOverlay.classList.add('hidden');
+            drop();
+        }
+
+        tStartBtn.addEventListener('click', startTetris);
+        
+        // Tetris Controls
+        // Click/Tap = Rotate. Hold = Fast Drop.
+        tCanvas.addEventListener('touchstart', (e) => { e.preventDefault(); tIsTouch = true; tTouchStart = Date.now(); }, {passive: false});
+        tCanvas.addEventListener('touchend', (e) => { 
+            e.preventDefault(); tIsTouch = false; 
+            if(Date.now() - tTouchStart < 200 && tGameRunning) { tPiece.rotate(); }
         });
-        els.installBtn.addEventListener('click', async () => {
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                const { outcome } = await deferredPrompt.userChoice;
-                if (outcome === 'accepted') { deferredPrompt = null; els.installArea.classList.add('hidden'); }
-            } else if (isIos) {
-                els.iosModal.classList.remove('hidden');
-                lucide.createIcons();
-            } else { alert("Silakan install melalui menu browser Anda."); }
+        tCanvas.addEventListener('mousedown', (e) => { e.preventDefault(); tIsTouch = true; tTouchStart = Date.now(); });
+        tCanvas.addEventListener('mouseup', (e) => { 
+            e.preventDefault(); tIsTouch = false; 
+            if(Date.now() - tTouchStart < 200 && tGameRunning) { tPiece.rotate(); }
         });
-        const closeIos = () => els.iosModal.classList.add('hidden');
-        els.closeIosModal.addEventListener('click', closeIos); els.iosBackdrop.addEventListener('click', closeIos);
 
-        const getDateKey = (d) => { const y=d.getFullYear(), m=String(d.getMonth()+1).padStart(2,'0'), day=String(d.getDate()).padStart(2,'0'); return `${y}-${m}-${day}`; };
-        
-        // === UPDATED SAVE TASKS TO SYNC MATRIX ===
-        const saveTasks = () => { 
-            localStorage.setItem('productivity_tasks', JSON.stringify(allTasks)); 
-            renderTasks(); 
-            renderCalendar(new Date(), els.s2CalWrapper, true); 
-            renderMatrix(); // IMPORTANT: Trigger Matrix update
-        };
-        
-        function updateSlide2Clock() {
-            const now = new Date();
-            els.s2Time.textContent = now.toLocaleTimeString('en-US', {hour:'2-digit',minute:'2-digit',hour12:false});
-            els.s2Date.textContent = now.toLocaleDateString('id-ID', {weekday:'long', day:'numeric', month:'long', year:'numeric'});
-            if(now.getSeconds() === 0) renderCalendar(now, els.s2CalWrapper, true);
+        // Helpers
+        function renderCalendar(date,container,wide=false){
+            const y=date.getFullYear(),m=date.getMonth(),todayKey=getDateKey(new Date()),firstDay=new Date(y,m,1).getDay(),daysInMonth=new Date(y,m+1,0).getDate(),monthName=new Intl.DateTimeFormat('id-ID',{month:'long',year:'numeric'}).format(date);
+            let html=`<div class="w-full text-center select-none">`;
+            if(wide)html+=`<div class="flex items-center justify-between mb-2 text-xs font-semibold text-light-text"><button onclick="calChange(-1)" class="hover:bg-gray-100 rounded p-0.5"><i data-lucide="chevron-left" width="14"></i></button><span class="uppercase tracking-widest">${monthName}</span><button onclick="calChange(1)" class="hover:bg-gray-100 rounded p-0.5"><i data-lucide="chevron-right" width="14"></i></button></div>`;
+            else html+=`<div class="flex justify-between mb-2 px-2 text-xs font-bold text-gray-500"><button onclick="calChange(-1)"><i data-lucide="chevron-left" width="16"></i></button><span>${monthName}</span><button onclick="calChange(1)"><i data-lucide="chevron-right" width="16"></i></button></div>`;
+            html+=`<div class="grid grid-cols-7 gap-0.5 text-[9px] mb-1 text-gray-400">${['M','S','S','R','K','J','S'].map(d=>`<div>${d}</div>`).join('')}</div><div class="grid grid-cols-7 gap-0.5">`;
+            for(let i=0;i<firstDay;i++)html+=`<div></div>`;
+            for(let i=1;i<=daysInMonth;i++){const k=getDateKey(new Date(y,m,i)),isToday=k===todayKey,hasTask=allTasks[k]&&allTasks[k].length>0,allDone=hasTask&&allTasks[k].every(t=>t.completed);let bg=isToday?'bg-light-accent text-white shadow-sm font-bold':'text-gray-600 hover:bg-gray-100';let dot=hasTask?`<div class="w-1 h-1 rounded-full mx-auto ${allDone?'bg-emerald-400':'bg-orange-300'} ${isToday?'bg-white':''}"></div>`:`<div class="h-1"></div>`;html+=`<div class="p-0.5 text-[10px] rounded ${bg} flex flex-col items-center justify-center h-6 cursor-default">${i}${dot}</div>`;}
+            container.innerHTML=html+`</div></div>`;lucide.createIcons();
         }
-
-        function renderTasks() {
-            const key = getDateKey(currentDate);
-            els.dateLabel.textContent = key === getDateKey(new Date()) ? 'HARI INI' : 'TANGGAL';
-            els.dateDisplay.textContent = new Intl.DateTimeFormat('id-ID',{weekday:'long',day:'numeric',month:'long'}).format(currentDate);
-            const tasks = allTasks[key] || [];
-            els.taskList.innerHTML = '';
-            const pct = tasks.length ? Math.round((tasks.filter(t=>t.completed).length/tasks.length)*100) : 0;
-            els.progress.style.width = `${pct}%`; els.progressTxt.textContent = `${pct}%`;
-
-            if(tasks.length===0) {
-                els.emptyState.classList.remove('hidden'); els.taskList.classList.add('hidden');
-            } else {
-                els.emptyState.classList.add('hidden'); els.taskList.classList.remove('hidden');
-                tasks.forEach(t => {
-                    const div = document.createElement('div');
-                    div.className = `flex items-center gap-3 p-3 rounded-xl border transition-all ${t.completed ? 'bg-gray-100 border-transparent opacity-60' : 'bg-white border-light-border'}`;
-                    div.innerHTML = `
-                        <button onclick="toggleTask(${t.id})" class="${t.completed?'text-light-primary':'text-gray-400'}"><i data-lucide="${t.completed?'check-circle-2':'circle'}" width="20"></i></button>
-                        <div onclick="openModal(${t.id})" class="flex-1 min-w-0 cursor-pointer"><span class="truncate text-sm ${t.completed?'line-through text-gray-400':'text-light-text'}">${t.text}</span></div>
-                        <button onclick="deleteTask(${t.id})" class="text-red-400 hover:text-red-600"><i data-lucide="trash-2" width="16"></i></button>
-                    `;
-                    els.taskList.appendChild(div);
-                });
-            }
-            lucide.createIcons();
-        }
-
-        // --- SLIDE 3: CANVAS & UNDO/REDO ---
-        const canvas = document.getElementById('drawing-canvas');
-        const ctx = canvas.getContext('2d', { willReadFrequently: true });
-        const colorPicker = document.getElementById('draw-color');
-        const widthSlider = document.getElementById('draw-width');
-        const btnPen = document.getElementById('tool-pen');
-        const btnEraser = document.getElementById('tool-eraser');
-        const btnClear = document.getElementById('action-clear');
-        const btnSave = document.getElementById('action-save');
-        const btnUndo = document.getElementById('action-undo');
-        const btnRedo = document.getElementById('action-redo');
-        
-        let isDrawing = false; let isEraser = false; let lastX = 0; let lastY = 0;
-        let history = []; let historyStep = -1;
-
-        function saveHistory() {
-            historyStep++;
-            if (historyStep < history.length) { history.length = historyStep; }
-            history.push(canvas.toDataURL());
-            if(history.length > 20) { history.shift(); historyStep--; } 
-        }
-
-        function undo() {
-            if (historyStep > 0) {
-                historyStep--;
-                const img = new Image();
-                img.src = history[historyStep];
-                img.onload = () => { ctx.clearRect(0,0,canvas.width,canvas.height); ctx.drawImage(img,0,0); }
-            }
-        }
-
-        function redo() {
-            if (historyStep < history.length - 1) {
-                historyStep++;
-                const img = new Image();
-                img.src = history[historyStep];
-                img.onload = () => { ctx.clearRect(0,0,canvas.width,canvas.height); ctx.drawImage(img,0,0); }
-            }
-        }
-
-        function resizeCanvas() {
-            const container = document.getElementById('slide-3');
-            const temp = canvas.toDataURL();
-            canvas.width = container.clientWidth;
-            canvas.height = container.clientHeight;
-            ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-            ctx.lineWidth = widthSlider.value;
-            ctx.strokeStyle = isEraser ? '#f9fafb' : colorPicker.value;
-            if(history.length === 0) {
-                ctx.fillStyle = "transparent"; 
-                ctx.fillRect(0,0,canvas.width,canvas.height);
-                saveHistory(); 
-            } else {
-                const img = new Image(); img.src = temp;
-                img.onload = () => ctx.drawImage(img,0,0);
-            }
-        }
-        window.addEventListener('resize', resizeCanvas);
-
-        function getPos(e) {
-            const rect = canvas.getBoundingClientRect();
-            const cx = e.touches ? e.touches[0].clientX : e.clientX;
-            const cy = e.touches ? e.touches[0].clientY : e.clientY;
-            return { x: cx - rect.left, y: cy - rect.top };
-        }
-
-        function startDrawing(e) { 
-            isDrawing = true; const pos = getPos(e); lastX = pos.x; lastY = pos.y; 
-        }
-        function draw(e) {
-            if (!isDrawing) return; e.preventDefault();
-            const pos = getPos(e); ctx.beginPath(); ctx.moveTo(lastX, lastY); ctx.lineTo(pos.x, pos.y); ctx.stroke();
-            lastX = pos.x; lastY = pos.y;
-        }
-        function stopDrawing() { 
-            if(isDrawing) { isDrawing = false; saveHistory(); }
-        }
-
-        canvas.addEventListener('mousedown', startDrawing); canvas.addEventListener('mousemove', draw);
-        canvas.addEventListener('mouseup', stopDrawing); canvas.addEventListener('mouseout', stopDrawing);
-        canvas.addEventListener('touchstart', startDrawing, {passive: false}); canvas.addEventListener('touchmove', draw, {passive: false}); canvas.addEventListener('touchend', stopDrawing);
-
-        btnUndo.addEventListener('click', undo);
-        btnRedo.addEventListener('click', redo);
-        colorPicker.addEventListener('input', (e) => { if(!isEraser) ctx.strokeStyle = e.target.value; });
-        widthSlider.addEventListener('input', (e) => { ctx.lineWidth = e.target.value; });
-        btnPen.addEventListener('click', () => { isEraser = false; ctx.strokeStyle = colorPicker.value; btnPen.classList.add('bg-gray-100', 'text-light-primary'); btnEraser.classList.remove('bg-gray-100', 'text-light-primary'); });
-        btnEraser.addEventListener('click', () => { isEraser = true; ctx.strokeStyle = '#f9fafb'; btnEraser.classList.add('bg-gray-100', 'text-light-primary'); btnPen.classList.remove('bg-gray-100', 'text-light-primary'); });
-        btnClear.addEventListener('click', () => { if(confirm('Hapus semua?')) { ctx.clearRect(0, 0, canvas.width, canvas.height); saveHistory(); } });
-        btnSave.addEventListener('click', () => { const link = document.createElement('a'); link.download = `sketch-${Date.now()}.png`; link.href = canvas.toDataURL(); link.click(); });
-
-        // --- SLIDE 4: PIXEL BIRD GAME ---
-        const gameCanvas = document.getElementById('game-canvas');
-        const gameCtx = gameCanvas.getContext('2d');
-        const startBtn = document.getElementById('start-game-btn');
-        const gameOverlay = document.getElementById('game-overlay');
-        const scoreEl = document.getElementById('game-score');
-        const highScoreEl = document.getElementById('high-score');
-
-        let bird = { x: 30, y: 150, w: 12, h: 12, dy: 0 };
-        let pipes = [];
-        let frame = 0;
-        let gameScore = 0;
-        let gameRunning = false;
-        let highScore = localStorage.getItem('pixelbird_hs') || 0;
-        highScoreEl.textContent = highScore;
-
-        function resizeGameCanvas() {
-            const parent = gameCanvas.parentElement;
-            gameCanvas.width = parent.clientWidth;
-            gameCanvas.height = parent.clientHeight;
-        }
-
-        function resetGame() {
-            bird.y = gameCanvas.height / 2;
-            bird.dy = 0;
-            pipes = [];
-            frame = 0;
-            gameScore = 0;
-            scoreEl.textContent = 0;
-            gameRunning = true;
-            gameOverlay.classList.add('hidden');
-            gameLoop();
-        }
-
-        function jump() {
-            if(!gameRunning) return;
-            bird.dy = -4.5;
-        }
-
-        function drawPixel(x, y, w, h, color) {
-            gameCtx.fillStyle = color;
-            gameCtx.fillRect(Math.floor(x), Math.floor(y), w, h);
-        }
-
-        function gameLoop() {
-            if (!gameRunning) return;
-
-            bird.dy += 0.25;
-            bird.y += bird.dy;
-
-            if (frame % 100 === 0) {
-                const gap = 100;
-                const minHeight = 20;
-                const maxPos = gameCanvas.height - gap - minHeight;
-                const topHeight = Math.floor(Math.random() * (maxPos - minHeight + 1) + minHeight);
-                pipes.push({ x: gameCanvas.width, top: topHeight, gap: gap, passed: false });
-            }
-
-            gameCtx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
-            drawPixel(bird.x, bird.y, bird.w, bird.h, '#1f2937');
-
-            for (let i = 0; i < pipes.length; i++) {
-                let p = pipes[i];
-                p.x -= 2;
-                drawPixel(p.x, 0, 20, p.top, '#1f2937');
-                drawPixel(p.x, p.top + p.gap, 20, gameCanvas.height - (p.top + p.gap), '#1f2937');
-
-                if (bird.x < p.x + 20 && bird.x + bird.w > p.x && (bird.y < p.top || bird.y + bird.h > p.top + p.gap)) {
-                    gameOver();
-                }
-                if (p.x + 20 < bird.x && !p.passed) {
-                    gameScore++;
-                    scoreEl.textContent = gameScore;
-                    p.passed = true;
-                }
-                if (p.x < -20) { pipes.shift(); i--; }
-            }
-
-            if (bird.y + bird.h > gameCanvas.height || bird.y < 0) { gameOver(); }
-
-            frame++;
-            requestAnimationFrame(gameLoop);
-        }
-
-        function gameOver() {
-            gameRunning = false;
-            if(gameScore > highScore) {
-                highScore = gameScore;
-                localStorage.setItem('pixelbird_hs', highScore);
-                highScoreEl.textContent = highScore;
-            }
-            gameOverlay.classList.remove('hidden');
-            document.querySelector('#game-overlay p').innerHTML = "GAME OVER<br>SCORE: " + gameScore;
-            startBtn.textContent = "TRY AGAIN";
-        }
-
-        startBtn.addEventListener('click', () => { resetGame(); });
-        gameCanvas.addEventListener('mousedown', (e) => { e.preventDefault(); jump(); });
-        gameCanvas.addEventListener('touchstart', (e) => { e.preventDefault(); jump(); }, {passive:false});
-        window.addEventListener('keydown', (e) => { if(e.code === 'Space' && document.getElementById('slide-4').classList.contains('active')) { e.preventDefault(); if(!gameRunning && !gameOverlay.classList.contains('hidden')) resetGame(); else jump(); } });
-        window.addEventListener('resize', resizeGameCanvas);
-
-        // --- HELPERS ---
-        function renderCalendar(date, container, wide = false) {
-            const y=date.getFullYear(), m=date.getMonth(), todayKey=getDateKey(new Date());
-            const firstDay=new Date(y,m,1).getDay(), daysInMonth=new Date(y,m+1,0).getDate();
-            const monthName=new Intl.DateTimeFormat('id-ID',{month:'long',year:'numeric'}).format(date);
-            
-            let html = `<div class="w-full text-center select-none">`;
-            if(wide) {
-                html += `<div class="flex items-center justify-between mb-2 text-xs font-semibold text-light-text"><button onclick="calChange(-1)" class="hover:bg-gray-100 rounded p-0.5"><i data-lucide="chevron-left" width="14"></i></button><span class="uppercase tracking-widest">${monthName}</span><button onclick="calChange(1)" class="hover:bg-gray-100 rounded p-0.5"><i data-lucide="chevron-right" width="14"></i></button></div>`;
-            } else {
-                html += `<div class="flex justify-between mb-2 px-2 text-xs font-bold text-gray-500"><button onclick="calChange(-1)"><i data-lucide="chevron-left" width="16"></i></button><span>${monthName}</span><button onclick="calChange(1)"><i data-lucide="chevron-right" width="16"></i></button></div>`;
-            }
-            
-            html += `<div class="grid grid-cols-7 gap-0.5 text-[9px] mb-1 text-gray-400">${['M','S','S','R','K','J','S'].map(d=>`<div>${d}</div>`).join('')}</div><div class="grid grid-cols-7 gap-0.5">`;
-            
-            for(let i=0;i<firstDay;i++) html+=`<div></div>`;
-            for(let i=1;i<=daysInMonth;i++) {
-                const k = getDateKey(new Date(y,m,i));
-                const isToday = k === todayKey;
-                const hasTask = allTasks[k] && allTasks[k].length > 0;
-                const allDone = hasTask && allTasks[k].every(t=>t.completed);
-                
-                let bg = isToday ? 'bg-light-accent text-white shadow-sm font-bold' : 'text-gray-600 hover:bg-gray-100';
-                let dot = hasTask ? `<div class="w-1 h-1 rounded-full mx-auto ${allDone ? 'bg-emerald-400' : 'bg-orange-300'} ${isToday?'bg-white':''}"></div>` : `<div class="h-1"></div>`;
-
-                html += `<div class="p-0.5 text-[10px] rounded ${bg} flex flex-col items-center justify-center h-6 cursor-default">${i}${dot}</div>`;
-            }
-            container.innerHTML = html + `</div></div>`;
-            lucide.createIcons();
-        }
-        
-        window.calChange = (off) => { currentCalendarDate.setMonth(currentCalendarDate.getMonth()+off); renderCalendar(currentCalendarDate, els.s2CalWrapper, true); };
+        window.calChange=(off)=>{currentCalendarDate.setMonth(currentCalendarDate.getMonth()+off);renderCalendar(currentCalendarDate,els.s2CalWrapper,true);};
 
         // Modal Logic
-        const modal = document.getElementById('task-modal'); const modalBg = document.getElementById('modal-backdrop'); const modalContent = document.getElementById('modal-content');
-        window.openModal = (id) => {
-            const t = (allTasks[getDateKey(currentDate)]||[]).find(x=>x.id===id); if(!t)return;
-            document.getElementById('modal-title').textContent=t.text; document.getElementById('modal-date').textContent=getDateKey(currentDate);
-            const desc=document.getElementById('modal-desc'), noDesc=document.getElementById('modal-no-desc');
-            if(t.description){desc.textContent=t.description;desc.classList.remove('hidden');noDesc.classList.add('hidden');} else {desc.classList.add('hidden');noDesc.classList.remove('hidden');}
-            modal.classList.remove('hidden'); setTimeout(()=>{modalBg.classList.remove('opacity-0');modalContent.classList.remove('opacity-0','scale-95');},10);
-        };
-        const closeModal = () => { modalBg.classList.add('opacity-0');modalContent.classList.add('opacity-0','scale-95'); setTimeout(()=>modal.classList.add('hidden'),300); };
-        document.getElementById('close-modal-btn').addEventListener('click', closeModal); modalBg.addEventListener('click', closeModal);
+        const modal=document.getElementById('task-modal'),modalBg=document.getElementById('modal-backdrop'),modalContent=document.getElementById('modal-content');
+        window.openModal=(id)=>{const t=(allTasks[getDateKey(currentDate)]||[]).find(x=>x.id===id);if(!t)return;document.getElementById('modal-title').textContent=t.text;document.getElementById('modal-date').textContent=getDateKey(currentDate);const desc=document.getElementById('modal-desc'),noDesc=document.getElementById('modal-no-desc');if(t.description){desc.textContent=t.description;desc.classList.remove('hidden');noDesc.classList.add('hidden');}else{desc.classList.add('hidden');noDesc.classList.remove('hidden');}modal.classList.remove('hidden');setTimeout(()=>{modalBg.classList.remove('opacity-0');modalContent.classList.remove('opacity-0','scale-95');},10);};
+        const closeModal=()=>{modalBg.classList.add('opacity-0');modalContent.classList.add('opacity-0','scale-95');setTimeout(()=>modal.classList.add('hidden'),300);};
+        document.getElementById('close-modal-btn').addEventListener('click',closeModal);modalBg.addEventListener('click',closeModal);
 
-        // Sync Logic
-        const handleSync = async (btn, action, payload={}) => {
-            if(GOOGLE_SCRIPT_URL.includes("PASTE")) return alert("URL Script belum diatur!");
-            const oldHtml = btn.innerHTML; btn.innerHTML = `<svg class="animate-spin-custom" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>`;
-            try {
-                const res = await fetch(GOOGLE_SCRIPT_URL, { method:'POST', body:JSON.stringify({action,...payload}) });
-                const json = await res.json(); if(json.result !== 'success') throw new Error(json.message); return json;
-            } catch(e) { alert(e.message); return null; } finally { btn.innerHTML=oldHtml; lucide.createIcons(); }
-        };
-
-        els.fetchBtn.addEventListener('click', async () => {
-            const res = await handleSync(els.fetchBtn, 'fetch_tasks');
-            if(res) { const merged={}; res.data.forEach((item,i)=>{const k=item.date;if(!merged[k])merged[k]=[];merged[k].push({id:Date.now()+i,text:item.text,description:item.description||"",completed:item.status==="Selesai"});}); allTasks=merged; saveTasks(); }
-        });
-        els.pushBtn.addEventListener('click', () => { const tasksPayload=[]; Object.keys(allTasks).forEach(d=>allTasks[d].forEach(t=>tasksPayload.push({date:d,status:t.completed?"Selesai":"Belum",text:t.text,description:t.description||""}))); handleSync(els.pushBtn, 'push_tasks', {tasks:tasksPayload}); });
-        els.syncNoteBtn.addEventListener('click', () => handleSync(els.syncNoteBtn, 'sync_notes', {noteContent:els.note.value}));
-        els.fetchNoteBtn.addEventListener('click', async () => { const res = await handleSync(els.fetchNoteBtn, 'fetch_notes'); if(res) { els.note.value = res.data || ""; localStorage.setItem('productivity_note', els.note.value); } });
-
-        els.taskInput.addEventListener('input', e=>els.addBtn.disabled=!e.target.value.trim());
-        document.getElementById('task-form').addEventListener('submit', e=>{ e.preventDefault(); const txt=els.taskInput.value.trim(); if(!txt)return; const key=getDateKey(currentDate); if(!allTasks[key])allTasks[key]=[]; allTasks[key].push({id:Date.now(),text:txt,description:els.taskDesc.value.trim(),completed:false}); els.taskInput.value=''; els.taskDesc.value=''; saveTasks(); });
-        window.toggleTask = id => { const k=getDateKey(currentDate); if(allTasks[k]){allTasks[k]=allTasks[k].map(t=>t.id===id?{...t,completed:!t.completed}:t);saveTasks();} };
-        window.deleteTask = id => { const k=getDateKey(currentDate); if(allTasks[k]){allTasks[k]=allTasks[k].filter(t=>t.id!==id);saveTasks();} };
-        
-        document.getElementById('prev-date-btn').addEventListener('click', ()=>{currentDate.setDate(currentDate.getDate()-1);renderTasks();});
-        document.getElementById('next-date-btn').addEventListener('click', ()=>{currentDate.setDate(currentDate.getDate()+1);renderTasks();});
-        
-        els.note.value = localStorage.getItem('productivity_note')||'';
-        els.note.addEventListener('input', e=>localStorage.setItem('productivity_note',e.target.value));
-
-        setInterval(() => { updateSlide1(); updateSlide2Clock(); }, 1000);
-        
-        // PWA Protocol Check
-        if ('serviceWorker' in navigator && window.location.protocol.includes('http')) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('service-worker.js')
-                    .then(registration => console.log('SW Registered:', registration.scope))
-                    .catch(err => console.log('SW Failed:', err));
-            });
-        }
-
-        resizeCanvas(); 
-        setTimeout(() => { saveHistory(); }, 500); 
-        
-        updateSlide1(); updateSlide2Clock(); renderTasks(); renderCalendar(new Date(), els.s2CalWrapper, true); renderMatrix(); lucide.createIcons();
+        // Sync & Init
+        const handleSync=async(btn,action,payload={})=>{if(GOOGLE_SCRIPT_URL.includes("PASTE"))return alert("URL Script belum diatur!");const oldHtml=btn.innerHTML;btn.innerHTML=`<svg class="animate-spin-custom" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>`;try{const res=await fetch(GOOGLE_SCRIPT_URL,{method:'POST',body:JSON.stringify({action,...payload})});const json=await res.json();if(json.result!=='success')throw new Error(json.message);return json;}catch(e){alert(e.message);return null;}finally{btn.innerHTML=oldHtml;lucide.createIcons();}};
+        els.fetchBtn.addEventListener('click',async()=>{const res=await handleSync(els.fetchBtn,'fetch_tasks');if(res){const merged={};res.data.forEach((item,i)=>{const k=item.date;if(!merged[k])merged[k]=[];merged[k].push({id:Date.now()+i,text:item.text,description:item.description||"",completed:item.status==="Selesai"});});allTasks=merged;saveTasks();}});
+        els.pushBtn.addEventListener('click',()=>{const tasksPayload=[];Object.keys(allTasks).forEach(d=>allTasks[d].forEach(t=>tasksPayload.push({date:d,status:t.completed?"Selesai":"Belum",text:t.text,description:t.description||""})));handleSync(els.pushBtn,'push_tasks',{tasks:tasksPayload});});
+        els.syncNoteBtn.addEventListener('click',()=>handleSync(els.syncNoteBtn,'sync_notes',{noteContent:els.note.value}));
+        els.fetchNoteBtn.addEventListener('click',async()=>{const res=await handleSync(els.fetchNoteBtn,'fetch_notes');if(res){els.note.value=res.data||"";localStorage.setItem('productivity_note',els.note.value);}});
+        els.taskInput.addEventListener('input',e=>els.addBtn.disabled=!e.target.value.trim());
+        document.getElementById('task-form').addEventListener('submit',e=>{e.preventDefault();const txt=els.taskInput.value.trim();if(!txt)return;const key=getDateKey(currentDate);if(!allTasks[key])allTasks[key]=[];allTasks[key].push({id:Date.now(),text:txt,description:els.taskDesc.value.trim(),completed:false});els.taskInput.value='';els.taskDesc.value='';saveTasks();});
+        window.toggleTask=id=>{const k=getDateKey(currentDate);if(allTasks[k]){allTasks[k]=allTasks[k].map(t=>t.id===id?{...t,completed:!t.completed}:t);saveTasks();}};
+        window.deleteTask=id=>{const k=getDateKey(currentDate);if(allTasks[k]){allTasks[k]=allTasks[k].filter(t=>t.id!==id);saveTasks();}};
+        document.getElementById('prev-date-btn').addEventListener('click',()=>{currentDate.setDate(currentDate.getDate()-1);renderTasks();});
+        document.getElementById('next-date-btn').addEventListener('click',()=>{currentDate.setDate(currentDate.getDate()+1);renderTasks();});
+        els.note.value=localStorage.getItem('productivity_note')||'';els.note.addEventListener('input',e=>localStorage.setItem('productivity_note',e.target.value));
+        setInterval(()=>{updateSlide1();updateSlide2Clock();},1000);
+        if('serviceWorker'in navigator&&window.location.protocol.includes('http')){window.addEventListener('load',()=>{navigator.serviceWorker.register('service-worker.js').then(registration=>console.log('SW Registered:',registration.scope)).catch(err=>console.log('SW Failed:',err));});}
+        resizeCanvas();setTimeout(()=>{saveHistory();},500);updateSlide1();updateSlide2Clock();renderTasks();renderCalendar(new Date(),els.s2CalWrapper,true);renderMatrix();lucide.createIcons();
+        resizeGameCanvas(); resizeTetrisCanvas();
     </script>
 </body>
 </html>
