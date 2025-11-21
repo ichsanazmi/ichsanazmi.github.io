@@ -439,7 +439,11 @@
 
         // Toggle Menu
         pomoFab.addEventListener('click', (e) => {
-            if(isPomoRunning) return; 
+            if(isPomoRunning) return;
+            // Request notification permission on first click
+            if (Notification.permission !== "granted" && Notification.permission !== "denied") {
+                Notification.requestPermission();
+            } 
             pomoMenu.classList.toggle('hidden');
             setTimeout(() => {
                 pomoMenu.classList.toggle('scale-95');
@@ -465,6 +469,12 @@
             return `${m}:${s}`;
         }
 
+        function showNotification(title, body) {
+            if (Notification.permission === "granted") {
+                new Notification(title, { body, icon: 'https://img.icons8.com/doodle/192/checklist--v1.png' });
+            }
+        }
+
         function stopPomodoro() {
             clearInterval(pomoInterval);
             isPomoRunning = false;
@@ -488,6 +498,10 @@
             pomoStopBtn.classList.remove('hidden'); // Show stop button
             pomoDisplay.textContent = formatTime(pomoTimeLeft);
 
+            if (Notification.permission !== "granted" && Notification.permission !== "denied") {
+                Notification.requestPermission();
+            }
+
             pomoInterval = setInterval(() => {
                 pomoTimeLeft--;
                 pomoDisplay.textContent = formatTime(pomoTimeLeft);
@@ -495,6 +509,7 @@
                     stopPomodoro();
                     if("vibrate" in navigator) navigator.vibrate([200, 100, 200]);
                     alert("Waktu Habis! Istirahat sejenak.");
+                    showNotification("Waktu Habis!", "Sesi Pomodoro Anda telah selesai. Istirahat sejenak!");
                 }
             }, 1000);
         });
@@ -649,7 +664,14 @@
         els.closeIosModal.addEventListener('click', closeIos); els.iosBackdrop.addEventListener('click', closeIos);
 
         const getDateKey = (d) => { const y=d.getFullYear(), m=String(d.getMonth()+1).padStart(2,'0'), day=String(d.getDate()).padStart(2,'0'); return `${y}-${m}-${day}`; };
-        const saveTasks = () => { localStorage.setItem('productivity_tasks', JSON.stringify(allTasks)); renderTasks(); renderCalendar(new Date(), els.s2CalWrapper, true); };
+        
+        // === UPDATED SAVE TASKS TO SYNC MATRIX ===
+        const saveTasks = () => { 
+            localStorage.setItem('productivity_tasks', JSON.stringify(allTasks)); 
+            renderTasks(); 
+            renderCalendar(new Date(), els.s2CalWrapper, true); 
+            renderMatrix(); // IMPORTANT: Trigger Matrix update
+        };
         
         function updateSlide2Clock() {
             const now = new Date();
