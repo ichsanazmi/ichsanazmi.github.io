@@ -15,7 +15,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
 
     <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Micro+5&family=Inter:wght@400;500;600;700&family=Merriweather:ital@0;1&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Micro+5&family=Inter:wght@400;500;600;700&family=Merriweather:ital@0;1&family=Press+Start+2P&display=swap" rel="stylesheet">
     
     <!-- Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -37,6 +37,7 @@
                         'micro5': ['Micro 5', 'sans-serif'],
                         'sans': ['Inter', 'sans-serif'],
                         'serif': ['Merriweather', 'serif'],
+                        'pixel': ['"Press Start 2P"', 'cursive'],
                     }
                 }
             }
@@ -63,16 +64,12 @@
             width: 100%;
             overflow-y: auto;
             overflow-x: hidden;
-            /* UPDATED PADDING FOR BOTTOM NAV */
             padding-left: 1rem; 
             padding-right: 1rem;
             padding-top: 1rem;
-            padding-bottom: 6rem; /* Extra space at bottom for nav */
+            padding-bottom: 6rem; 
         }
         
-        /* Removed the specific left padding for mobile since nav is now at bottom */
-        /* @media (max-width: 640px) { ... } */
-
         #slide-3.slide-container { padding: 0 !important; overflow: hidden; }
         .slide-container.active { display: flex; opacity: 1; }
 
@@ -95,27 +92,35 @@
             font-style: italic;
         }
         [contenteditable]:focus { outline: none; }
+
+        /* Game Canvas */
+        #game-canvas {
+            image-rendering: pixelated;
+            background-color: #f3f4f6;
+            border-radius: 0.5rem;
+        }
     </style>
 </head>
 <body class="bg-light-bg text-light-text overflow-hidden">
 
     <!-- === NAVIGATION (Floating BOTTOM) === -->
-    <!-- Changed: fixed bottom-6, left-1/2, flex-row, origin-bottom -->
     <nav class="fixed bottom-6 left-1/2 transform -translate-x-1/2 flex flex-row gap-3 p-2 bg-white/80 backdrop-blur-md border border-white/50 shadow-xl rounded-2xl z-50 transition-all duration-300 scale-90 origin-bottom">
         <button class="nav-btn active group relative flex items-center justify-center p-2.5 rounded-xl text-light-subtext hover:bg-gray-50 hover:text-light-primary transition-all duration-200" data-target="slide-1">
             <i data-lucide="clock" width="20" height="20"></i>
-            <!-- Changed tooltip position to bottom-full (top) -->
             <span class="absolute bottom-full mb-3 left-1/2 transform -translate-x-1/2 px-2 py-1 bg-gray-800 text-white text-[10px] rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50 shadow-lg">Fokus</span>
         </button>
         <button class="nav-btn group relative flex items-center justify-center p-2.5 rounded-xl text-light-subtext hover:bg-gray-50 hover:text-light-primary transition-all duration-200" data-target="slide-2">
             <i data-lucide="layout-grid" width="20" height="20"></i>
-            <!-- Changed tooltip position to bottom-full (top) -->
             <span class="absolute bottom-full mb-3 left-1/2 transform -translate-x-1/2 px-2 py-1 bg-gray-800 text-white text-[10px] rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50 shadow-lg">Tracker</span>
         </button>
         <button class="nav-btn group relative flex items-center justify-center p-2.5 rounded-xl text-light-subtext hover:bg-gray-50 hover:text-light-primary transition-all duration-200" data-target="slide-3">
             <i data-lucide="palette" width="20" height="20"></i>
-            <!-- Changed tooltip position to bottom-full (top) -->
             <span class="absolute bottom-full mb-3 left-1/2 transform -translate-x-1/2 px-2 py-1 bg-gray-800 text-white text-[10px] rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50 shadow-lg">Kanvas</span>
+        </button>
+        <!-- NEW GAME BUTTON -->
+        <button class="nav-btn group relative flex items-center justify-center p-2.5 rounded-xl text-light-subtext hover:bg-gray-50 hover:text-light-primary transition-all duration-200" data-target="slide-4">
+            <i data-lucide="gamepad-2" width="20" height="20"></i>
+            <span class="absolute bottom-full mb-3 left-1/2 transform -translate-x-1/2 px-2 py-1 bg-gray-800 text-white text-[10px] rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50 shadow-lg">Arcade</span>
         </button>
     </nav>
 
@@ -132,11 +137,11 @@
         </div>
     </div>
 
-    <!-- === SLIDE 2: PRODUCTIVITY (RESTORED LAYOUT) === -->
+    <!-- === SLIDE 2: PRODUCTIVITY === -->
     <div id="slide-2" class="slide-container flex-col">
         <div class="w-full max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-4 auto-rows-[minmax(180px,auto)]">
             
-            <!-- 1. WIDE CLOCK & CALENDAR (Top - 3 Cols) -->
+            <!-- 1. WIDE CLOCK & CALENDAR -->
             <div class="col-span-full bg-transparent rounded-3xl p-2 overflow-hidden">
                 <div class="flex flex-col md:flex-row h-full items-start md:items-center justify-between gap-4 overflow-hidden py-0"> 
                     <div class="md:w-1/2 flex flex-col items-center sm:items-start justify-center pl-4 md:pl-0 w-full md:w-1/2"> 
@@ -147,9 +152,8 @@
                 </div>
             </div>
             
-            <!-- 2. DAILY TRACKER (Bottom Left - 2 Cols) -->
+            <!-- 2. DAILY TRACKER -->
             <div class="col-span-full md:col-span-2 bg-white rounded-3xl p-5 shadow-sm border border-light-border flex flex-col h-full overflow-hidden">
-                <!-- Header Controls -->
                 <div class="flex items-center justify-between mb-4 p-2 rounded-2xl bg-gray-50 border border-gray-200">
                     <button id="prev-date-btn" class="p-2 hover:bg-white rounded-xl transition"><i data-lucide="chevron-left" width="20"></i></button>
                     <div class="text-center">
@@ -163,13 +167,11 @@
                     <button id="next-date-btn" class="p-2 hover:bg-white rounded-xl transition"><i data-lucide="chevron-right" width="20"></i></button>
                 </div>
 
-                <!-- Progress -->
                 <div class="mb-4 px-1">
                     <div class="flex justify-between text-xs mb-1 text-light-subtext"><span>Progres</span><span id="progress-text">0%</span></div>
                     <div class="h-1.5 rounded-full bg-gray-100"><div id="progress-bar" class="h-full bg-light-primary rounded-full transition-all duration-500" style="width: 0%"></div></div>
                 </div>
 
-                <!-- Input -->
                 <form id="task-form" class="mb-3 flex gap-2">
                     <div class="flex-1 flex flex-col gap-2">
                         <input type="text" id="task-input" placeholder="Tugas baru..." class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-light-primary transition">
@@ -178,14 +180,13 @@
                     <button type="submit" id="add-task-btn" disabled class="bg-light-primary text-white rounded-xl px-4 hover:bg-emerald-600 disabled:opacity-50 transition flex items-center justify-center"><i data-lucide="plus" width="20"></i></button>
                 </form>
 
-                <!-- List -->
                 <div id="task-list" class="flex-1 overflow-y-auto custom-scrollbar space-y-2 pr-1"></div>
                 <div id="empty-state" class="hidden h-full flex flex-col items-center justify-center text-gray-300">
                     <i data-lucide="check-circle" width="32"></i><span class="text-xs mt-2">Tidak ada tugas</span>
                 </div>
             </div>
 
-            <!-- 3. Quick Notes (Bottom Right - 1 Col) -->
+            <!-- 3. Quick Notes -->
             <div class="col-span-full md:col-span-1 bg-yellow-50 rounded-3xl p-5 shadow-sm border border-yellow-200 flex flex-col h-full min-h-[300px]">
                 <div class="flex justify-between items-center mb-2 text-yellow-800/70">
                     <div class="flex items-center gap-2"><i data-lucide="sticky-note" width="16"></i><span class="text-xs font-bold uppercase">Catatan</span></div>
@@ -196,37 +197,83 @@
                 </div>
                 <textarea id="note-input" class="flex-1 w-full bg-transparent resize-none outline-none text-sm text-gray-700 placeholder:text-yellow-800/30 leading-relaxed custom-scrollbar" placeholder="Tulis catatan di sini..."></textarea>
                 
-                <!-- Install Button (RESTORED HERE) -->
                 <div id="pwa-install-area" class="hidden mt-3 pt-3 border-t border-yellow-200">
                     <button id="install-btn" class="w-full flex items-center justify-center gap-2 bg-yellow-600/10 hover:bg-yellow-600/20 text-yellow-800 py-2 rounded-xl transition-colors text-xs font-bold uppercase tracking-wider">
                         <i data-lucide="download" width="14"></i> <span id="install-text">Install Aplikasi</span>
                     </button>
                 </div>
             </div>
-
         </div>
     </div>
 
     <!-- === SLIDE 3: INFINITE CANVAS === -->
     <div id="slide-3" class="slide-container relative bg-gray-50">
-        <div class="absolute top-4 left-1/2 transform -translate-x-1/2 bg-white/90 backdrop-blur px-4 py-2 rounded-full shadow-lg border border-gray-200 flex items-center gap-4 z-10 overflow-x-auto max-w-[80vw]">
+        <div class="absolute top-4 left-1/2 transform -translate-x-1/2 bg-white/90 backdrop-blur px-4 py-2 rounded-full shadow-lg border border-gray-200 flex items-center gap-4 z-10 overflow-x-auto max-w-[95vw] custom-scrollbar">
+            <!-- Colors & Size -->
             <div class="flex items-center gap-2 border-r border-gray-200 pr-4">
                 <input type="color" id="draw-color" value="#1f2937" class="w-8 h-8 rounded-full cursor-pointer border-none p-0 bg-transparent">
             </div>
             <div class="flex items-center gap-2 border-r border-gray-200 pr-4">
                 <i data-lucide="circle" width="8"></i>
-                <input type="range" id="draw-width" min="1" max="20" value="3" class="w-20 accent-light-primary h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer">
-                <i data-lucide="circle" width="16"></i>
+                <input type="range" id="draw-width" min="1" max="20" value="3" class="w-16 accent-light-primary h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer">
             </div>
+            <!-- Tools -->
             <div class="flex items-center gap-2">
                 <button id="tool-pen" class="p-2 bg-gray-100 rounded-lg text-light-primary active-tool transition"><i data-lucide="pen" width="18"></i></button>
                 <button id="tool-eraser" class="p-2 hover:bg-gray-100 rounded-lg text-light-subtext transition"><i data-lucide="eraser" width="18"></i></button>
+                <div class="w-px h-6 bg-gray-200 mx-1"></div>
+                <!-- NEW UNDO REDO -->
+                <button id="action-undo" class="p-2 hover:bg-blue-50 text-gray-600 hover:text-blue-500 rounded-lg transition" title="Undo"><i data-lucide="undo" width="18"></i></button>
+                <button id="action-redo" class="p-2 hover:bg-blue-50 text-gray-600 hover:text-blue-500 rounded-lg transition" title="Redo"><i data-lucide="redo" width="18"></i></button>
                 <div class="w-px h-6 bg-gray-200 mx-1"></div>
                 <button id="action-clear" class="p-2 hover:bg-red-50 text-red-400 rounded-lg transition" title="Bersihkan"><i data-lucide="trash-2" width="18"></i></button>
                 <button id="action-save" class="p-2 hover:bg-blue-50 text-blue-500 rounded-lg transition" title="Simpan PNG"><i data-lucide="download" width="18"></i></button>
             </div>
         </div>
         <canvas id="drawing-canvas" class="w-full h-full block"></canvas>
+    </div>
+
+    <!-- === SLIDE 4: ARCADE (NEW) === -->
+    <div id="slide-4" class="slide-container flex-col">
+        <h2 class="text-2xl font-bold text-center mb-6 font-micro5 tracking-widest text-light-text text-5xl">ARCADE ZONE</h2>
+        <div class="w-full max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-20">
+            
+            <!-- Game 1: Pixel Bird -->
+            <div class="col-span-1 bg-white rounded-3xl p-4 shadow-lg border border-gray-200 flex flex-col items-center relative overflow-hidden h-[400px]">
+                <div class="absolute top-0 left-0 w-full h-1 bg-black"></div>
+                <div class="w-full flex justify-between items-center mb-2 px-2">
+                    <span class="font-pixel text-[10px] uppercase">Pixel Bird</span>
+                    <span id="game-score" class="font-pixel text-sm">0</span>
+                </div>
+                <div class="relative w-full flex-1 bg-gray-100 rounded-xl overflow-hidden border-4 border-gray-800">
+                    <canvas id="game-canvas" class="w-full h-full block"></canvas>
+                    <!-- Game Overlay -->
+                    <div id="game-overlay" class="absolute inset-0 bg-black/10 backdrop-blur-[2px] flex flex-col items-center justify-center z-10">
+                        <p class="font-pixel text-xs text-gray-800 mb-4 text-center leading-loose">TAP / SPACE<br>TO JUMP</p>
+                        <button id="start-game-btn" class="bg-black text-white font-pixel text-[10px] px-4 py-3 rounded shadow-lg hover:scale-105 transition-transform">START GAME</button>
+                    </div>
+                </div>
+                <div class="w-full mt-3 flex justify-between text-[10px] font-mono text-gray-400">
+                    <span>High Score: <span id="high-score">0</span></span>
+                    <span>V 1.0</span>
+                </div>
+            </div>
+
+            <!-- Placeholder 1 -->
+            <div class="col-span-1 bg-gray-100 rounded-3xl p-6 border-2 border-dashed border-gray-300 flex flex-col items-center justify-center text-gray-400 h-[400px] hover:bg-gray-50 transition-colors">
+                <i data-lucide="ghost" width="48" class="mb-4 opacity-50"></i>
+                <h3 class="font-pixel text-xs mb-2">COMING SOON</h3>
+                <p class="text-xs text-center opacity-60">More pixel games cooking...</p>
+            </div>
+
+            <!-- Placeholder 2 -->
+            <div class="col-span-1 bg-gray-100 rounded-3xl p-6 border-2 border-dashed border-gray-300 flex flex-col items-center justify-center text-gray-400 h-[400px] hover:bg-gray-50 transition-colors">
+                <i data-lucide="joystick" width="48" class="mb-4 opacity-50"></i>
+                <h3 class="font-pixel text-xs mb-2">COMING SOON</h3>
+                <p class="text-xs text-center opacity-60">Retro snake?</p>
+            </div>
+
+        </div>
     </div>
 
     <!-- MODAL -->
@@ -276,7 +323,15 @@
                 btn.classList.add('active');
                 const target = btn.dataset.target;
                 document.getElementById(target).classList.add('active');
+                
                 if(target === 'slide-3') setTimeout(resizeCanvas, 100);
+                
+                // Game logic: Stop game if leaving slide 4
+                if(target !== 'slide-4') {
+                    gameRunning = false;
+                } else {
+                    resizeGameCanvas();
+                }
             });
         });
 
@@ -298,7 +353,7 @@
         s1Quote.textContent = localStorage.getItem('productivity_quote') || "Make today count.";
         s1Quote.addEventListener('input', (e) => localStorage.setItem('productivity_quote', e.target.textContent));
 
-        // --- SLIDE 2 LOGIC (TRACKER + WIDE CLOCK/CAL) ---
+        // --- SLIDE 2 LOGIC ---
         const els = {
             dateDisplay: document.getElementById('date-display'),
             dateLabel: document.getElementById('date-label'),
@@ -317,9 +372,9 @@
             installArea: document.getElementById('pwa-install-area'),
             installBtn: document.getElementById('install-btn'),
             installText: document.getElementById('install-text'),
-            s2Time: document.getElementById('s2-time'), // New elements for Slide 2 Clock/Cal
-            s2Date: document.getElementById('s2-date'), // New elements for Slide 2 Clock/Cal
-            s2CalWrapper: document.getElementById('s2-calendar-wrapper'), // New elements for Slide 2 Clock/Cal
+            s2Time: document.getElementById('s2-time'), 
+            s2Date: document.getElementById('s2-date'), 
+            s2CalWrapper: document.getElementById('s2-calendar-wrapper'),
             iosModal: document.getElementById('ios-install-modal'),
             closeIosModal: document.getElementById('close-ios-modal'),
             iosBackdrop: document.getElementById('ios-backdrop')
@@ -359,11 +414,8 @@
         
         function updateSlide2Clock() {
             const now = new Date();
-            // Update Clock and Date in the wide bar
             els.s2Time.textContent = now.toLocaleTimeString('en-US', {hour:'2-digit',minute:'2-digit',hour12:false});
             els.s2Date.textContent = now.toLocaleDateString('id-ID', {weekday:'long', day:'numeric', month:'long', year:'numeric'});
-
-            // Re-render mini calendar if month changes or day changes (simplified check)
             if(now.getSeconds() === 0) renderCalendar(now, els.s2CalWrapper, true);
         }
 
@@ -371,10 +423,8 @@
             const key = getDateKey(currentDate);
             els.dateLabel.textContent = key === getDateKey(new Date()) ? 'HARI INI' : 'TANGGAL';
             els.dateDisplay.textContent = new Intl.DateTimeFormat('id-ID',{weekday:'long',day:'numeric',month:'long'}).format(currentDate);
-            
             const tasks = allTasks[key] || [];
             els.taskList.innerHTML = '';
-            
             const pct = tasks.length ? Math.round((tasks.filter(t=>t.completed).length/tasks.length)*100) : 0;
             els.progress.style.width = `${pct}%`; els.progressTxt.textContent = `${pct}%`;
 
@@ -396,24 +446,66 @@
             lucide.createIcons();
         }
 
-        // --- SLIDE 3 LOGIC (CANVAS) ---
+        // --- SLIDE 3: CANVAS & UNDO/REDO ---
         const canvas = document.getElementById('drawing-canvas');
-        const ctx = canvas.getContext('2d');
+        const ctx = canvas.getContext('2d', { willReadFrequently: true });
         const colorPicker = document.getElementById('draw-color');
         const widthSlider = document.getElementById('draw-width');
         const btnPen = document.getElementById('tool-pen');
         const btnEraser = document.getElementById('tool-eraser');
         const btnClear = document.getElementById('action-clear');
         const btnSave = document.getElementById('action-save');
+        const btnUndo = document.getElementById('action-undo');
+        const btnRedo = document.getElementById('action-redo');
+        
         let isDrawing = false; let isEraser = false; let lastX = 0; let lastY = 0;
+        let history = []; let historyStep = -1;
+
+        function saveHistory() {
+            historyStep++;
+            if (historyStep < history.length) { history.length = historyStep; }
+            history.push(canvas.toDataURL());
+            if(history.length > 20) { history.shift(); historyStep--; } // Limit history
+        }
+
+        function undo() {
+            if (historyStep > 0) {
+                historyStep--;
+                const img = new Image();
+                img.src = history[historyStep];
+                img.onload = () => { ctx.clearRect(0,0,canvas.width,canvas.height); ctx.drawImage(img,0,0); }
+            }
+        }
+
+        function redo() {
+            if (historyStep < history.length - 1) {
+                historyStep++;
+                const img = new Image();
+                img.src = history[historyStep];
+                img.onload = () => { ctx.clearRect(0,0,canvas.width,canvas.height); ctx.drawImage(img,0,0); }
+            }
+        }
 
         function resizeCanvas() {
             const container = document.getElementById('slide-3');
+            // Save content before resize
+            const temp = canvas.toDataURL();
             canvas.width = container.clientWidth;
             canvas.height = container.clientHeight;
             ctx.lineCap = 'round'; ctx.lineJoin = 'round';
             ctx.lineWidth = widthSlider.value;
             ctx.strokeStyle = isEraser ? '#f9fafb' : colorPicker.value;
+            
+            // Restore content or init history
+            if(history.length === 0) {
+                // Init white background
+                ctx.fillStyle = "transparent"; 
+                ctx.fillRect(0,0,canvas.width,canvas.height);
+                saveHistory(); 
+            } else {
+                const img = new Image(); img.src = temp;
+                img.onload = () => ctx.drawImage(img,0,0);
+            }
         }
         window.addEventListener('resize', resizeCanvas);
 
@@ -424,24 +516,154 @@
             return { x: cx - rect.left, y: cy - rect.top };
         }
 
-        function startDrawing(e) { isDrawing = true; const pos = getPos(e); lastX = pos.x; lastY = pos.y; }
+        function startDrawing(e) { 
+            isDrawing = true; const pos = getPos(e); lastX = pos.x; lastY = pos.y; 
+        }
         function draw(e) {
             if (!isDrawing) return; e.preventDefault();
             const pos = getPos(e); ctx.beginPath(); ctx.moveTo(lastX, lastY); ctx.lineTo(pos.x, pos.y); ctx.stroke();
             lastX = pos.x; lastY = pos.y;
         }
-        function stopDrawing() { isDrawing = false; }
+        function stopDrawing() { 
+            if(isDrawing) { isDrawing = false; saveHistory(); }
+        }
 
         canvas.addEventListener('mousedown', startDrawing); canvas.addEventListener('mousemove', draw);
         canvas.addEventListener('mouseup', stopDrawing); canvas.addEventListener('mouseout', stopDrawing);
         canvas.addEventListener('touchstart', startDrawing, {passive: false}); canvas.addEventListener('touchmove', draw, {passive: false}); canvas.addEventListener('touchend', stopDrawing);
 
+        btnUndo.addEventListener('click', undo);
+        btnRedo.addEventListener('click', redo);
         colorPicker.addEventListener('input', (e) => { if(!isEraser) ctx.strokeStyle = e.target.value; });
         widthSlider.addEventListener('input', (e) => { ctx.lineWidth = e.target.value; });
         btnPen.addEventListener('click', () => { isEraser = false; ctx.strokeStyle = colorPicker.value; btnPen.classList.add('bg-gray-100', 'text-light-primary'); btnEraser.classList.remove('bg-gray-100', 'text-light-primary'); });
         btnEraser.addEventListener('click', () => { isEraser = true; ctx.strokeStyle = '#f9fafb'; btnEraser.classList.add('bg-gray-100', 'text-light-primary'); btnPen.classList.remove('bg-gray-100', 'text-light-primary'); });
-        btnClear.addEventListener('click', () => { if(confirm('Hapus semua?')) ctx.clearRect(0, 0, canvas.width, canvas.height); });
+        btnClear.addEventListener('click', () => { if(confirm('Hapus semua?')) { ctx.clearRect(0, 0, canvas.width, canvas.height); saveHistory(); } });
         btnSave.addEventListener('click', () => { const link = document.createElement('a'); link.download = `sketch-${Date.now()}.png`; link.href = canvas.toDataURL(); link.click(); });
+
+        // --- SLIDE 4: PIXEL BIRD GAME ---
+        const gameCanvas = document.getElementById('game-canvas');
+        const gameCtx = gameCanvas.getContext('2d');
+        const startBtn = document.getElementById('start-game-btn');
+        const gameOverlay = document.getElementById('game-overlay');
+        const scoreEl = document.getElementById('game-score');
+        const highScoreEl = document.getElementById('high-score');
+
+        let bird = { x: 30, y: 150, w: 12, h: 12, dy: 0 };
+        let pipes = [];
+        let frame = 0;
+        let gameScore = 0;
+        let gameRunning = false;
+        let highScore = localStorage.getItem('pixelbird_hs') || 0;
+        highScoreEl.textContent = highScore;
+
+        function resizeGameCanvas() {
+            const parent = gameCanvas.parentElement;
+            gameCanvas.width = parent.clientWidth;
+            gameCanvas.height = parent.clientHeight;
+        }
+
+        function resetGame() {
+            bird.y = gameCanvas.height / 2;
+            bird.dy = 0;
+            pipes = [];
+            frame = 0;
+            gameScore = 0;
+            scoreEl.textContent = 0;
+            gameRunning = true;
+            gameOverlay.classList.add('hidden');
+            gameLoop();
+        }
+
+        function jump() {
+            if(!gameRunning) return;
+            bird.dy = -4.5; // Jump strength
+        }
+
+        function drawPixel(x, y, w, h, color) {
+            gameCtx.fillStyle = color;
+            gameCtx.fillRect(Math.floor(x), Math.floor(y), w, h);
+        }
+
+        function gameLoop() {
+            if (!gameRunning) return;
+
+            // Logic
+            bird.dy += 0.25; // Gravity
+            bird.y += bird.dy;
+
+            if (frame % 100 === 0) { // Spawn Pipe
+                const gap = 100;
+                const minHeight = 20;
+                const maxPos = gameCanvas.height - gap - minHeight;
+                const topHeight = Math.floor(Math.random() * (maxPos - minHeight + 1) + minHeight);
+                pipes.push({ x: gameCanvas.width, top: topHeight, gap: gap, passed: false });
+            }
+
+            // Drawing
+            gameCtx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
+            
+            // Bird (Black Box)
+            drawPixel(bird.x, bird.y, bird.w, bird.h, '#1f2937');
+
+            // Pipes
+            for (let i = 0; i < pipes.length; i++) {
+                let p = pipes[i];
+                p.x -= 2; // Speed
+                
+                // Draw Top Pipe
+                drawPixel(p.x, 0, 20, p.top, '#1f2937');
+                // Draw Bottom Pipe
+                drawPixel(p.x, p.top + p.gap, 20, gameCanvas.height - (p.top + p.gap), '#1f2937');
+
+                // Collision
+                if (
+                    bird.x < p.x + 20 &&
+                    bird.x + bird.w > p.x &&
+                    (bird.y < p.top || bird.y + bird.h > p.top + p.gap)
+                ) {
+                    gameOver();
+                }
+
+                // Score
+                if (p.x + 20 < bird.x && !p.passed) {
+                    gameScore++;
+                    scoreEl.textContent = gameScore;
+                    p.passed = true;
+                }
+
+                if (p.x < -20) { pipes.shift(); i--; }
+            }
+
+            // Ground/Ceiling collision
+            if (bird.y + bird.h > gameCanvas.height || bird.y < 0) {
+                gameOver();
+            }
+
+            frame++;
+            requestAnimationFrame(gameLoop);
+        }
+
+        function gameOver() {
+            gameRunning = false;
+            if(gameScore > highScore) {
+                highScore = gameScore;
+                localStorage.setItem('pixelbird_hs', highScore);
+                highScoreEl.textContent = highScore;
+            }
+            gameOverlay.classList.remove('hidden');
+            document.querySelector('#game-overlay p').innerHTML = "GAME OVER<br>SCORE: " + gameScore;
+            startBtn.textContent = "TRY AGAIN";
+        }
+
+        // Controls
+        startBtn.addEventListener('click', () => { resetGame(); });
+        gameCanvas.addEventListener('mousedown', (e) => { e.preventDefault(); jump(); });
+        gameCanvas.addEventListener('touchstart', (e) => { e.preventDefault(); jump(); }, {passive:false});
+        window.addEventListener('keydown', (e) => { if(e.code === 'Space' && document.getElementById('slide-4').classList.contains('active')) { e.preventDefault(); if(!gameRunning && !gameOverlay.classList.contains('hidden')) resetGame(); else jump(); } });
+
+        window.addEventListener('resize', resizeGameCanvas);
+
 
         // --- HELPERS ---
         function renderCalendar(date, container, wide = false) {
@@ -528,7 +750,11 @@
             });
         }
 
-        resizeCanvas(); updateSlide1(); updateSlide2Clock(); renderTasks(); renderCalendar(new Date(), els.s2CalWrapper, true); lucide.createIcons();
+        resizeCanvas(); 
+        // Init Canvas History for blank state
+        setTimeout(() => { saveHistory(); }, 500); 
+        
+        updateSlide1(); updateSlide2Clock(); renderTasks(); renderCalendar(new Date(), els.s2CalWrapper, true); lucide.createIcons();
     </script>
 </body>
 </html>
