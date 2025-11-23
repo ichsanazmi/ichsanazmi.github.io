@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Face Scanner + Google Sheets</title>
+    <title>AI Face Scanner + Custom Data</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { background-color: #0f172a; color: white; font-family: 'Segoe UI', sans-serif; }
@@ -47,8 +47,6 @@
 
     <!-- Main Interface -->
     <div class="w-full max-w-2xl">
-        
-        <!-- Camera Selector -->
         <div class="mb-4">
             <select id="cameraSelect" class="w-full p-2 bg-slate-800 border border-slate-600 rounded-lg text-white focus:outline-none focus:border-blue-500 text-sm transition-colors hover:border-blue-400">
                 <option value="">Mendeteksi kamera...</option>
@@ -59,10 +57,7 @@
             <video id="video" autoplay muted playsinline></video>
         </div>
 
-        <!-- Controls & Status -->
         <div class="mt-6 bg-slate-800 p-6 rounded-xl border border-slate-700 shadow-xl space-y-4">
-            
-            <!-- Status Deteksi Real-time -->
             <div class="flex justify-between items-center border-b border-slate-700 pb-4">
                 <div>
                     <h3 class="text-sm font-semibold text-gray-400">Terdeteksi:</h3>
@@ -73,7 +68,6 @@
                 </div>
             </div>
 
-            <!-- Tombol Simpan (Input URL sudah dihapus) -->
             <div>
                 <button onclick="saveAttendance()" id="btnSave" disabled 
                     class="w-full py-3 bg-gray-600 text-white font-bold rounded-lg transition-all flex justify-center items-center gap-2 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.02]">
@@ -85,7 +79,6 @@
                 </p>
             </div>
 
-            <!-- Debug Info -->
             <div class="pt-2 text-xs text-gray-600 text-center">
                 Database: <span id="dbStatus">Memuat...</span> | URL Foto: <span id="urlDisplay" class="truncate max-w-[150px] inline-block align-bottom">...</span>
             </div>
@@ -110,23 +103,36 @@
         let currentStream;
         let currentBestMatch = null; 
 
-        // ================= KONFIGURASI DATA =================
-        const labels = ['Ichsan']; 
-        const baseImageBaseUrl = 'https://raw.githubusercontent.com/ichsanazmi/ichsanazmi.github.io/refs/heads/master/produktif/labeled_images/';
+        // ================= PENGATURAN DATA WAJAH =================
         
-        // URL Google Apps Script yang sudah di-hardcode
+        // [PENTING] GANTI NAMA INI SESUAI NAMA FOLDER DI GITHUB ANDA
+        // Contoh: Jika di folder labeled_images ada folder 'Ichsan', tulis ['Ichsan']
+        const labels = ['Ichsan']; 
+        
+        // [UPDATE] URL Database Gambar Custom
+        const baseImageBaseUrl = 'https://raw.githubusercontent.com/ichsanazmi/ichsanazmi.github.io/refs/heads/master/produktif/labeled_images';
+
+        // --- OPSI 2: Data Sendiri (Jika pakai Localhost) ---
+        // const labels = ['Budi', 'Siti']; 
+        // const baseImageBaseUrl = './labeled_images';
+        
+        // =========================================================
+        
         const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzoAIKLCAWts3IF4LvIxDPiuu17CGxn8naI1oIqMoMURCLbK64VKVGxY7_x-9XqwHmXhA/exec';
         
-        document.getElementById('urlDisplay').innerText = baseImageBaseUrl;
-        // ====================================================
+        document.getElementById('urlDisplay').innerText = "Custom GitHub Data";
+
+        // [UPDATE] URL Model Custom
+        const MODEL_URL = 'https://raw.githubusercontent.com/ichsanazmi/ichsanazmi.github.io/refs/heads/master/produktif/models';
 
         Promise.all([
-            faceapi.nets.ssdMobilenetv1.loadFromUri('https://raw.githubusercontent.com/ichsanazmi/ichsanazmi.github.io/refs/heads/master/produktif/models'),
-            faceapi.nets.faceLandmark68Net.loadFromUri('https://raw.githubusercontent.com/ichsanazmi/ichsanazmi.github.io/refs/heads/master/produktif/models'),
-            faceapi.nets.faceRecognitionNet.loadFromUri('https://raw.githubusercontent.com/ichsanazmi/ichsanazmi.github.io/refs/heads/master/produktif/models')
+            faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL),
+            faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
+            faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL)
         ]).then(startSystem).catch(err => {
             console.error(err);
-            alert("Gagal memuat model AI.");
+            alert("Gagal memuat model AI. Cek koneksi internet.");
+            showError("Gagal Download Model AI");
         });
 
         async function startSystem() {
@@ -135,28 +141,49 @@
                 labeledFaceDescriptors = await loadLabeledImages();
                 dbStatus.innerText = `Aktif (${labels.length} Model)`;
                 dbStatus.className = "text-green-500 font-bold";
+                startVideo();
             } catch (error) {
                 console.error(error);
-                dbStatus.innerText = "Error Load Data";
-                dbStatus.className = "text-red-500";
+                showError(error.message);
             }
-            startVideo();
+        }
+
+        function showError(msg) {
+            loadingDiv.style.display = 'flex';
+            loadingText.innerText = "Terjadi Kesalahan";
+            loadingText.className = "text-xl font-bold text-red-500";
+            loadingDetail.innerText = msg;
+            dbStatus.innerText = "Error: " + msg;
+            dbStatus.className = "text-red-500 font-bold";
         }
 
         async function loadLabeledImages() {
             return Promise.all(
                 labels.map(async label => {
                     const descriptions = [];
-                    loadingDetail.innerText = `Memproses: ${label}...`;
+                    loadingDetail.innerText = `Mengunduh foto: ${label}...`;
+                    
                     for (let i = 1; i <= 2; i++) {
                         const imgUrl = `${baseImageBaseUrl}/${label}/${i}.jpg`;
                         try {
+                            // Menggunakan crossOrigin anonymous untuk menghindari error CORS
                             const img = await faceapi.fetchImage(imgUrl);
+                            
                             const detections = await faceapi.detectSingleFace(img).withFaceLandmarks().withFaceDescriptor();
-                            if (detections) descriptions.push(detections.descriptor);
-                        } catch(e) { console.warn("Skip image", e); }
+                            
+                            if (detections) {
+                                descriptions.push(detections.descriptor);
+                            } else {
+                                console.warn(`Wajah tidak terdeteksi di foto ${label}/${i}.jpg (Mungkin foto terlalu buram/gelap)`);
+                            }
+                        } catch(e) { 
+                            console.warn(`Gagal ambil foto ${imgUrl}. Pastikan internet lancar.`, e); 
+                        }
                     }
-                    if (descriptions.length === 0) throw new Error(`No data for ${label}`);
+
+                    if (descriptions.length === 0) {
+                        throw new Error(`Gagal memuat foto wajah untuk: ${label}. Cek koneksi internet.`);
+                    }
                     return new faceapi.LabeledFaceDescriptors(label, descriptions);
                 })
             );
@@ -178,22 +205,28 @@
         }
 
         function startVideo(deviceId = null) {
+            loadingDiv.style.display = 'none'; // Hide loading saat mau start video
+            
             if (currentStream) currentStream.getTracks().forEach(track => track.stop());
             const constraints = { video: deviceId ? { deviceId: { exact: deviceId } } : {} };
+            
             navigator.mediaDevices.getUserMedia(constraints).then(stream => {
                 currentStream = stream;
                 video.srcObject = stream;
                 if (cameraSelect.options.length <= 1) getCameras();
-            }).catch(err => alert("Gagal akses kamera"));
+            }).catch(err => {
+                alert("Gagal akses kamera. Izinkan akses kamera di browser.");
+                showError("Izin Kamera Ditolak");
+            });
         }
 
         video.addEventListener('play', () => {
-            loadingDiv.style.display = 'none';
             const oldCanvas = document.querySelector('canvas');
             if (oldCanvas) oldCanvas.remove();
 
             const canvas = faceapi.createCanvasFromMedia(video);
             document.querySelector('.video-container').append(canvas);
+            
             const displaySize = { width: video.videoWidth, height: video.videoHeight };
             faceapi.matchDimensions(canvas, displaySize);
 
@@ -202,6 +235,8 @@
             }
 
             setInterval(async () => {
+                if (video.paused || video.ended) return;
+
                 const detections = await faceapi.detectAllFaces(video, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.5 }))
                     .withFaceLandmarks()
                     .withFaceDescriptors();
@@ -219,11 +254,9 @@
                         const { label, distance } = result;
                         const accuracy = Math.round((1-distance)*100);
                         
-                        // Update UI berdasarkan deteksi
                         if (label !== 'unknown') {
                             currentBestMatch = { name: label, accuracy: accuracy };
                             isFaceRecognized = true;
-                            
                             const drawBox = new faceapi.draw.DrawBox(box, { label: `${label} (${accuracy}%)`, boxColor: '#00ff00' });
                             drawBox.draw(canvas);
                         } else {
@@ -261,7 +294,6 @@
             }
         }
 
-        // ================= FUNGSI KIRIM KE SPREADSHEET =================
         function saveAttendance() {
             if (!currentBestMatch) return;
 
@@ -278,9 +310,7 @@
             fetch(GOOGLE_SCRIPT_URL, {
                 method: 'POST',
                 mode: 'no-cors', 
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(dataKirim)
             }).then(() => {
                 alert(`✅ Sukses!\nData ${currentBestMatch.name} telah dikirim.`);
@@ -288,7 +318,7 @@
                 btnSave.disabled = false;
             }).catch(error => {
                 console.error('Error:', error);
-                alert("❌ Gagal mengirim data. Cek koneksi internet.");
+                alert("❌ Gagal mengirim data.");
                 btnSave.querySelector('span').innerText = originalBtnText;
                 btnSave.disabled = false;
             });
