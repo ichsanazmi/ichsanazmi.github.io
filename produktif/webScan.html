@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Face Scanner + Custom Data</title>
+    <title>AI Face Scanner (Shutter Mode)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { background-color: #0f172a; color: white; font-family: 'Segoe UI', sans-serif; }
@@ -14,6 +14,18 @@
         }
         video { width: 100%; height: auto; display: block; }
         canvas { position: absolute; top: 0; left: 0; }
+        
+        /* Efek Flash saat foto diambil */
+        @keyframes flash {
+            0% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+        .flash-effect {
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background: white; opacity: 0; pointer-events: none; z-index: 20;
+        }
+        .flash-active { animation: flash 0.3s ease-out; }
+
         #loading {
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
             background: rgba(15, 23, 42, 0.98); z-index: 50;
@@ -42,7 +54,7 @@
         <h1 class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">
             Smart Attendance System
         </h1>
-        <p class="text-gray-400 text-sm mt-1">Face Recognition & Spreadsheet Sync</p>
+        <p class="text-gray-400 text-sm mt-1">Manual Scan Mode</p>
     </header>
 
     <!-- Main Interface -->
@@ -54,30 +66,39 @@
         </div>
 
         <div class="video-container bg-black">
+            <div id="flashOverlay" class="flash-effect"></div>
             <video id="video" autoplay muted playsinline></video>
         </div>
 
         <div class="mt-6 bg-slate-800 p-6 rounded-xl border border-slate-700 shadow-xl space-y-4">
             <div class="flex justify-between items-center border-b border-slate-700 pb-4">
                 <div>
-                    <h3 class="text-sm font-semibold text-gray-400">Terdeteksi:</h3>
-                    <p id="detectedName" class="text-2xl font-bold text-white">Menunggu...</p>
+                    <h3 class="text-sm font-semibold text-gray-400">Hasil Scan:</h3>
+                    <p id="detectedName" class="text-2xl font-bold text-white">Silakan Scan...</p>
                 </div>
                 <div id="confidenceLevel" class="text-right text-xs text-gray-500 font-mono">
                     Akurasi: 0%
                 </div>
             </div>
 
-            <div>
+            <div class="grid grid-cols-2 gap-4">
+                <!-- Tombol SCAN (Shutter) -->
+                <button onclick="captureSnapshot()" id="btnScan" disabled
+                    class="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg transition-all flex justify-center items-center gap-2 shadow-lg active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                    <span>Scan Wajah</span>
+                </button>
+
+                <!-- Tombol SIMPAN -->
                 <button onclick="saveAttendance()" id="btnSave" disabled 
                     class="w-full py-3 bg-gray-600 text-white font-bold rounded-lg transition-all flex justify-center items-center gap-2 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.02]">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    <span>Simpan Ke Data Kehadiran</span>
+                    <span>Simpan Data</span>
                 </button>
-                <p class="text-xs text-gray-500 mt-2 text-center">
-                    *Data akan otomatis tersimpan ke Spreadsheet Server Pusat
-                </p>
             </div>
+            <p class="text-xs text-gray-500 text-center">
+                *Tekan 'Scan Wajah' dulu, jika benar baru tekan 'Simpan Data'.
+            </p>
 
             <div class="pt-2 text-xs text-gray-600 text-center">
                 Database: <span id="dbStatus">Memuat...</span> | URL Foto: <span id="urlDisplay" class="truncate max-w-[150px] inline-block align-bottom">...</span>
@@ -97,33 +118,21 @@
         const detectedNameDisplay = document.getElementById('detectedName');
         const confidenceLevelDisplay = document.getElementById('confidenceLevel');
         const btnSave = document.getElementById('btnSave');
+        const btnScan = document.getElementById('btnScan'); // Tombol baru
         
         let labeledFaceDescriptors = [];
         let faceMatcher;
         let currentStream;
         let currentBestMatch = null; 
+        let canvas; // Variable global untuk canvas
 
         // ================= PENGATURAN DATA WAJAH =================
-        
-        // [PENTING] GANTI NAMA INI SESUAI NAMA FOLDER DI GITHUB ANDA
-        // Contoh: Jika di folder labeled_images ada folder 'Ichsan', tulis ['Ichsan']
         const labels = ['Ichsan']; 
-        
-        // [UPDATE] URL Database Gambar Custom
-        const baseImageBaseUrl = 'https://raw.githubusercontent.com/ichsanazmi/ichsanazmi.github.io/refs/heads/master/produktif/labeled_images';
-
-        // --- OPSI 2: Data Sendiri (Jika pakai Localhost) ---
-        // const labels = ['Budi', 'Siti']; 
-        // const baseImageBaseUrl = './labeled_images';
-        
-        // =========================================================
-        
+        const baseImageBaseUrl = 'https://raw.githubusercontent.com/ichsanazmi/ichsanazmi.github.io/master/produktif/labeled_images';
         const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzoAIKLCAWts3IF4LvIxDPiuu17CGxn8naI1oIqMoMURCLbK64VKVGxY7_x-9XqwHmXhA/exec';
+        const MODEL_URL = 'https://raw.githubusercontent.com/ichsanazmi/ichsanazmi.github.io/master/produktif/models';
         
         document.getElementById('urlDisplay').innerText = "Custom GitHub Data";
-
-        // [UPDATE] URL Model Custom
-        const MODEL_URL = 'https://raw.githubusercontent.com/ichsanazmi/ichsanazmi.github.io/refs/heads/master/produktif/models';
 
         Promise.all([
             faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL),
@@ -157,33 +166,31 @@
             dbStatus.className = "text-red-500 font-bold";
         }
 
+        async function fetchImageWithFallback(baseUrl, label, index) {
+            const extensions = ['jpg', 'png', 'jpeg', 'JPG', 'PNG'];
+            for (const ext of extensions) {
+                const url = `${baseUrl}/${label}/${index}.${ext}`;
+                try {
+                    const response = await fetch(url, { method: 'HEAD' });
+                    if (response.ok) return await faceapi.fetchImage(url);
+                } catch (e) {}
+            }
+            return await faceapi.fetchImage(`${baseUrl}/${label}/${index}.jpg`);
+        }
+
         async function loadLabeledImages() {
             return Promise.all(
                 labels.map(async label => {
                     const descriptions = [];
                     loadingDetail.innerText = `Mengunduh foto: ${label}...`;
-                    
                     for (let i = 1; i <= 2; i++) {
-                        const imgUrl = `${baseImageBaseUrl}/${label}/${i}.jpg`;
                         try {
-                            // Menggunakan crossOrigin anonymous untuk menghindari error CORS
-                            const img = await faceapi.fetchImage(imgUrl);
-                            
+                            const img = await fetchImageWithFallback(baseImageBaseUrl, label, i);
                             const detections = await faceapi.detectSingleFace(img).withFaceLandmarks().withFaceDescriptor();
-                            
-                            if (detections) {
-                                descriptions.push(detections.descriptor);
-                            } else {
-                                console.warn(`Wajah tidak terdeteksi di foto ${label}/${i}.jpg (Mungkin foto terlalu buram/gelap)`);
-                            }
-                        } catch(e) { 
-                            console.warn(`Gagal ambil foto ${imgUrl}. Pastikan internet lancar.`, e); 
-                        }
+                            if (detections) descriptions.push(detections.descriptor);
+                        } catch(e) { console.warn(`Gagal ambil foto untuk ${label} urutan ${i}.`, e); }
                     }
-
-                    if (descriptions.length === 0) {
-                        throw new Error(`Gagal memuat foto wajah untuk: ${label}. Cek koneksi internet.`);
-                    }
+                    if (descriptions.length === 0) throw new Error(`Gagal memuat foto wajah untuk: ${label}`);
                     return new faceapi.LabeledFaceDescriptors(label, descriptions);
                 })
             );
@@ -205,8 +212,7 @@
         }
 
         function startVideo(deviceId = null) {
-            loadingDiv.style.display = 'none'; // Hide loading saat mau start video
-            
+            loadingDiv.style.display = 'none'; 
             if (currentStream) currentStream.getTracks().forEach(track => track.stop());
             const constraints = { video: deviceId ? { deviceId: { exact: deviceId } } : {} };
             
@@ -220,56 +226,95 @@
             });
         }
 
+        // Event Listener saat video mulai
         video.addEventListener('play', () => {
+            // Bersihkan canvas lama jika ganti kamera
             const oldCanvas = document.querySelector('canvas');
             if (oldCanvas) oldCanvas.remove();
 
-            const canvas = faceapi.createCanvasFromMedia(video);
+            // Buat Canvas Baru
+            canvas = faceapi.createCanvasFromMedia(video);
             document.querySelector('.video-container').append(canvas);
             
+            // Match Dimensi
             const displaySize = { width: video.videoWidth, height: video.videoHeight };
             faceapi.matchDimensions(canvas, displaySize);
 
+            // Siapkan Matcher
             if (labeledFaceDescriptors.length > 0) {
                 faceMatcher = new faceapi.FaceMatcher(labeledFaceDescriptors, 0.6);
             }
-
-            setInterval(async () => {
-                if (video.paused || video.ended) return;
-
-                const detections = await faceapi.detectAllFaces(video, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.5 }))
-                    .withFaceLandmarks()
-                    .withFaceDescriptors();
-                
-                const resizedDetections = faceapi.resizeResults(detections, displaySize);
-                canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
-
-                let isFaceRecognized = false;
-
-                if (faceMatcher) {
-                    const results = resizedDetections.map(d => faceMatcher.findBestMatch(d.descriptor));
-                    
-                    results.forEach((result, i) => {
-                        const box = resizedDetections[i].detection.box;
-                        const { label, distance } = result;
-                        const accuracy = Math.round((1-distance)*100);
-                        
-                        if (label !== 'unknown') {
-                            currentBestMatch = { name: label, accuracy: accuracy };
-                            isFaceRecognized = true;
-                            const drawBox = new faceapi.draw.DrawBox(box, { label: `${label} (${accuracy}%)`, boxColor: '#00ff00' });
-                            drawBox.draw(canvas);
-                        } else {
-                            const drawBox = new faceapi.draw.DrawBox(box, { label: "Tidak Dikenal", boxColor: '#ef4444' });
-                            drawBox.draw(canvas);
-                        }
-                    });
-                }
-
-                updateUIState(isFaceRecognized);
-
-            }, 100);
+            
+            // Aktifkan Tombol Scan karena video sudah siap
+            btnScan.disabled = false;
+            
+            // HAPUS setInterval yang sebelumnya ada disini
+            // Kita tidak melakukan looping lagi, tapi menunggu klik tombol.
         });
+
+        // ================= FUNGSI SNAPSHOT (MANUAL TRIGGER) =================
+        async function captureSnapshot() {
+            if (!faceMatcher || !canvas) return;
+
+            // 1. Efek Flash Visual
+            const flash = document.getElementById('flashOverlay');
+            flash.classList.add('flash-active');
+            setTimeout(() => flash.classList.remove('flash-active'), 300);
+
+            // 2. Feedback UI
+            btnScan.disabled = true;
+            btnScan.querySelector('span').innerText = "Menganalisa...";
+            detectedNameDisplay.innerText = "Menganalisa...";
+            detectedNameDisplay.className = "text-2xl font-bold text-yellow-400";
+
+            // 3. Proses Deteksi (Hanya 1 Frame)
+            const displaySize = { width: video.videoWidth, height: video.videoHeight };
+            faceapi.matchDimensions(canvas, displaySize);
+
+            // Bersihkan hasil scan sebelumnya
+            canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+            currentBestMatch = null;
+
+            const detections = await faceapi.detectAllFaces(video, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.5 }))
+                .withFaceLandmarks()
+                .withFaceDescriptors();
+            
+            const resizedDetections = faceapi.resizeResults(detections, displaySize);
+
+            // 4. Gambar Hasil
+            if (resizedDetections.length > 0) {
+                const results = resizedDetections.map(d => faceMatcher.findBestMatch(d.descriptor));
+                let foundMatch = false;
+
+                results.forEach((result, i) => {
+                    const box = resizedDetections[i].detection.box;
+                    const { label, distance } = result;
+                    const accuracy = Math.round((1-distance)*100);
+                    
+                    if (label !== 'unknown') {
+                        currentBestMatch = { name: label, accuracy: accuracy };
+                        foundMatch = true;
+                        
+                        const drawBox = new faceapi.draw.DrawBox(box, { label: `${label} (${accuracy}%)`, boxColor: '#00ff00' });
+                        drawBox.draw(canvas);
+                    } else {
+                        const drawBox = new faceapi.draw.DrawBox(box, { label: "Tidak Dikenal", boxColor: '#ef4444' });
+                        drawBox.draw(canvas);
+                    }
+                });
+
+                updateUIState(foundMatch);
+            } else {
+                // Tidak ada wajah terdeteksi sama sekali
+                updateUIState(false);
+                detectedNameDisplay.innerText = "Wajah Tidak Terlihat";
+                detectedNameDisplay.className = "text-2xl font-bold text-red-400";
+            }
+
+            // Kembalikan tombol scan
+            btnScan.disabled = false;
+            btnScan.querySelector('span').innerText = "Scan Wajah";
+        }
 
         function updateUIState(isRecognized) {
             if (isRecognized && currentBestMatch) {
@@ -280,17 +325,17 @@
                 btnSave.disabled = false;
                 btnSave.classList.remove('bg-gray-600');
                 btnSave.classList.add('bg-green-600', 'hover:bg-green-500');
-                btnSave.querySelector('span').innerText = `Simpan Kehadiran: ${currentBestMatch.name}`;
             } else {
-                currentBestMatch = null;
-                detectedNameDisplay.innerText = "Mencari...";
-                detectedNameDisplay.className = "text-2xl font-bold text-gray-500";
+                // Jika tidak dikenali, reset UI tapi jangan ubah text 'Wajah Tidak Terlihat' jika tadi diset
+                if(!detectedNameDisplay.innerText.includes("Tidak Terlihat")) {
+                    detectedNameDisplay.innerText = "Tidak Dikenal";
+                    detectedNameDisplay.className = "text-2xl font-bold text-red-400";
+                }
                 confidenceLevelDisplay.innerText = "Akurasi: 0%";
                 
                 btnSave.disabled = true;
                 btnSave.classList.add('bg-gray-600');
                 btnSave.classList.remove('bg-green-600', 'hover:bg-green-500');
-                btnSave.querySelector('span').innerText = "Simpan Ke Data Kehadiran";
             }
         }
 
@@ -314,12 +359,12 @@
                 body: JSON.stringify(dataKirim)
             }).then(() => {
                 alert(`✅ Sukses!\nData ${currentBestMatch.name} telah dikirim.`);
-                btnSave.querySelector('span').innerText = originalBtnText;
+                btnSave.querySelector('span').innerText = "Simpan Data";
                 btnSave.disabled = false;
             }).catch(error => {
                 console.error('Error:', error);
                 alert("❌ Gagal mengirim data.");
-                btnSave.querySelector('span').innerText = originalBtnText;
+                btnSave.querySelector('span').innerText = "Simpan Data";
                 btnSave.disabled = false;
             });
         }
