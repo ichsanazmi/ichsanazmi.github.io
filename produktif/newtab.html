@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bento Productivity</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100 p-6 text-gray-800">
+<div class="grid grid-cols-3 gap-6">
+
+  <!-- LEFT PANEL -->
+  <div class="space-y-6 col-span-1">
+
+    <!-- CLOCK -->
+    <div class="p-6 text-center">
+      <div id="clock" class="text-5xl font-bold"></div>
+      <div id="date" class="mt-2 text-sm text-gray-500"></div>
+    </div>
+
+    <!-- PRAYER TIMES -->
+    <div class="bg-white p-4 rounded-2xl shadow-sm">
+
+      <div class="flex items-center justify-between mb-3">
+        <div class="text-lg font-medium">Waktu Sholat Hari Ini</div>
+      </div>
+
+      <div class="space-y-2 mb-3">
+        <label class="text-xs text-gray-500">Pilih Kota</label>
+        <div class="flex gap-2">
+          <select id="citySelect" class="flex-1 p-2 border rounded-md bg-white"></select>
+          <input id="countryInput" class="w-40 p-2 border rounded-md" value="Indonesia" />
+        </div>
+      </div>
+
+      <div id="prayerTimes" class="text-sm text-gray-700 space-y-1">
+        Memuat jadwal...
+      </div>
+
+      <div id="prayerActions" class="mt-3"></div>
+    </div>
+
+  </div>
+
+  <!-- RIGHT SIDE — CARDS -->
+  <div class="col-span-2 space-y-4">
+    <div class="flex justify-between items-center">
+      <button onclick="loadCards()" class="px-3 py-1 rounded bg-blue-600 hover:bg-blue-700 text-white text-sm">
+        Refresh
+      </button>
+    </div>
+    <div id="cardsContainer" class="grid grid-cols-2 gap-4"></div>
+  </div>
+</div>
+
+<!-- ========================== JAVASCRIPT ========================== -->
+<script>
+// CLOCK
+function updateClock() {
+  const now = new Date();
+  document.getElementById("clock").textContent =
+    now.toLocaleTimeString("id-ID", { hour12: false });
+  document.getElementById("date").textContent =
+    now.toLocaleDateString("id-ID", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+// PRAYER TIMES
+const ALADHAN_METHOD = 20;
+const CITY_API = "https://countriesnow.space/api/v0.1/countries/cities";
+const PRAYER_API = "https://api.aladhan.com/v1/timingsByCity";
+
+async function loadCities() {
+  const res = await fetch(CITY_API, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ country: "Indonesia" }) });
+  const json = await res.json();
+  const select = document.getElementById("citySelect");
+  json.data.forEach(city => {
+    const opt = document.createElement("option");
+    opt.value = city;
+    opt.textContent = city;
+    select.appendChild(opt);
+  });
+  if (localStorage.city) select.value = localStorage.city;
+  loadPrayerTimes();
+}
+
+async function loadPrayerTimes() {
+  const city = document.getElementById("citySelect").value;
+  const country = document.getElementById("countryInput").value;
+  const area = document.getElementById("prayerTimes");
+  const actions = document.getElementById("prayerActions");
+
+  area.innerHTML = "Memuat...";
+  actions.innerHTML = "";
+
+  try {
+    const url = `${PRAYER_API}?city=${city}&country=${country}&method=${ALADHAN_METHOD}`;
+    const res = await fetch(url);
+    const json = await res.json();
+
+    if (!json.data) throw new Error("Data tidak ditemukan");
+
+    const t = json.data.timings;
+    area.innerHTML = `
+      Subuh: ${t.Fajr}<br>
+      Dzuhur: ${t.Dhuhr}<br>
+      Ashar: ${t.Asr}<br>
+      Maghrib: ${t.Maghrib}<br>
+      Isya: ${t.Isha}
+    `;
+
+    localStorage.city = city;
+  } catch (e) {
+    area.innerHTML = `<div class="text-red-600">Gagal memuat jadwal. Pastikan nama kota benar.</div>`;
+  }
+}
+document.getElementById("citySelect").addEventListener("change", loadPrayerTimes);
+loadCities();
+
+// GOOGLE SHEETS — CARDS
+const SPREADSHEET_URL = "https://script.google.com/macros/s/AKfycbz-zjAGV6ytumJH01c8r3ew6O_f8BFFYaZhL-cwlg11AuCLp39GxH8y6p-cHHKhKz5N/exec";
+
+async function loadCards() {
+  const box = document.getElementById("cardsContainer");
+  box.innerHTML = "Memuat...";
+  try {
+    const res = await fetch(SPREADSHEET_URL);
+    const data = await res.json();
+    box.innerHTML = "";
+
+    let rows =
+      Array.isArray(data) ? data :
+      Array.isArray(data.data) ? data.data :
+      [];
+
+    rows.forEach(row => {
+      let text = Array.isArray(row) ? row.join(" · ") :
+                 typeof row === "object" ? Object.values(row).join(" · ") :
+                 row;
+
+      box.innerHTML += `
+        <div class="bg-white shadow p-4 rounded-xl text-sm">
+          ${text}
+        </div>`;
+    });
+  } catch {
+    box.innerHTML = `<div class="text-red-600">Gagal mengambil data dari Spreadsheet.</div>`;
+  }
+}
+loadCards();
+</script>
+</body>
+</html>
