@@ -110,6 +110,16 @@
         .matrix-quadrant.drag-over { background-color: rgba(0,0,0,0.05); border: 2px dashed #9ca3af; }
         .matrix-card { cursor: pointer; touch-action: none; user-select: none; transition: transform 0.1s; }
         .matrix-card.selected { border: 2px solid #3b82f6; transform: scale(1.02); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); z-index: 10; }
+        
+        /* Loading overlay for sync */
+        .sync-badge {
+            transition: opacity 0.3s;
+            opacity: 0;
+            pointer-events: none;
+        }
+        .sync-badge.visible {
+            opacity: 1;
+        }
     </style>
 </head>
 <body class="bg-light-bg text-light-text overflow-hidden">
@@ -133,11 +143,17 @@
             <button id="pomo-start" class="w-full bg-red-500 text-white py-1.5 rounded-lg text-xs font-bold hover:bg-red-600 transition">START</button>
         </div>
     </div>
+    
+    <!-- Sync Status Badge -->
+    <div id="sync-status" class="sync-badge fixed top-4 right-4 z-[55] bg-white/90 backdrop-blur border border-green-200 text-green-700 px-3 py-1.5 rounded-full text-[10px] font-bold shadow-sm flex items-center gap-2">
+        <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+        Syncing...
+    </div>
 
     <!-- === NAVIGATION === -->
     <nav class="fixed bottom-6 left-1/2 transform -translate-x-1/2 flex flex-row gap-2 p-2 bg-white/80 backdrop-blur-md border border-white/50 shadow-xl rounded-2xl z-50 transition-all duration-300 scale-90 origin-bottom overflow-x-auto max-w-[90vw]">
         <button class="nav-btn active group relative flex items-center justify-center p-2.5 rounded-xl text-light-subtext hover:bg-gray-50 hover:text-light-primary transition-all duration-200" data-target="slide-1"><i data-lucide="clock" width="20" height="20"></i></button>
-        <button class="nav-btn group relative flex items-center justify-center p-2.5 rounded-xl text-light-subtext hover:bg-gray-50 hover:text-light-primary transition-all duration-200" data-target="slide-2"><i data-lucide="layout-grid" width="20" height="20"></i></button>
+        <button class="nav-btn group relative flex items-center justify-center p-2.5 rounded-xl text-light-subtext hover:bg-gray-50 hover:text-light-primary transition-all duration-200" data-target="slide-2"><i data-lucide="clipboard-check" width="20" height="20"></i></button>
         <button class="nav-btn group relative flex items-center justify-center p-2.5 rounded-xl text-light-subtext hover:bg-gray-50 hover:text-light-primary transition-all duration-200" data-target="slide-3"><i data-lucide="palette" width="20" height="20"></i></button>
         <button class="nav-btn group relative flex items-center justify-center p-2.5 rounded-xl text-light-subtext hover:bg-gray-50 hover:text-light-primary transition-all duration-200" data-target="slide-5"><i data-lucide="columns-2" width="20" height="20"></i><span class="absolute bottom-full mb-3 left-1/2 transform -translate-x-1/2 px-2 py-1 bg-gray-800 text-white text-[10px] rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50 shadow-lg">Matrix</span></button>
         <button class="nav-btn group relative flex items-center justify-center p-2.5 rounded-xl text-light-subtext hover:bg-gray-50 hover:text-light-primary transition-all duration-200" data-target="slide-4"><i data-lucide="gamepad-2" width="20" height="20"></i></button>
@@ -178,8 +194,9 @@
                         <div id="date-display" class="font-semibold text-sm">-</div>
                     </div>
                     <div class="flex gap-1">
-                        <button id="fetch-btn" class="p-2 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition" title="Download"><i data-lucide="cloud-download" width="18"></i></button>
-                        <button id="push-btn" class="p-2 hover:text-emerald-500 hover:bg-emerald-50 rounded-lg transition" title="Upload"><i data-lucide="cloud-upload" width="18"></i></button>
+                        <!-- Manual buttons still kept for manual control if needed, but logic also used for auto -->
+                        <button id="fetch-btn" class="p-2 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition" title="Refresh Data"><i data-lucide="refresh-cw" width="18"></i></button>
+                        <button id="push-btn" class="p-2 hover:text-emerald-500 hover:bg-emerald-50 rounded-lg transition" title="Force Save"><i data-lucide="save" width="18"></i></button>
                     </div>
                     <button id="next-date-btn" class="p-2 hover:bg-white rounded-xl transition"><i data-lucide="chevron-right" width="20"></i></button>
                 </div>
@@ -202,8 +219,8 @@
                 <div class="flex justify-between items-center mb-2 text-yellow-800/70">
                     <div class="flex items-center gap-2"><i data-lucide="sticky-note" width="16"></i><span class="text-xs font-bold uppercase">Catatan</span></div>
                     <div class="flex gap-1">
-                        <button id="fetch-note-btn" class="p-1 hover:bg-yellow-100 rounded"><i data-lucide="cloud-download" width="14"></i></button>
-                        <button id="sync-note-btn" class="p-1 hover:bg-yellow-100 rounded"><i data-lucide="cloud-upload" width="14"></i></button>
+                         <!-- Small indicator/button for manual note sync if needed -->
+                        <button id="sync-note-btn" class="p-1 hover:bg-yellow-100 rounded opacity-50"><i data-lucide="save" width="14"></i></button>
                     </div>
                 </div>
                 <textarea id="note-input" class="flex-1 w-full bg-transparent resize-none outline-none text-sm text-gray-700 placeholder:text-yellow-800/30 leading-relaxed custom-scrollbar" placeholder="Tulis catatan di sini..."></textarea>
@@ -319,14 +336,24 @@
     </div>
 
     <!-- MODALS (Task & iOS) -->
+    <!-- EDITED: Task Modal with Textarea -->
     <div id="task-modal" class="fixed inset-0 z-[60] hidden flex items-center justify-center p-4">
         <div id="modal-backdrop" class="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity opacity-0"></div>
-        <div id="modal-content" class="relative bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl transform scale-95 transition-all opacity-0 flex flex-col max-h-[60vh]">
-            <div class="flex justify-between items-start mb-2"><h3 id="modal-title" class="text-lg font-bold text-light-text leading-snug"></h3><button id="close-modal-btn" class="text-gray-400 hover:text-gray-600"><i data-lucide="x" width="20"></i></button></div>
-            <div id="modal-date" class="text-xs font-mono text-light-subtext mb-4"></div><div class="h-px w-full bg-gray-100 mb-4"></div>
-            <div id="modal-desc" class="text-sm text-gray-600 whitespace-pre-wrap overflow-y-auto"></div><div id="modal-no-desc" class="hidden text-center text-xs text-gray-400 py-4">Tidak ada deskripsi.</div>
+        <div id="modal-content" class="relative bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl transform scale-95 transition-all opacity-0 flex flex-col max-h-[80vh]">
+            <div class="flex justify-between items-start mb-2">
+                <h3 id="modal-title" class="text-lg font-bold text-light-text leading-snug"></h3>
+                <button id="close-modal-btn" class="text-gray-400 hover:text-gray-600"><i data-lucide="x" width="20"></i></button>
+            </div>
+            <div id="modal-date" class="text-xs font-mono text-light-subtext mb-4"></div>
+            <div class="h-px w-full bg-gray-100 mb-4"></div>
+            
+            <label class="text-[10px] uppercase font-bold text-gray-400 mb-1">Deskripsi</label>
+            <textarea id="modal-desc-edit" class="w-full h-32 bg-gray-50 border border-gray-200 rounded-xl p-3 text-sm text-gray-700 resize-none focus:outline-none focus:border-light-primary transition custom-scrollbar mb-4"></textarea>
+            
+            <button id="save-desc-btn" class="w-full bg-light-primary text-white py-2.5 rounded-xl text-sm font-semibold hover:bg-emerald-600 transition shadow-md shadow-emerald-200">Simpan Perubahan</button>
         </div>
     </div>
+    
     <div id="ios-install-modal" class="fixed inset-0 z-[60] hidden flex items-center justify-center p-4">
         <div id="ios-backdrop" class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity"></div>
         <div class="relative bg-white rounded-3xl max-w-xs w-full p-6 shadow-2xl">
@@ -430,7 +457,7 @@
                     if(found)return;const idx=allTasks[dateKey].findIndex(t=>t.id===selectedTask);
                     if(idx>-1){allTasks[dateKey][idx].quadrant=targetQuadrant==='inbox'?null:targetQuadrant;found=true;}
                 });
-                if(found){selectedTask=null;saveTasks();renderMatrix();}
+                if(found){selectedTask=null;saveTasks();renderMatrix();scheduleAutoSync();}
             }
         }
 
@@ -441,7 +468,10 @@
         s1Quote.textContent=localStorage.getItem('productivity_quote')||"Make today count.";s1Quote.addEventListener('input',e=>localStorage.setItem('productivity_quote',e.target.textContent));
 
         const els={
-            dateDisplay:document.getElementById('date-display'),dateLabel:document.getElementById('date-label'),taskList:document.getElementById('task-list'),emptyState:document.getElementById('empty-state'),progress:document.getElementById('progress-bar'),progressTxt:document.getElementById('progress-text'),taskInput:document.getElementById('task-input'),taskDesc:document.getElementById('task-desc-input'),addBtn:document.getElementById('add-task-btn'),note:document.getElementById('note-input'),fetchBtn:document.getElementById('fetch-btn'),pushBtn:document.getElementById('push-btn'),syncNoteBtn:document.getElementById('sync-note-btn'),fetchNoteBtn:document.getElementById('fetch-note-btn'),installArea:document.getElementById('pwa-install-area'),installBtn:document.getElementById('install-btn'),installText:document.getElementById('install-text'),s2Time:document.getElementById('s2-time'),s2Date:document.getElementById('s2-date'),s2CalWrapper:document.getElementById('s2-calendar-wrapper'),iosModal:document.getElementById('ios-install-modal'),closeIosModal:document.getElementById('close-ios-modal'),iosBackdrop:document.getElementById('ios-backdrop')
+            dateDisplay:document.getElementById('date-display'),dateLabel:document.getElementById('date-label'),taskList:document.getElementById('task-list'),emptyState:document.getElementById('empty-state'),progress:document.getElementById('progress-bar'),progressTxt:document.getElementById('progress-text'),taskInput:document.getElementById('task-input'),taskDesc:document.getElementById('task-desc-input'),addBtn:document.getElementById('add-task-btn'),note:document.getElementById('note-input'),fetchBtn:document.getElementById('fetch-btn'),pushBtn:document.getElementById('push-btn'),syncNoteBtn:document.getElementById('sync-note-btn'),
+            /* REMOVED fetchNoteBtn as it is not in HTML anymore */
+            installArea:document.getElementById('pwa-install-area'),installBtn:document.getElementById('install-btn'),installText:document.getElementById('install-text'),s2Time:document.getElementById('s2-time'),s2Date:document.getElementById('s2-date'),s2CalWrapper:document.getElementById('s2-calendar-wrapper'),iosModal:document.getElementById('ios-install-modal'),closeIosModal:document.getElementById('close-ios-modal'),iosBackdrop:document.getElementById('ios-backdrop'),
+            syncStatus: document.getElementById('sync-status')
         };
 
         // PWA Install
@@ -517,19 +547,61 @@
         const ROW=20, COL=10; let SQ=20, VACANT='#f3f4f6';
         let tBoard=[], tScore=0, tLevel=1, tGameRunning=false, tHighScore=localStorage.getItem('pixeltetris_hs')||0; tHighScoreEl.textContent=tHighScore;
         
-        // Renamed shape functions to avoid global scope conflicts
+        // Define Shapes as Arrays of Functions (Rotation States)
+        // Each function returns the 2D matrix for that rotation
+        const TetrisI = [
+            () => [[0, 1, 0, 0], [0, 1, 0, 0], [0, 1, 0, 0], [0, 1, 0, 0]],
+            () => [[0, 0, 0, 0], [1, 1, 1, 1], [0, 0, 0, 0], [0, 0, 0, 0]],
+            () => [[0, 0, 1, 0], [0, 0, 1, 0], [0, 0, 1, 0], [0, 0, 1, 0]],
+            () => [[0, 0, 0, 0], [0, 0, 0, 0], [1, 1, 1, 1], [0, 0, 0, 0]]
+        ];
+
+        const TetrisJ = [
+            () => [[1, 0, 0], [1, 1, 1], [0, 0, 0]],
+            () => [[0, 1, 1], [0, 1, 0], [0, 1, 0]],
+            () => [[0, 0, 0], [1, 1, 1], [0, 0, 1]],
+            () => [[0, 1, 0], [0, 1, 0], [1, 1, 0]]
+        ];
+
+        const TetrisL = [
+            () => [[0, 0, 1], [1, 1, 1], [0, 0, 0]],
+            () => [[0, 1, 0], [0, 1, 0], [0, 1, 1]],
+            () => [[0, 0, 0], [1, 1, 1], [1, 0, 0]],
+            () => [[1, 1, 0], [0, 1, 0], [0, 1, 0]]
+        ];
+
+        const TetrisO = [
+            () => [[0, 0, 0, 0], [0, 1, 1, 0], [0, 1, 1, 0], [0, 0, 0, 0]],
+            () => [[0, 0, 0, 0], [0, 1, 1, 0], [0, 1, 1, 0], [0, 0, 0, 0]],
+            () => [[0, 0, 0, 0], [0, 1, 1, 0], [0, 1, 1, 0], [0, 0, 0, 0]],
+            () => [[0, 0, 0, 0], [0, 1, 1, 0], [0, 1, 1, 0], [0, 0, 0, 0]]
+        ];
+
+        const TetrisS = [
+            () => [[0, 1, 1], [1, 1, 0], [0, 0, 0]],
+            () => [[0, 1, 0], [0, 1, 1], [0, 0, 1]],
+            () => [[0, 0, 0], [0, 1, 1], [1, 1, 0]],
+            () => [[1, 0, 0], [1, 1, 0], [0, 1, 0]]
+        ];
+
+        const TetrisT = [
+            () => [[0, 1, 0], [1, 1, 1], [0, 0, 0]],
+            () => [[0, 1, 0], [0, 1, 1], [0, 1, 0]],
+            () => [[0, 0, 0], [1, 1, 1], [0, 1, 0]],
+            () => [[0, 1, 0], [1, 1, 0], [0, 1, 0]]
+        ];
+
+        const TetrisZ = [
+            () => [[1, 1, 0], [0, 1, 1], [0, 0, 0]],
+            () => [[0, 0, 1], [0, 1, 1], [0, 1, 0]],
+            () => [[0, 0, 0], [1, 1, 0], [0, 1, 1]],
+            () => [[0, 1, 0], [1, 1, 0], [1, 0, 0]]
+        ];
+
         const PIECES = [
             [TetrisZ,"#1f2937"], [TetrisS,"#1f2937"], [TetrisT,"#1f2937"], [TetrisO,"#1f2937"], [TetrisL,"#1f2937"], [TetrisI,"#1f2937"], [TetrisJ,"#1f2937"]
         ];
-        // Shapes logic with namespacing
-        function TetrisZ(){return[[1,1,0],[0,1,1],[0,0,0]];} 
-        function TetrisS(){return[[0,1,1],[1,1,0],[0,0,0]];} 
-        function TetrisT(){return[[0,1,0],[1,1,1],[0,0,0]];} 
-        function TetrisO(){return[[0,0,0,0],[0,1,1,0],[0,1,1,0],[0,0,0,0]];} 
-        function TetrisL(){return[[0,0,1],[1,1,1],[0,0,0]];} 
-        function TetrisI(){return[[0,1,0,0],[0,1,0,0],[0,1,0,0],[0,1,0,0]];} 
-        function TetrisJ(){return[[1,0,0],[1,1,1],[0,0,0]];}
-        
+
         let tPiece, tDropStart = Date.now(), tTouchStart = 0, tIsTouch = false;
 
         function resizeTetrisCanvas() {
@@ -717,29 +789,205 @@
         }
         window.calChange=(off)=>{currentCalendarDate.setMonth(currentCalendarDate.getMonth()+off);renderCalendar(currentCalendarDate,els.s2CalWrapper,true);};
 
-        // Modal Logic
+        // Modal Logic (Updated for Editing)
         const modal=document.getElementById('task-modal'),modalBg=document.getElementById('modal-backdrop'),modalContent=document.getElementById('modal-content');
-        window.openModal=(id)=>{const t=(allTasks[getDateKey(currentDate)]||[]).find(x=>x.id===id);if(!t)return;document.getElementById('modal-title').textContent=t.text;document.getElementById('modal-date').textContent=getDateKey(currentDate);const desc=document.getElementById('modal-desc'),noDesc=document.getElementById('modal-no-desc');if(t.description){desc.textContent=t.description;desc.classList.remove('hidden');noDesc.classList.add('hidden');}else{desc.classList.add('hidden');noDesc.classList.remove('hidden');}modal.classList.remove('hidden');setTimeout(()=>{modalBg.classList.remove('opacity-0');modalContent.classList.remove('opacity-0','scale-95');},10);};
-        const closeModal=()=>{modalBg.classList.add('opacity-0');modalContent.classList.add('opacity-0','scale-95');setTimeout(()=>modal.classList.add('hidden'),300);};
-        document.getElementById('close-modal-btn').addEventListener('click',closeModal);modalBg.addEventListener('click',closeModal);
+        const modalDescEdit = document.getElementById('modal-desc-edit');
+        const saveDescBtn = document.getElementById('save-desc-btn');
+        let currentEditingTaskId = null;
+
+        window.openModal = (id) => {
+            const t = (allTasks[getDateKey(currentDate)]||[]).find(x => x.id === id);
+            if(!t) return;
+            
+            currentEditingTaskId = id;
+            document.getElementById('modal-title').textContent = t.text;
+            document.getElementById('modal-date').textContent = getDateKey(currentDate);
+            modalDescEdit.value = t.description || "";
+            
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modalBg.classList.remove('opacity-0');
+                modalContent.classList.remove('opacity-0','scale-95');
+            }, 10);
+        };
+
+        const closeModal=()=>{
+            modalBg.classList.add('opacity-0');
+            modalContent.classList.add('opacity-0','scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                currentEditingTaskId = null;
+            }, 300);
+        };
+        document.getElementById('close-modal-btn').addEventListener('click', closeModal);
+        modalBg.addEventListener('click', closeModal);
+        
+        saveDescBtn.addEventListener('click', () => {
+            if(currentEditingTaskId !== null) {
+                const k = getDateKey(currentDate);
+                const taskIndex = allTasks[k].findIndex(t => t.id === currentEditingTaskId);
+                if(taskIndex > -1) {
+                    allTasks[k][taskIndex].description = modalDescEdit.value;
+                    saveTasks(); // This triggers scheduleAutoSync if implemented there
+                    closeModal();
+                    scheduleAutoSync(); // Trigger auto sync
+                }
+            }
+        });
 
         // Sync & Init
-        const handleSync=async(btn,action,payload={})=>{if(GOOGLE_SCRIPT_URL.includes("PASTE"))return alert("URL Script belum diatur!");const oldHtml=btn.innerHTML;btn.innerHTML=`<svg class="animate-spin-custom" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>`;try{const res=await fetch(GOOGLE_SCRIPT_URL,{method:'POST',body:JSON.stringify({action,...payload})});const json=await res.json();if(json.result!=='success')throw new Error(json.message);return json;}catch(e){alert(e.message);return null;}finally{btn.innerHTML=oldHtml;lucide.createIcons();}};
-        els.fetchBtn.addEventListener('click',async()=>{const res=await handleSync(els.fetchBtn,'fetch_tasks');if(res){const merged={};res.data.forEach((item,i)=>{const k=item.date;if(!merged[k])merged[k]=[];merged[k].push({id:Date.now()+i,text:item.text,description:item.description||"",completed:item.status==="Selesai"});});allTasks=merged;saveTasks();}});
-        els.pushBtn.addEventListener('click',()=>{const tasksPayload=[];Object.keys(allTasks).forEach(d=>allTasks[d].forEach(t=>tasksPayload.push({date:d,status:t.completed?"Selesai":"Belum",text:t.text,description:t.description||""})));handleSync(els.pushBtn,'push_tasks',{tasks:tasksPayload});});
+        const handleSync=async(btn,action,payload={})=>{
+            if(GOOGLE_SCRIPT_URL.includes("PASTE"))return alert("URL Script belum diatur!");
+            
+            // If manual click, show spinner on button
+            let oldHtml = "";
+            if(btn) {
+                oldHtml = btn.innerHTML;
+                btn.innerHTML=`<svg class="animate-spin-custom" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>`;
+            } else {
+                // Auto sync mode, show global badge
+                els.syncStatus.classList.add('visible');
+            }
+
+            try{
+                const res=await fetch(GOOGLE_SCRIPT_URL,{method:'POST',body:JSON.stringify({action,...payload})});
+                const json=await res.json();
+                if(json.result!=='success')throw new Error(json.message);
+                return json;
+            }catch(e){
+                console.error("Sync error:", e);
+                return null;
+            }finally{
+                if(btn) btn.innerHTML=oldHtml;
+                else setTimeout(() => els.syncStatus.classList.remove('visible'), 2000);
+                lucide.createIcons();
+            }
+        };
+
+        // --- AUTO FETCH ON LOAD ---
+        async function initAutoFetch() {
+            if(GOOGLE_SCRIPT_URL.includes("PASTE")) return;
+            console.log("Auto fetching data...");
+            els.syncStatus.classList.add('visible');
+            
+            // Parallel fetch for speed
+            const [tasksRes, notesRes] = await Promise.all([
+                fetch(GOOGLE_SCRIPT_URL, {method: 'POST', body: JSON.stringify({action: 'fetch_tasks'})}).then(r=>r.json()).catch(e=>null),
+                fetch(GOOGLE_SCRIPT_URL, {method: 'POST', body: JSON.stringify({action: 'fetch_notes'})}).then(r=>r.json()).catch(e=>null)
+            ]);
+
+            // Process Tasks
+            if(tasksRes && tasksRes.result === 'success') {
+                const merged={};
+                tasksRes.data.forEach((item,i)=>{
+                    const k=item.date;
+                    if(!merged[k])merged[k]=[];
+                    merged[k].push({id:Date.now()+i,text:item.text,description:item.description||"",completed:item.status==="Selesai"});
+                });
+                allTasks=merged;
+                saveTasks();
+            }
+
+            // Process Notes
+            if(notesRes && notesRes.result === 'success') {
+                els.note.value = notesRes.data || "";
+                localStorage.setItem('productivity_note', els.note.value);
+            }
+            
+            els.syncStatus.classList.remove('visible');
+        }
+
+        // --- AUTO PUSH (DEBOUNCE) ---
+        let autoSyncTimer;
+        function scheduleAutoSync() {
+            if(GOOGLE_SCRIPT_URL.includes("PASTE")) return;
+            
+            clearTimeout(autoSyncTimer);
+            // Visual indicator pending
+            
+            autoSyncTimer = setTimeout(async () => {
+                console.log("Auto-pushing changes...");
+                
+                const tasksPayload=[];
+                Object.keys(allTasks).forEach(d=>allTasks[d].forEach(t=>tasksPayload.push({date:d,status:t.completed?"Selesai":"Belum",text:t.text,description:t.description||""})));
+                
+                await Promise.all([
+                    handleSync(null, 'push_tasks', {tasks: tasksPayload}),
+                    handleSync(null, 'sync_notes', {noteContent: els.note.value})
+                ]);
+                
+            }, 5000); // 5 seconds wait
+        }
+
+        // Manual Buttons
+        els.fetchBtn.addEventListener('click', () => initAutoFetch()); // Reuse auto fetch logic
+        els.pushBtn.addEventListener('click',()=>{
+            const tasksPayload=[];
+            Object.keys(allTasks).forEach(d=>allTasks[d].forEach(t=>tasksPayload.push({date:d,status:t.completed?"Selesai":"Belum",text:t.text,description:t.description||""})));
+            handleSync(els.pushBtn,'push_tasks',{tasks:tasksPayload});
+        });
         els.syncNoteBtn.addEventListener('click',()=>handleSync(els.syncNoteBtn,'sync_notes',{noteContent:els.note.value}));
-        els.fetchNoteBtn.addEventListener('click',async()=>{const res=await handleSync(els.fetchNoteBtn,'fetch_notes');if(res){els.note.value=res.data||"";localStorage.setItem('productivity_note',els.note.value);}});
+        /* REMOVED fetchNoteBtn listener */
+        
+        // Task Input Logic
         els.taskInput.addEventListener('input',e=>els.addBtn.disabled=!e.target.value.trim());
-        document.getElementById('task-form').addEventListener('submit',e=>{e.preventDefault();const txt=els.taskInput.value.trim();if(!txt)return;const key=getDateKey(currentDate);if(!allTasks[key])allTasks[key]=[];allTasks[key].push({id:Date.now(),text:txt,description:els.taskDesc.value.trim(),completed:false});els.taskInput.value='';els.taskDesc.value='';saveTasks();});
-        window.toggleTask=id=>{const k=getDateKey(currentDate);if(allTasks[k]){allTasks[k]=allTasks[k].map(t=>t.id===id?{...t,completed:!t.completed}:t);saveTasks();}};
-        window.deleteTask=id=>{const k=getDateKey(currentDate);if(allTasks[k]){allTasks[k]=allTasks[k].filter(t=>t.id!==id);saveTasks();}};
+        document.getElementById('task-form').addEventListener('submit',e=>{
+            e.preventDefault();
+            const txt=els.taskInput.value.trim();
+            if(!txt)return;
+            const key=getDateKey(currentDate);
+            if(!allTasks[key])allTasks[key]=[];
+            allTasks[key].push({id:Date.now(),text:txt,description:els.taskDesc.value.trim(),completed:false});
+            els.taskInput.value='';els.taskDesc.value='';
+            saveTasks();
+            scheduleAutoSync(); // Trigger Auto Sync
+        });
+
+        window.toggleTask=id=>{
+            const k=getDateKey(currentDate);
+            if(allTasks[k]){
+                allTasks[k]=allTasks[k].map(t=>t.id===id?{...t,completed:!t.completed}:t);
+                saveTasks();
+                scheduleAutoSync(); // Trigger Auto Sync
+            }
+        };
+
+        window.deleteTask=id=>{
+            const k=getDateKey(currentDate);
+            if(allTasks[k]){
+                allTasks[k]=allTasks[k].filter(t=>t.id!==id);
+                saveTasks();
+                scheduleAutoSync(); // Trigger Auto Sync
+            }
+        };
+
         document.getElementById('prev-date-btn').addEventListener('click',()=>{currentDate.setDate(currentDate.getDate()-1);renderTasks();});
         document.getElementById('next-date-btn').addEventListener('click',()=>{currentDate.setDate(currentDate.getDate()+1);renderTasks();});
-        els.note.value=localStorage.getItem('productivity_note')||'';els.note.addEventListener('input',e=>localStorage.setItem('productivity_note',e.target.value));
+        
+        // Note Input Auto Sync
+        els.note.value=localStorage.getItem('productivity_note')||'';
+        els.note.addEventListener('input',e=> {
+            localStorage.setItem('productivity_note',e.target.value);
+            scheduleAutoSync(); // Trigger Auto Sync
+        });
+
         setInterval(()=>{updateSlide1();updateSlide2Clock();},1000);
         if('serviceWorker'in navigator&&window.location.protocol.includes('http')){window.addEventListener('load',()=>{navigator.serviceWorker.register('service-worker.js').then(registration=>console.log('SW Registered:',registration.scope)).catch(err=>console.log('SW Failed:',err));});}
-        resizeCanvas();setTimeout(()=>{saveHistory();},500);updateSlide1();updateSlide2Clock();renderTasks();renderCalendar(new Date(),els.s2CalWrapper,true);renderMatrix();lucide.createIcons();
-        resizeGameCanvas(); resizeTetrisCanvas();
+        
+        // Init
+        resizeCanvas();
+        setTimeout(()=>{saveHistory();},500);
+        updateSlide1();
+        updateSlide2Clock();
+        renderTasks();
+        renderCalendar(new Date(),els.s2CalWrapper,true);
+        renderMatrix();
+        lucide.createIcons();
+        resizeGameCanvas(); 
+        resizeTetrisCanvas();
+
+        // Call Auto Fetch
+        window.addEventListener('load', initAutoFetch);
     </script>
 </body>
 </html>
