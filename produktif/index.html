@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#f3f4f6">
-    <meta name="description" content="Aplikasi produktivitas 3-in-1: Fokus, Tracker, dan Kanvas.">
+    <meta name="description" content="Aplikasi produktivitas 3-in-1: Fokus, Tracker, Kanvas, dan Diary.">
     <title>Produktivitas Bento</title>
     
     <!-- PWA Manifest -->
@@ -120,6 +120,33 @@
         .sync-badge.visible {
             opacity: 1;
         }
+
+        /* Calendar Styles for Diary */
+        .diary-cal-day {
+            cursor: pointer;
+            transition: all 0.2s;
+            border-radius: 0.5rem;
+        }
+        .diary-cal-day:hover {
+            background-color: #f3f4f6;
+        }
+        .diary-cal-day.active {
+            background-color: #10b981;
+            color: white;
+            font-weight: bold;
+        }
+        .diary-cal-day.has-note::after {
+            content: '';
+            display: block;
+            width: 4px;
+            height: 4px;
+            background-color: #f59e0b;
+            border-radius: 50%;
+            margin: 2px auto 0;
+        }
+        .diary-cal-day.active.has-note::after {
+            background-color: white;
+        }
     </style>
 </head>
 <body class="bg-light-bg text-light-text overflow-hidden">
@@ -156,6 +183,8 @@
         <button class="nav-btn group relative flex items-center justify-center p-2.5 rounded-xl text-light-subtext hover:bg-gray-50 hover:text-light-primary transition-all duration-200" data-target="slide-2"><i data-lucide="clipboard-check" width="20" height="20"></i></button>
         <button class="nav-btn group relative flex items-center justify-center p-2.5 rounded-xl text-light-subtext hover:bg-gray-50 hover:text-light-primary transition-all duration-200" data-target="slide-3"><i data-lucide="palette" width="20" height="20"></i></button>
         <button class="nav-btn group relative flex items-center justify-center p-2.5 rounded-xl text-light-subtext hover:bg-gray-50 hover:text-light-primary transition-all duration-200" data-target="slide-5"><i data-lucide="columns-2" width="20" height="20"></i><span class="absolute bottom-full mb-3 left-1/2 transform -translate-x-1/2 px-2 py-1 bg-gray-800 text-white text-[10px] rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50 shadow-lg">Matrix</span></button>
+        <!-- NEW SLIDE BUTTON: DAILY NOTES -->
+        <button class="nav-btn group relative flex items-center justify-center p-2.5 rounded-xl text-light-subtext hover:bg-gray-50 hover:text-light-primary transition-all duration-200" data-target="slide-6"><i data-lucide="book-open" width="20" height="20"></i><span class="absolute bottom-full mb-3 left-1/2 transform -translate-x-1/2 px-2 py-1 bg-gray-800 text-white text-[10px] rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50 shadow-lg">Diary</span></button>
         <button class="nav-btn group relative flex items-center justify-center p-2.5 rounded-xl text-light-subtext hover:bg-gray-50 hover:text-light-primary transition-all duration-200" data-target="slide-4"><i data-lucide="gamepad-2" width="20" height="20"></i></button>
     </nav>
 
@@ -194,7 +223,6 @@
                         <div id="date-display" class="font-semibold text-sm">-</div>
                     </div>
                     <div class="flex gap-1">
-                        <!-- Manual buttons still kept for manual control if needed, but logic also used for auto -->
                         <button id="fetch-btn" class="p-2 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition" title="Refresh Data"><i data-lucide="refresh-cw" width="18"></i></button>
                         <button id="push-btn" class="p-2 hover:text-emerald-500 hover:bg-emerald-50 rounded-lg transition" title="Force Save"><i data-lucide="save" width="18"></i></button>
                     </div>
@@ -219,7 +247,6 @@
                 <div class="flex justify-between items-center mb-2 text-yellow-800/70">
                     <div class="flex items-center gap-2"><i data-lucide="sticky-note" width="16"></i><span class="text-xs font-bold uppercase">Catatan</span></div>
                     <div class="flex gap-1">
-                         <!-- Small indicator/button for manual note sync if needed -->
                         <button id="sync-note-btn" class="p-1 hover:bg-yellow-100 rounded opacity-50"><i data-lucide="save" width="14"></i></button>
                     </div>
                 </div>
@@ -278,6 +305,43 @@
                 </div>
                 <div class="text-[10px] text-gray-400 mb-2 italic bg-gray-50 p-2 rounded border border-dashed"><i data-lucide="info" width="10" class="inline mr-1"></i>Tap tugas lalu tap kuadran untuk memindahkan.</div>
                 <div id="matrix-inbox" class="flex-1 overflow-y-auto custom-scrollbar space-y-2 p-1 content-area" data-quadrant="inbox" onclick="handleMatrixClick('inbox')"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- === SLIDE 6: DAILY NOTE (NEW) === -->
+    <div id="slide-6" class="slide-container flex-col">
+        <div class="w-full max-w-6xl mx-auto h-full grid grid-cols-1 lg:grid-cols-3 gap-4 pb-24">
+            <!-- Left Bento: Diary Editor (Wider) -->
+            <div class="col-span-1 lg:col-span-2 bg-white rounded-3xl p-6 shadow-sm border border-light-border flex flex-col h-full">
+                <div class="flex items-center justify-between mb-4 border-b border-gray-100 pb-4">
+                    <div>
+                        <h2 id="diary-date-title" class="text-2xl font-serif font-bold text-gray-800">...</h2>
+                        <div class="text-xs text-gray-400 font-mono mt-1" id="diary-status">Siap menulis.</div>
+                    </div>
+                    <div class="bg-orange-50 text-orange-600 p-2 rounded-xl">
+                        <i data-lucide="book-open" width="24"></i>
+                    </div>
+                </div>
+                <textarea id="diary-input" class="flex-1 w-full h-full bg-transparent resize-none outline-none text-base text-gray-700 placeholder:text-gray-300 leading-relaxed custom-scrollbar font-serif" placeholder="Bagaimana harimu berjalan? Tulis di sini..."></textarea>
+            </div>
+
+            <!-- Right Bento: Mini Calendar (Narrower) -->
+            <div class="col-span-1 bg-white rounded-3xl p-4 shadow-sm border border-light-border flex flex-col h-auto lg:h-[fit-content]">
+                <div class="flex justify-between items-center mb-4 px-2">
+                    <button id="diary-prev-month" class="p-1 hover:bg-gray-100 rounded-lg transition"><i data-lucide="chevron-left" width="20"></i></button>
+                    <span id="diary-month-year" class="font-bold text-gray-700 text-sm uppercase tracking-widest">...</span>
+                    <button id="diary-next-month" class="p-1 hover:bg-gray-100 rounded-lg transition"><i data-lucide="chevron-right" width="20"></i></button>
+                </div>
+                <div class="grid grid-cols-7 gap-1 text-center text-xs font-bold text-gray-400 mb-2">
+                    <div>M</div><div>S</div><div>S</div><div>R</div><div>K</div><div>J</div><div>S</div>
+                </div>
+                <div id="diary-calendar-grid" class="grid grid-cols-7 gap-1">
+                    <!-- Calendar days generated by JS -->
+                </div>
+                <div class="mt-4 text-[10px] text-gray-400 text-center italic border-t border-gray-100 pt-2">
+                    Klik tanggal untuk melihat/edit diary.
+                </div>
             </div>
         </div>
     </div>
@@ -383,7 +447,13 @@
                 document.getElementById(target).classList.add('active');
                 
                 if(target === 'slide-3') setTimeout(resizeCanvas, 100);
-                if(target === 'slide-5') renderMatrix(); 
+                if(target === 'slide-5') renderMatrix();
+                if(target === 'slide-6') {
+                    // Render current month's diary calendar
+                    renderDiaryCalendar(currentDailyNoteCalendarDate);
+                    // Load today's note if not set
+                    if(!selectedDailyNoteDate) selectDailyNoteDate(new Date());
+                } 
                 
                 // Pause Arcade games if leaving Slide 4
                 if(target !== 'slide-4') {
@@ -469,9 +539,23 @@
 
         const els={
             dateDisplay:document.getElementById('date-display'),dateLabel:document.getElementById('date-label'),taskList:document.getElementById('task-list'),emptyState:document.getElementById('empty-state'),progress:document.getElementById('progress-bar'),progressTxt:document.getElementById('progress-text'),taskInput:document.getElementById('task-input'),taskDesc:document.getElementById('task-desc-input'),addBtn:document.getElementById('add-task-btn'),note:document.getElementById('note-input'),fetchBtn:document.getElementById('fetch-btn'),pushBtn:document.getElementById('push-btn'),syncNoteBtn:document.getElementById('sync-note-btn'),
-            /* REMOVED fetchNoteBtn as it is not in HTML anymore */
             installArea:document.getElementById('pwa-install-area'),installBtn:document.getElementById('install-btn'),installText:document.getElementById('install-text'),s2Time:document.getElementById('s2-time'),s2Date:document.getElementById('s2-date'),s2CalWrapper:document.getElementById('s2-calendar-wrapper'),iosModal:document.getElementById('ios-install-modal'),closeIosModal:document.getElementById('close-ios-modal'),iosBackdrop:document.getElementById('ios-backdrop'),
             syncStatus: document.getElementById('sync-status')
+        };
+
+        // --- DAILY NOTE STATE (NEW) ---
+        let dailyNotes = JSON.parse(localStorage.getItem('productivity_daily_notes')) || {};
+        let selectedDailyNoteDate = null;
+        let currentDailyNoteCalendarDate = new Date();
+
+        const diaryEls = {
+            input: document.getElementById('diary-input'),
+            dateTitle: document.getElementById('diary-date-title'),
+            monthYear: document.getElementById('diary-month-year'),
+            grid: document.getElementById('diary-calendar-grid'),
+            prevBtn: document.getElementById('diary-prev-month'),
+            nextBtn: document.getElementById('diary-next-month'),
+            status: document.getElementById('diary-status')
         };
 
         // PWA Install
@@ -856,7 +940,7 @@
                 return json;
             }catch(e){
                 console.error("Sync error:", e);
-                return null;
+                throw e; // Re-throw to be handled by caller
             }finally{
                 if(btn) btn.innerHTML=oldHtml;
                 else setTimeout(() => els.syncStatus.classList.remove('visible'), 2000);
@@ -870,11 +954,16 @@
             console.log("Auto fetching data...");
             els.syncStatus.classList.add('visible');
             
-            // Parallel fetch for speed
-            const [tasksRes, notesRes] = await Promise.all([
-                fetch(GOOGLE_SCRIPT_URL, {method: 'POST', body: JSON.stringify({action: 'fetch_tasks'})}).then(r=>r.json()).catch(e=>null),
-                fetch(GOOGLE_SCRIPT_URL, {method: 'POST', body: JSON.stringify({action: 'fetch_notes'})}).then(r=>r.json()).catch(e=>null)
+            // Use Promise.allSettled to ensure failure in one fetch (e.g., daily notes) doesn't block others
+            const results = await Promise.allSettled([
+                fetch(GOOGLE_SCRIPT_URL, {method: 'POST', body: JSON.stringify({action: 'fetch_tasks'})}).then(r=>r.json()),
+                fetch(GOOGLE_SCRIPT_URL, {method: 'POST', body: JSON.stringify({action: 'fetch_notes'})}).then(r=>r.json()),
+                fetch(GOOGLE_SCRIPT_URL, {method: 'POST', body: JSON.stringify({action: 'fetch_daily_notes'})}).then(r=>r.json())
             ]);
+
+            const tasksRes = results[0].status === 'fulfilled' ? results[0].value : null;
+            const notesRes = results[1].status === 'fulfilled' ? results[1].value : null;
+            const diaryRes = results[2].status === 'fulfilled' ? results[2].value : null;
 
             // Process Tasks
             if(tasksRes && tasksRes.result === 'success') {
@@ -892,6 +981,17 @@
             if(notesRes && notesRes.result === 'success') {
                 els.note.value = notesRes.data || "";
                 localStorage.setItem('productivity_note', els.note.value);
+            }
+
+            // Process Daily Diary (Assuming array of {date: 'YYYY-MM-DD', content: '...'})
+            if(diaryRes && diaryRes.result === 'success') {
+                 const newNotes = {};
+                 diaryRes.data.forEach(item => {
+                     newNotes[item.date] = item.content;
+                 });
+                 dailyNotes = newNotes;
+                 localStorage.setItem('productivity_daily_notes', JSON.stringify(dailyNotes));
+                 if(selectedDailyNoteDate) selectDailyNoteDate(selectedDailyNoteDate); // refresh view
             }
             
             els.syncStatus.classList.remove('visible');
@@ -911,9 +1011,19 @@
                 const tasksPayload=[];
                 Object.keys(allTasks).forEach(d=>allTasks[d].forEach(t=>tasksPayload.push({date:d,status:t.completed?"Selesai":"Belum",text:t.text,description:t.description||""})));
                 
-                await Promise.all([
+                // Prepare Diary Payload
+                const diaryPayload = [];
+                Object.keys(dailyNotes).forEach(date => {
+                    if(dailyNotes[date].trim()) {
+                        diaryPayload.push({date: date, content: dailyNotes[date]});
+                    }
+                });
+
+                // Use allSettled so one failure (like daily notes not supported) doesn't break others
+                await Promise.allSettled([
                     handleSync(null, 'push_tasks', {tasks: tasksPayload}),
-                    handleSync(null, 'sync_notes', {noteContent: els.note.value})
+                    handleSync(null, 'sync_notes', {noteContent: els.note.value}),
+                    handleSync(null, 'push_daily_notes', {notes: diaryPayload}).catch(e => console.warn("Daily notes sync failed (likely backend update needed):", e))
                 ]);
                 
             }, 5000); // 5 seconds wait
@@ -970,6 +1080,81 @@
             localStorage.setItem('productivity_note',e.target.value);
             scheduleAutoSync(); // Trigger Auto Sync
         });
+
+        // --- NEW SLIDE 6 LOGIC (DIARY) ---
+        function renderDiaryCalendar(date) {
+            const y = date.getFullYear();
+            const m = date.getMonth();
+            const monthName = new Intl.DateTimeFormat('id-ID', {month: 'long', year: 'numeric'}).format(date);
+            
+            diaryEls.monthYear.textContent = monthName;
+            diaryEls.grid.innerHTML = '';
+
+            const firstDay = new Date(y, m, 1).getDay();
+            const daysInMonth = new Date(y, m + 1, 0).getDate();
+            const todayKey = getDateKey(new Date());
+
+            // Empty slots
+            for(let i=0; i<firstDay; i++) {
+                diaryEls.grid.innerHTML += `<div></div>`;
+            }
+
+            // Days
+            for(let i=1; i<=daysInMonth; i++) {
+                const d = new Date(y, m, i);
+                const k = getDateKey(d);
+                const hasNote = dailyNotes[k] && dailyNotes[k].trim().length > 0;
+                const isActive = selectedDailyNoteDate && getDateKey(selectedDailyNoteDate) === k;
+                const isToday = k === todayKey;
+
+                const dayDiv = document.createElement('div');
+                dayDiv.className = `diary-cal-day h-8 flex items-center justify-center ${isActive ? 'active' : ''} ${hasNote ? 'has-note' : ''} ${isToday && !isActive ? 'text-light-primary border border-light-primary' : ''}`;
+                dayDiv.textContent = i;
+                dayDiv.onclick = () => selectDailyNoteDate(d);
+                diaryEls.grid.appendChild(dayDiv);
+            }
+        }
+
+        function selectDailyNoteDate(date) {
+            selectedDailyNoteDate = date;
+            const k = getDateKey(date);
+            
+            // Render Header
+            diaryEls.dateTitle.textContent = new Intl.DateTimeFormat('id-ID', {weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'}).format(date);
+            
+            // Load Content
+            diaryEls.input.value = dailyNotes[k] || "";
+            
+            // Re-render Calendar to highlight selection
+            renderDiaryCalendar(currentDailyNoteCalendarDate);
+            
+            // Animation for feedback
+            diaryEls.status.textContent = "Sedang memuat...";
+            setTimeout(() => diaryEls.status.textContent = "Siap menulis.", 200);
+        }
+
+        diaryEls.prevBtn.addEventListener('click', () => {
+            currentDailyNoteCalendarDate.setMonth(currentDailyNoteCalendarDate.getMonth() - 1);
+            renderDiaryCalendar(currentDailyNoteCalendarDate);
+        });
+        
+        diaryEls.nextBtn.addEventListener('click', () => {
+            currentDailyNoteCalendarDate.setMonth(currentDailyNoteCalendarDate.getMonth() + 1);
+            renderDiaryCalendar(currentDailyNoteCalendarDate);
+        });
+
+        diaryEls.input.addEventListener('input', (e) => {
+            if(!selectedDailyNoteDate) return;
+            const k = getDateKey(selectedDailyNoteDate);
+            dailyNotes[k] = e.target.value;
+            localStorage.setItem('productivity_daily_notes', JSON.stringify(dailyNotes));
+            diaryEls.status.textContent = "Menyimpan...";
+            scheduleAutoSync(); // Push to cloud
+            
+            // Update calendar indicator dynamically
+            renderDiaryCalendar(currentDailyNoteCalendarDate);
+        });
+
 
         setInterval(()=>{updateSlide1();updateSlide2Clock();},1000);
         if('serviceWorker'in navigator&&window.location.protocol.includes('http')){window.addEventListener('load',()=>{navigator.serviceWorker.register('service-worker.js').then(registration=>console.log('SW Registered:',registration.scope)).catch(err=>console.log('SW Failed:',err));});}
