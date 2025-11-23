@@ -449,56 +449,78 @@
             currentBestMatch = null;
         }
 
-        // ================= LONG PRESS LOGIC =================
+        // ================= LONG PRESS LOGIC (Perbaikan) =================
         let pressTimer;
+        let pressStartTime;
         let progressInterval;
+        const LONG_PRESS_DURATION = 10000; // 10 detik
+        const SHORT_CLICK_THRESHOLD = 500; // 0.5 detik
+        
         const circle = document.querySelector('.progress-ring__circle');
         const ringContainer = document.getElementById('progressRing');
         const circumference = 301.59; 
-        let progress = 0;
+        circle.setAttribute('r', 48); // Set radius for consistency
+        circle.setAttribute('cx', 56);
+        circle.setAttribute('cy', 56);
+
 
         // Mouse Events
         btnScan.addEventListener('mousedown', startPress);
-        btnScan.addEventListener('mouseup', cancelPress);
-        btnScan.addEventListener('mouseleave', cancelPress);
+        btnScan.addEventListener('mouseup', endPress);
+        btnScan.addEventListener('mouseleave', endPress);
         
         // Touch Events
         btnScan.addEventListener('touchstart', (e) => { e.preventDefault(); startPress(); });
-        btnScan.addEventListener('touchend', (e) => { e.preventDefault(); cancelPress(); });
+        btnScan.addEventListener('touchend', (e) => { e.preventDefault(); endPress(); });
 
         function startPress() {
-            if (btnScan.disabled) return;
+            if (btnScan.disabled || pressTimer) return;
             
-            progress = 0;
+            pressStartTime = Date.now();
             circle.style.strokeDashoffset = circumference;
             ringContainer.classList.add('active'); // Show ring on press
             
-            // Animasi visual progress ring 10 DETIK
-            const duration = 10000; 
+            // Start progress animation
             const step = 50; 
-            
             progressInterval = setInterval(() => {
-                progress += step;
-                const offset = circumference - (progress / duration) * circumference;
+                const elapsedTime = Date.now() - pressStartTime;
+                const offset = circumference - (elapsedTime / LONG_PRESS_DURATION) * circumference;
                 circle.style.strokeDashoffset = offset;
                 
-                if (progress >= duration) {
+                if (elapsedTime >= LONG_PRESS_DURATION) {
                     clearInterval(progressInterval);
                 }
             }, step);
 
+            // Set timer for long press trigger
             pressTimer = setTimeout(() => {
                 // Trigger Action setelah 10 detik
                 openSecretModal();
-                cancelPress(); 
-            }, duration);
+                endPress(true); // True to bypass short click logic
+            }, LONG_PRESS_DURATION);
         }
 
-        function cancelPress() {
+        function endPress(isLongPressTriggered = false) {
+            const pressDuration = Date.now() - pressStartTime;
+            
             clearTimeout(pressTimer);
             clearInterval(progressInterval);
             circle.style.strokeDashoffset = circumference;
             ringContainer.classList.remove('active'); // Hide ring
+
+            // Reset timer variable
+            pressTimer = null; 
+            
+            if (isLongPressTriggered) {
+                // Do nothing, action already executed by setTimeout
+                return; 
+            }
+
+            // Jika durasi tekan kurang dari 0.5 detik, anggap sebagai single click (Scan Wajah)
+            if (pressDuration < SHORT_CLICK_THRESHOLD) {
+                captureSnapshot();
+            }
+            // Jika durasi antara 0.5 detik dan 10 detik, anggap sebagai batal dan tidak melakukan apa-apa
         }
 
         // Secret Modal Logic
@@ -570,11 +592,12 @@
         }
 
         async function captureSnapshot() {
-            // Jika dipanggil via klik biasa (bukan long press yang trigger modal)
-            if (!faceMatcher) return;
+            if (!faceMatcher || btnScan.disabled) return;
+            
+            // Nonaktifkan tombol segera setelah dipicu
+            btnScan.disabled = true;
 
             setKarenState('scanning');
-            btnScan.disabled = true;
 
             setTimeout(async () => {
                 const detections = await faceapi.detectAllFaces(video, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.5 }))
