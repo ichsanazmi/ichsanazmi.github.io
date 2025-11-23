@@ -111,8 +111,8 @@
         let currentBestMatch = null; 
 
         // ================= KONFIGURASI DATA =================
-        const labels = ['Tony Stark', 'Captain America', 'Thor']; 
-        const baseImageBaseUrl = 'https://raw.githubusercontent.com/WebDevSimplified/Face-Recognition-JavaScript/master/labeled_images';
+        const labels = ['Ichsan']; 
+        const baseImageBaseUrl = 'https://raw.githubusercontent.com/ichsanazmi/ichsanazmi.github.io/refs/heads/master/produktif/labeled_images/';
         
         // URL Google Apps Script yang sudah di-hardcode
         const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzoAIKLCAWts3IF4LvIxDPiuu17CGxn8naI1oIqMoMURCLbK64VKVGxY7_x-9XqwHmXhA/exec';
@@ -121,9 +121,9 @@
         // ====================================================
 
         Promise.all([
-            faceapi.nets.ssdMobilenetv1.loadFromUri('https://justadudewhohacks.github.io/face-api.js/models'),
-            faceapi.nets.faceLandmark68Net.loadFromUri('https://justadudewhohacks.github.io/face-api.js/models'),
-            faceapi.nets.faceRecognitionNet.loadFromUri('https://justadudewhohacks.github.io/face-api.js/models')
+            faceapi.nets.ssdMobilenetv1.loadFromUri('https://raw.githubusercontent.com/ichsanazmi/ichsanazmi.github.io/refs/heads/master/produktif/models'),
+            faceapi.nets.faceLandmark68Net.loadFromUri('https://raw.githubusercontent.com/ichsanazmi/ichsanazmi.github.io/refs/heads/master/produktif/models'),
+            faceapi.nets.faceRecognitionNet.loadFromUri('https://raw.githubusercontent.com/ichsanazmi/ichsanazmi.github.io/refs/heads/master/produktif/models')
         ]).then(startSystem).catch(err => {
             console.error(err);
             alert("Gagal memuat model AI.");
