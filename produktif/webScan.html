@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Face Scanner (Karen UI - Smart Logic)</title>
+    <title>AI Face Scanner (Karen UI - Sequence Logic)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
@@ -57,6 +57,20 @@
         .custom-scrollbar::-webkit-scrollbar { width: 6px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: #1e293b; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #475569; border-radius: 3px; }
+
+        /* Style untuk Secret Modal */
+        #secretModal {
+            transition: opacity 0.3s ease;
+        }
+        .scale-in { animation: scaleIn 0.3s ease forwards; }
+        @keyframes scaleIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+        /* Progress ring untuk Long Press */
+        .progress-ring__circle {
+            transition: stroke-dashoffset 0.1s linear;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
     </style>
 </head>
 <body class="min-h-screen p-4 md:p-8 flex flex-col items-center justify-center">
@@ -69,9 +83,32 @@
         </p>
     </div>
 
+    <!-- SECRET MODAL -->
+    <div id="secretModal" class="hidden fixed inset-0 bg-black/90 z-[60] flex justify-center items-center backdrop-blur-sm">
+        <div class="bg-slate-900 border-2 border-green-500 p-6 rounded-2xl w-80 shadow-[0_0_50px_rgba(74,222,128,0.2)] scale-in">
+            <h3 class="text-green-400 font-mono text-xl mb-4 text-center border-b border-green-500/30 pb-2">
+                /// MANUAL OVERRIDE ///
+            </h3>
+            <p class="text-gray-400 text-xs font-mono mb-4 text-center">
+                Pilih personel untuk melakukan absensi MANUAL (Fase 1: Datang).
+            </p>
+            <div class="space-y-3">
+                <select id="manualNameSelect" class="w-full bg-black border border-green-500/50 text-green-300 p-2 rounded font-mono focus:outline-none focus:border-green-400">
+                    <!-- Options diisi via JS -->
+                </select>
+                <button onclick="submitManualAttendance()" class="w-full py-2 bg-green-600 hover:bg-green-500 text-black font-bold font-mono rounded transition-colors">
+                    EXECUTE SUBMIT
+                </button>
+                <button onclick="closeSecretModal()" class="w-full py-2 bg-transparent border border-red-500 text-red-500 hover:bg-red-900/20 font-mono rounded transition-colors text-xs">
+                    CANCEL
+                </button>
+            </div>
+        </div>
+    </div>
+
     <header class="text-center mb-6 w-full max-w-6xl hidden md:block">
         <h1 class="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-600 font-mono tracking-widest">
-            K.A.R.E.N ATTENDANCE V2.1
+            K.A.R.E.N ATTENDANCE V2.2
         </h1>
     </header>
 
@@ -100,11 +137,21 @@
                 </div>
 
                 <div class="absolute bottom-10 left-0 right-0 flex justify-center items-center z-40">
-                    <button onclick="captureSnapshot()" id="btnScan" 
-                        class="w-24 h-24 rounded-full bg-black border-2 border-green-500 text-green-400 shadow-[0_0_30px_rgba(74,222,128,0.2)] hover:shadow-[0_0_50px_rgba(74,222,128,0.6)] hover:scale-105 active:scale-95 transition-all duration-300 flex items-center justify-center group relative overflow-hidden">
-                        <div class="absolute inset-0 bg-green-500/10 group-hover:bg-green-500/20 transition-colors"></div>
-                        <svg class="w-10 h-10 group-hover:rotate-90 transition-transform duration-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4v16m8-8H4"></path></svg>
-                    </button>
+                    
+                    <!-- Button Scan dengan Fitur Long Press -->
+                    <div class="relative">
+                        <!-- Indikator Long Press -->
+                        <svg class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-28 h-28 pointer-events-none" style="z-index: -1;">
+                           <circle class="progress-ring__circle" stroke="#ef4444" stroke-width="4" fill="transparent" r="48" cx="56" cy="56" 
+                                   style="stroke-dasharray: 301.59; stroke-dashoffset: 301.59;"/>
+                        </svg>
+
+                        <button id="btnScan" 
+                            class="w-24 h-24 rounded-full bg-black border-2 border-green-500 text-green-400 shadow-[0_0_30px_rgba(74,222,128,0.2)] hover:shadow-[0_0_50px_rgba(74,222,128,0.6)] hover:scale-105 active:scale-95 transition-all duration-300 flex items-center justify-center group relative overflow-hidden select-none">
+                            <div class="absolute inset-0 bg-green-500/10 group-hover:bg-green-500/20 transition-colors"></div>
+                            <svg class="w-10 h-10 group-hover:rotate-90 transition-transform duration-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4v16m8-8H4"></path></svg>
+                        </button>
+                    </div>
 
                     <div id="actionButtons" class="hidden flex items-center gap-8 animate-in slide-in-from-bottom-4 fade-in duration-300">
                         <button onclick="resetScanner()" 
@@ -140,19 +187,22 @@
 
             <div class="bg-slate-800 p-6 rounded-3xl border border-slate-700 shadow-xl flex-grow flex flex-col overflow-hidden">
                 <h2 class="text-md font-semibold text-green-300 mb-3 flex items-center gap-2 font-mono">
-                    LOGIC_FLOW
+                    LOGIC_FLOW (SEQUENCE)
                 </h2>
                 <div class="bg-black/30 p-4 rounded-xl flex-grow custom-scrollbar overflow-y-auto border border-slate-700">
                     <ul class="space-y-3 text-sm text-gray-400 list-disc pl-4 marker:text-green-500 font-mono">
-                        <li>Phase 1: Arrival (Pagi)</li>
-                        <li>Phase 2: Break Out (Istirahat)</li>
-                        <li>Phase 3: Break In (Kembali)</li>
-                        <li>Phase 4: Departure (Pulang)</li>
-                        <li class="text-yellow-500 pt-2 border-t border-slate-700 mt-2">Max 4 scans per user/day.</li>
+                        <li>Scan 1: Selamat Pagi (Arrival)</li>
+                        <li>Scan 2: Mau Istirahat? (Out)</li>
+                        <li>Scan 3: Semoga Allah Mudahkan (In)</li>
+                        <li>Scan 4: Hati-hati dijalan (Home)</li>
+                        <li class="text-red-400">Scan >4: Sudah Selesai.</li>
+                        <li class="text-yellow-500 pt-2 border-t border-slate-700 mt-2 text-[10px]">
+                            SECRET: Hold Scan Button 5s for Manual Override.
+                        </li>
                     </ul>
                 </div>
                 <div class="mt-3 text-[10px] text-green-700/50 text-center font-mono uppercase">
-                    Plankton Industries v2.1
+                    Plankton Industries v2.2
                 </div>
             </div>
         </div>
@@ -205,8 +255,8 @@
                 dialog.style.color = "#facc15"; 
             } else if (state === 'checking') {
                 waveSpeed = 0.2; waveAmplitude = 20;
-                dialog.innerText = "CHECKING DB...";
-                dialog.style.color = "#3b82f6"; // Blue for server check
+                dialog.innerText = "CHECKING SEQ...";
+                dialog.style.color = "#3b82f6"; 
             } else if (state === 'success') {
                 waveSpeed = 0.02; waveAmplitude = 5;
                 dialog.style.color = "#4ade80"; 
@@ -286,11 +336,23 @@
             loadingText.innerText = "LOADING MODULES...";
             try {
                 labeledFaceDescriptors = await loadLabeledImages();
+                populateManualSelect(); // Isi dropdown manual
                 startVideo();
             } catch (error) {
                 console.error(error);
                 showError(error.message);
             }
+        }
+
+        function populateManualSelect() {
+            const select = document.getElementById('manualNameSelect');
+            select.innerHTML = '';
+            labels.forEach(name => {
+                const opt = document.createElement('option');
+                opt.value = name;
+                opt.innerText = name;
+                select.appendChild(opt);
+            });
         }
 
         function showError(msg) {
@@ -370,6 +432,9 @@
         function toggleMode(mode) {
             if (mode === 'scanning') {
                 btnScan.classList.remove('hidden');
+                // Pastikan ring progress reset
+                document.querySelector('.progress-ring__circle').style.strokeDashoffset = 301.59;
+                
                 actionButtons.classList.add('hidden');
                 setKarenState('idle');
             } else if (mode === 'review') {
@@ -384,69 +449,129 @@
             currentBestMatch = null;
         }
 
-        // --- NEW LOGIC: CHECK ATTENDANCE STATUS ---
-        async function checkAttendanceStatus(name) {
-            setKarenState('checking'); // Visual feedback
+        // ================= LONG PRESS LOGIC =================
+        let pressTimer;
+        let progressInterval;
+        const circle = document.querySelector('.progress-ring__circle');
+        const circumference = 301.59; // 2 * PI * r (48)
+        let progress = 0;
+
+        // Mouse Events
+        btnScan.addEventListener('mousedown', startPress);
+        btnScan.addEventListener('mouseup', cancelPress);
+        btnScan.addEventListener('mouseleave', cancelPress);
+        
+        // Touch Events
+        btnScan.addEventListener('touchstart', (e) => { e.preventDefault(); startPress(); });
+        btnScan.addEventListener('touchend', (e) => { e.preventDefault(); cancelPress(); });
+
+        function startPress() {
+            if (btnScan.disabled) return;
             
-            // Format Tanggal untuk dicek (DD/MM/YYYY)
-            const now = new Date();
-            const tanggalStr = now.toLocaleDateString('id-ID');
-
-            // Payload untuk check
-            const checkData = {
-                action: 'check', // Mode Read
-                nama: name,
-                tanggal: tanggalStr
-            };
-
-            try {
-                const response = await fetch(GOOGLE_SCRIPT_URL, {
-                    method: 'POST',
-                    mode: 'no-cors', // Penting: CORS mode
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(checkData)
-                });
+            progress = 0;
+            circle.style.strokeDashoffset = circumference;
+            
+            // Animasi visual progress ring
+            const duration = 5000; // 5 detik
+            const step = 50; 
+            
+            progressInterval = setInterval(() => {
+                progress += step;
+                const offset = circumference - (progress / duration) * circumference;
+                circle.style.strokeDashoffset = offset;
                 
-                // KARENA NO-CORS, KITA TIDAK BISA BACA JSON RESPONSE LANGSUNG DI CLIENT
-                // Ini adalah keterbatasan Apps Script Web App tanpa domain sendiri.
-                // 
-                // SOLUSI ALTERNATIF (WORKAROUND):
-                // Karena kita tidak bisa membaca response jumlah absen dari 'no-cors',
-                // Kita akan menggunakan logika "Client-Side Trust" sederhana untuk demo ini.
-                // Dalam produksi nyata, Anda harus setup API Gateway atau pakai CORS proxy.
-                //
-                // NAMUN, untuk mensimulasikan permintaan Anda, saya akan membuat
-                // Karen menampilkan pesan DEFAULT (General) dulu, lalu tombol simpan aktif.
-                // Logic pesan spesifik akan dihandle backend saat save nanti, 
-                // ATAU kita asumsikan ini berjalan di lingkungan yg support CORS.
-                //
-                // -- UPDATE STRATEGI --
-                // Untuk demo yang lancar tanpa error CORS, saya akan mensimulasikan
-                // pesan berdasarkan jam saja di client side untuk feedback instan,
-                // karena Google Script 'doPost' tidak mengembalikan nilai yg bisa dibaca browser
-                // di mode simple request.
-                
-                // Simulasi Logic Lokal (Fallback)
-                const hours = now.getHours();
-                let greeting = "";
-                if (hours < 11) greeting = `SELAMAT PAGI, ${name}`;
-                else if (hours < 13) greeting = `MAU ISTIRAHAT, ${name}?`;
-                else if (hours < 16) greeting = `SEMOGA ALLAH MUDAHKAN, ${name}`;
-                else greeting = `HATI-HATI DI JALAN, ${name}`;
+                if (progress >= duration) {
+                    clearInterval(progressInterval);
+                }
+            }, step);
 
-                return {
-                    status: 'success',
-                    pesan: greeting,
-                    boleh_absen: true
-                };
+            pressTimer = setTimeout(() => {
+                // Trigger Action setelah 5 detik
+                openSecretModal();
+                cancelPress(); // Reset visual
+            }, duration);
+        }
 
-            } catch (e) {
-                console.error(e);
-                return { status: 'error', pesan: "CONNECTION ERROR" };
+        function cancelPress() {
+            clearTimeout(pressTimer);
+            clearInterval(progressInterval);
+            circle.style.strokeDashoffset = circumference;
+        }
+
+        // Secret Modal Logic
+        function openSecretModal() {
+            document.getElementById('secretModal').classList.remove('hidden');
+        }
+
+        function closeSecretModal() {
+            document.getElementById('secretModal').classList.add('hidden');
+        }
+
+        function submitManualAttendance() {
+            const selectedName = document.getElementById('manualNameSelect').value;
+            currentBestMatch = { name: selectedName, accuracy: 100 };
+            
+            // Force save as first attendance (Arrival) logic locally
+            // Tapi karena kita pakai localStorage logic di checkAttendanceStatus,
+            // Kita bisa langsung simpan saja, atau panggil logic yang sama.
+            
+            closeSecretModal();
+            // Langsung eksekusi save tanpa scan wajah
+            saveAttendance(true); // true = force manual
+        }
+
+        // ================= SEQUENCE LOGIC (LOCAL STORAGE) =================
+        function getSequenceMessage(name) {
+            const today = new Date().toLocaleDateString('id-ID');
+            const key = `attendance_count_${today}_${name}`;
+            
+            // Ambil data jumlah absen hari ini (default 0)
+            let count = parseInt(localStorage.getItem(key) || '0');
+            
+            let message = "";
+            let canSubmit = true;
+
+            // Logika Pesan Berdasarkan Urutan
+            if (count === 0) {
+                message = `SELAMAT PAGI, ${name}`;
+            } else if (count === 1) {
+                message = `MAU ISTIRAHAT, ${name}?`;
+            } else if (count === 2) {
+                message = `SEMOGA ALLAH MUDAHKAN, ${name}`;
+            } else if (count === 3) {
+                message = `HATI-HATI DIJALAN, ${name}`;
+            } else {
+                message = `ANDA SUDAH SELESAI.`;
+                canSubmit = false;
             }
+
+            return { message, canSubmit, currentCount: count };
+        }
+
+        function incrementLocalSequence(name) {
+            const today = new Date().toLocaleDateString('id-ID');
+            const key = `attendance_count_${today}_${name}`;
+            let count = parseInt(localStorage.getItem(key) || '0');
+            localStorage.setItem(key, count + 1);
+        }
+
+        async function checkAttendanceStatus(name) {
+            setKarenState('checking');
+            
+            // Simulasi delay cek database (local)
+            await new Promise(r => setTimeout(r, 800));
+            
+            const status = getSequenceMessage(name);
+            
+            return {
+                status: 'success',
+                pesan: status.message,
+                boleh_absen: status.canSubmit
+            };
         }
 
         async function captureSnapshot() {
+            // Jika dipanggil via klik biasa (bukan long press yang trigger modal)
             if (!faceMatcher) return;
 
             setKarenState('scanning');
@@ -466,20 +591,26 @@
                 }
 
                 if (bestResult && bestResult.label !== 'unknown') {
-                    // WAJAH DIKENALI -> CEK STATUS SEKARANG
                     const name = bestResult.label;
                     currentBestMatch = { name: name, accuracy: Math.round((1-bestResult.distance)*100) };
                     
-                    // Panggil Fungsi Cek (Simulasi Logic Cerdas)
                     const status = await checkAttendanceStatus(name);
                     
                     if (status.status === 'success') {
                         setKarenState('success');
-                        typeWriterEffect(status.pesan, karenDialog); // Tampilkan pesan cerdas
-                        toggleMode('review');
+                        typeWriterEffect(status.pesan, karenDialog);
+                        if (status.boleh_absen) {
+                            toggleMode('review');
+                        } else {
+                            // Jika sudah 4x, blokir
+                            setTimeout(() => {
+                                typeWriterEffect("MAX LIMIT REACHED.", karenDialog);
+                                setTimeout(resetScanner, 2000);
+                            }, 2000);
+                        }
                     } else {
                         setKarenState('fail');
-                        typeWriterEffect("SERVER ERROR.", karenDialog);
+                        typeWriterEffect("SYSTEM ERROR.", karenDialog);
                         setTimeout(resetScanner, 2000);
                     }
 
@@ -492,23 +623,34 @@
             }, 1500);
         }
 
-        function saveAttendance() {
-            if (!currentBestMatch) {
-                alert("Tidak ada data valid.");
-                return;
+        function saveAttendance(isManual = false) {
+            if (!currentBestMatch) return;
+
+            // Jika manual, kita harus cek sequence dulu untuk menampilkan pesan yang sesuai (opsional, tapi bagus untuk feedback)
+            if (isManual) {
+                const status = getSequenceMessage(currentBestMatch.name);
+                typeWriterEffect(`MANUAL: ${status.message}`, karenDialog);
+                if (!status.canSubmit) {
+                    alert("User ini sudah mencapai limit harian.");
+                    return;
+                }
             }
 
-            const originalBtnContent = btnSave.innerHTML;
-            btnSave.innerHTML = `<div class="loader w-4 h-4 border-2 border-green-500 border-t-transparent"></div>`;
-            btnSave.disabled = true;
+            const originalBtnContent = isManual ? '' : btnSave.innerHTML;
+            if(!isManual) {
+                btnSave.innerHTML = `<div class="loader w-4 h-4 border-2 border-green-500 border-t-transparent"></div>`;
+                btnSave.disabled = true;
+            } else {
+                setKarenState('checking'); // Visual feedback manual
+            }
 
             const now = new Date();
             const dataKirim = {
-                action: 'save', // Mode Write
+                action: 'save',
                 nama: currentBestMatch.name,
                 tanggal: now.toLocaleDateString('id-ID'),
                 jam: now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' }).replace(/\./g, ':'),
-                device: navigator.userAgent
+                device: navigator.userAgent + (isManual ? ' [MANUAL OVERRIDE]' : '')
             };
 
             fetch(GOOGLE_SCRIPT_URL, {
@@ -517,18 +659,26 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(dataKirim)
             }).then(() => {
+                // Sukses Kirim -> Update Counter Lokal
+                incrementLocalSequence(currentBestMatch.name);
+                
                 setKarenState('success');
                 typeWriterEffect("DATA TERSIMPAN.", karenDialog);
+                
                 setTimeout(() => {
-                    btnSave.innerHTML = originalBtnContent;
-                    btnSave.disabled = false;
+                    if (!isManual) {
+                        btnSave.innerHTML = originalBtnContent;
+                        btnSave.disabled = false;
+                    }
                     resetScanner();
                 }, 2000);
             }).catch(error => {
                 console.error('Error:', error);
                 alert("Gagal koneksi.");
-                btnSave.innerHTML = originalBtnContent;
-                btnSave.disabled = false;
+                if (!isManual) {
+                    btnSave.innerHTML = originalBtnContent;
+                    btnSave.disabled = false;
+                }
             });
         }
     </script>
