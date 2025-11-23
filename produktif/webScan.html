@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Face Scanner + Google Sheets</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #0f172a; color: white; font-family: 'Segoe UI', sans-serif; }
+        .video-container {
+            position: relative; width: 100%; max-width: 640px; margin: 0 auto;
+            border-radius: 12px; overflow: hidden;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.3); border: 2px solid #334155;
+        }
+        video { width: 100%; height: auto; display: block; }
+        canvas { position: absolute; top: 0; left: 0; }
+        #loading {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(15, 23, 42, 0.98); z-index: 50;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+        }
+        .loader {
+            border: 4px solid #f3f3f3; border-top: 4px solid #3b82f6; border-radius: 50%;
+            width: 40px; height: 40px; animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center p-4">
+
+    <!-- Loading Screen -->
+    <div id="loading">
+        <div class="loader mb-4"></div>
+        <h2 id="loadingText" class="text-xl font-bold text-blue-400">Memuat Model AI...</h2>
+        <p id="loadingDetail" class="text-gray-400 text-sm mt-2 text-center max-w-md px-4">
+            Sedang mengunduh model deteksi wajah...
+        </p>
+    </div>
+
+    <!-- Header -->
+    <header class="text-center mb-6">
+        <h1 class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">
+            Smart Attendance System
+        </h1>
+        <p class="text-gray-400 text-sm mt-1">Face Recognition & Spreadsheet Sync</p>
+    </header>
+
+    <!-- Main Interface -->
+    <div class="w-full max-w-2xl">
+        
+        <!-- Camera Selector -->
+        <div class="mb-4">
+            <select id="cameraSelect" class="w-full p-2 bg-slate-800 border border-slate-600 rounded-lg text-white focus:outline-none focus:border-blue-500 text-sm transition-colors hover:border-blue-400">
+                <option value="">Mendeteksi kamera...</option>
+            </select>
+        </div>
+
+        <div class="video-container bg-black">
+            <video id="video" autoplay muted playsinline></video>
+        </div>
+
+        <!-- Controls & Status -->
+        <div class="mt-6 bg-slate-800 p-6 rounded-xl border border-slate-700 shadow-xl space-y-4">
+            
+            <!-- Status Deteksi Real-time -->
+            <div class="flex justify-between items-center border-b border-slate-700 pb-4">
+                <div>
+                    <h3 class="text-sm font-semibold text-gray-400">Terdeteksi:</h3>
+                    <p id="detectedName" class="text-2xl font-bold text-white">Menunggu...</p>
+                </div>
+                <div id="confidenceLevel" class="text-right text-xs text-gray-500 font-mono">
+                    Akurasi: 0%
+                </div>
+            </div>
+
+            <!-- Tombol Simpan (Input URL sudah dihapus) -->
+            <div>
+                <button onclick="saveAttendance()" id="btnSave" disabled 
+                    class="w-full py-3 bg-gray-600 text-white font-bold rounded-lg transition-all flex justify-center items-center gap-2 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.02]">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <span>Simpan Ke Data Kehadiran</span>
+                </button>
+                <p class="text-xs text-gray-500 mt-2 text-center">
+                    *Data akan otomatis tersimpan ke Spreadsheet Server Pusat
+                </p>
+            </div>
+
+            <!-- Debug Info -->
+            <div class="pt-2 text-xs text-gray-600 text-center">
+                Database: <span id="dbStatus">Memuat...</span> | URL Foto: <span id="urlDisplay" class="truncate max-w-[150px] inline-block align-bottom">...</span>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+    
+    <script>
+        const video = document.getElementById('video');
+        const loadingDiv = document.getElementById('loading');
+        const loadingText = document.getElementById('loadingText');
+        const loadingDetail = document.getElementById('loadingDetail');
+        const dbStatus = document.getElementById('dbStatus');
+        const cameraSelect = document.getElementById('cameraSelect');
+        const detectedNameDisplay = document.getElementById('detectedName');
+        const confidenceLevelDisplay = document.getElementById('confidenceLevel');
+        const btnSave = document.getElementById('btnSave');
+        
+        let labeledFaceDescriptors = [];
+        let faceMatcher;
+        let currentStream;
+        let currentBestMatch = null; 
+
+        // ================= KONFIGURASI DATA =================
+        const labels = ['Tony Stark', 'Captain America', 'Thor']; 
+        const baseImageBaseUrl = 'https://raw.githubusercontent.com/WebDevSimplified/Face-Recognition-JavaScript/master/labeled_images';
+        
+        // URL Google Apps Script yang sudah di-hardcode
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzoAIKLCAWts3IF4LvIxDPiuu17CGxn8naI1oIqMoMURCLbK64VKVGxY7_x-9XqwHmXhA/exec';
+        
+        document.getElementById('urlDisplay').innerText = baseImageBaseUrl;
+        // ====================================================
+
+        Promise.all([
+            faceapi.nets.ssdMobilenetv1.loadFromUri('https://justadudewhohacks.github.io/face-api.js/models'),
+            faceapi.nets.faceLandmark68Net.loadFromUri('https://justadudewhohacks.github.io/face-api.js/models'),
+            faceapi.nets.faceRecognitionNet.loadFromUri('https://justadudewhohacks.github.io/face-api.js/models')
+        ]).then(startSystem).catch(err => {
+            console.error(err);
+            alert("Gagal memuat model AI.");
+        });
+
+        async function startSystem() {
+            loadingText.innerText = "Mempelajari Wajah...";
+            try {
+                labeledFaceDescriptors = await loadLabeledImages();
+                dbStatus.innerText = `Aktif (${labels.length} Model)`;
+                dbStatus.className = "text-green-500 font-bold";
+            } catch (error) {
+                console.error(error);
+                dbStatus.innerText = "Error Load Data";
+                dbStatus.className = "text-red-500";
+            }
+            startVideo();
+        }
+
+        async function loadLabeledImages() {
+            return Promise.all(
+                labels.map(async label => {
+                    const descriptions = [];
+                    loadingDetail.innerText = `Memproses: ${label}...`;
+                    for (let i = 1; i <= 2; i++) {
+                        const imgUrl = `${baseImageBaseUrl}/${label}/${i}.jpg`;
+                        try {
+                            const img = await faceapi.fetchImage(imgUrl);
+                            const detections = await faceapi.detectSingleFace(img).withFaceLandmarks().withFaceDescriptor();
+                            if (detections) descriptions.push(detections.descriptor);
+                        } catch(e) { console.warn("Skip image", e); }
+                    }
+                    if (descriptions.length === 0) throw new Error(`No data for ${label}`);
+                    return new faceapi.LabeledFaceDescriptors(label, descriptions);
+                })
+            );
+        }
+
+        async function getCameras() {
+            try {
+                const devices = await navigator.mediaDevices.enumerateDevices();
+                const videoDevices = devices.filter(device => device.kind === 'videoinput');
+                cameraSelect.innerHTML = '<option value="">Pilih Kamera...</option>';
+                videoDevices.forEach((device, index) => {
+                    const option = document.createElement('option');
+                    option.value = device.deviceId;
+                    option.text = device.label || `Kamera ${index + 1}`;
+                    cameraSelect.appendChild(option);
+                });
+                cameraSelect.onchange = () => startVideo(cameraSelect.value);
+            } catch (err) { console.warn("Cam list error", err); }
+        }
+
+        function startVideo(deviceId = null) {
+            if (currentStream) currentStream.getTracks().forEach(track => track.stop());
+            const constraints = { video: deviceId ? { deviceId: { exact: deviceId } } : {} };
+            navigator.mediaDevices.getUserMedia(constraints).then(stream => {
+                currentStream = stream;
+                video.srcObject = stream;
+                if (cameraSelect.options.length <= 1) getCameras();
+            }).catch(err => alert("Gagal akses kamera"));
+        }
+
+        video.addEventListener('play', () => {
+            loadingDiv.style.display = 'none';
+            const oldCanvas = document.querySelector('canvas');
+            if (oldCanvas) oldCanvas.remove();
+
+            const canvas = faceapi.createCanvasFromMedia(video);
+            document.querySelector('.video-container').append(canvas);
+            const displaySize = { width: video.videoWidth, height: video.videoHeight };
+            faceapi.matchDimensions(canvas, displaySize);
+
+            if (labeledFaceDescriptors.length > 0) {
+                faceMatcher = new faceapi.FaceMatcher(labeledFaceDescriptors, 0.6);
+            }
+
+            setInterval(async () => {
+                const detections = await faceapi.detectAllFaces(video, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.5 }))
+                    .withFaceLandmarks()
+                    .withFaceDescriptors();
+                
+                const resizedDetections = faceapi.resizeResults(detections, displaySize);
+                canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+
+                let isFaceRecognized = false;
+
+                if (faceMatcher) {
+                    const results = resizedDetections.map(d => faceMatcher.findBestMatch(d.descriptor));
+                    
+                    results.forEach((result, i) => {
+                        const box = resizedDetections[i].detection.box;
+                        const { label, distance } = result;
+                        const accuracy = Math.round((1-distance)*100);
+                        
+                        // Update UI berdasarkan deteksi
+                        if (label !== 'unknown') {
+                            currentBestMatch = { name: label, accuracy: accuracy };
+                            isFaceRecognized = true;
+                            
+                            const drawBox = new faceapi.draw.DrawBox(box, { label: `${label} (${accuracy}%)`, boxColor: '#00ff00' });
+                            drawBox.draw(canvas);
+                        } else {
+                            const drawBox = new faceapi.draw.DrawBox(box, { label: "Tidak Dikenal", boxColor: '#ef4444' });
+                            drawBox.draw(canvas);
+                        }
+                    });
+                }
+
+                updateUIState(isFaceRecognized);
+
+            }, 100);
+        });
+
+        function updateUIState(isRecognized) {
+            if (isRecognized && currentBestMatch) {
+                detectedNameDisplay.innerText = currentBestMatch.name;
+                detectedNameDisplay.className = "text-2xl font-bold text-green-400";
+                confidenceLevelDisplay.innerText = `Akurasi: ${currentBestMatch.accuracy}%`;
+                
+                btnSave.disabled = false;
+                btnSave.classList.remove('bg-gray-600');
+                btnSave.classList.add('bg-green-600', 'hover:bg-green-500');
+                btnSave.querySelector('span').innerText = `Simpan Kehadiran: ${currentBestMatch.name}`;
+            } else {
+                currentBestMatch = null;
+                detectedNameDisplay.innerText = "Mencari...";
+                detectedNameDisplay.className = "text-2xl font-bold text-gray-500";
+                confidenceLevelDisplay.innerText = "Akurasi: 0%";
+                
+                btnSave.disabled = true;
+                btnSave.classList.add('bg-gray-600');
+                btnSave.classList.remove('bg-green-600', 'hover:bg-green-500');
+                btnSave.querySelector('span').innerText = "Simpan Ke Data Kehadiran";
+            }
+        }
+
+        // ================= FUNGSI KIRIM KE SPREADSHEET =================
+        function saveAttendance() {
+            if (!currentBestMatch) return;
+
+            const originalBtnText = btnSave.querySelector('span').innerText;
+            btnSave.querySelector('span').innerText = "Sedang Mengirim...";
+            btnSave.disabled = true;
+
+            const dataKirim = {
+                nama: currentBestMatch.name,
+                waktu: new Date().toLocaleString('id-ID'),
+                device: navigator.userAgent
+            };
+
+            fetch(GOOGLE_SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors', 
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(dataKirim)
+            }).then(() => {
+                alert(`✅ Sukses!\nData ${currentBestMatch.name} telah dikirim.`);
+                btnSave.querySelector('span').innerText = originalBtnText;
+                btnSave.disabled = false;
+            }).catch(error => {
+                console.error('Error:', error);
+                alert("❌ Gagal mengirim data. Cek koneksi internet.");
+                btnSave.querySelector('span').innerText = originalBtnText;
+                btnSave.disabled = false;
+            });
+        }
+    </script>
+</body>
+</html>
