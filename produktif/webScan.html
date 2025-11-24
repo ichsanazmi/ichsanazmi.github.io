@@ -3,13 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Face Scanner (Optimized)</title>
+    <title>AI Face Scanner (Monospace UI)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+        /* Ganti Font ke Share Tech Mono */
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap');
 
-        body { background-color: #0f172a; color: white; font-family: 'Segoe UI', sans-serif; }
+        body { 
+            background-color: #0f172a; 
+            color: white; 
+            font-family: 'Share Tech Mono', monospace;
+        }
         
         .bento-card {
             background: #1e293b;
@@ -40,7 +45,7 @@
         }
 
         .karen-text {
-            font-family: 'VT323', monospace;
+            font-family: 'Share Tech Mono', monospace;
             color: #4ade80; font-size: 2.5rem; text-transform: uppercase;
             text-shadow: 0 0 10px rgba(74, 222, 128, 0.5); letter-spacing: 2px;
         }
@@ -63,7 +68,6 @@
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* Modals */
         #secretModal, #phase2Modal, #confirmModal { transition: opacity 0.3s ease; }
         .scale-in { animation: scaleIn 0.3s ease forwards; }
         @keyframes scaleIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
@@ -81,38 +85,54 @@
             position: absolute; bottom: 0; left: 0; height: 4px; background: #ef4444;
             width: 0%; transition: width 0.1s linear; opacity: 0;
         }
+
+        /* Calendar Dots Style */
+        .calendar-dots-container {
+            display: flex;
+            justify-content: center;
+            gap: 2px;
+            margin-top: 2px;
+            height: 4px;
+        }
+        .calendar-dot {
+            width: 4px;
+            height: 4px;
+            background-color: #4ade80; /* Green dot */
+            border-radius: 50%;
+        }
+        .calendar-dot.active { opacity: 1; }
     </style>
 </head>
 <body class="min-h-screen p-4 md:p-8 flex flex-col items-center justify-center">
 
     <div id="loading">
         <div class="loader mb-4"></div>
-        <h2 id="loadingText" class="text-xl font-bold text-green-400 font-mono">INITIALIZING SYSTEM...</h2>
-        <p id="loadingDetail" class="text-gray-400 text-sm mt-2 text-center max-w-md px-4 font-mono">
+        <h2 id="loadingText" class="text-xl font-bold text-green-400">INITIALIZING SYSTEM...</h2>
+        <p id="loadingDetail" class="text-gray-400 text-sm mt-2 text-center max-w-md px-4">
             Memuat modul pengenalan wajah...
         </p>
     </div>
 
-    <!-- 1. SECRET MODAL (MANUAL ATTENDANCE) -->
+    <!-- SECRET MODAL -->
     <div id="secretModal" class="hidden fixed inset-0 bg-black/90 z-[60] flex justify-center items-center backdrop-blur-sm">
         <div class="bg-slate-900 border-2 border-green-500 p-6 rounded-2xl w-80 shadow-[0_0_50px_rgba(74,222,128,0.2)] scale-in">
-            <h3 class="text-green-400 font-mono text-xl mb-4 text-center border-b border-green-500/30 pb-2">
+            <h3 class="text-green-400 text-xl mb-4 text-center border-b border-green-500/30 pb-2">
                 /// MANUAL OVERRIDE ///
             </h3>
             <div class="space-y-3">
-                <select id="manualNameSelect" class="w-full bg-black border border-green-500/50 text-green-300 p-2 rounded font-mono focus:outline-none focus:border-green-400">
+                <select id="manualNameSelect" class="w-full bg-black border border-green-500/50 text-green-300 p-2 rounded focus:outline-none focus:border-green-400">
                 </select>
-                <button onclick="submitManualAttendance()" class="w-full py-2 bg-green-600 hover:bg-green-500 text-black font-bold font-mono rounded transition-colors">
+                <button onclick="submitManualAttendance()" class="w-full py-2 bg-green-600 hover:bg-green-500 text-black font-bold rounded transition-colors">
                     EXECUTE SUBMIT
                 </button>
-                <button onclick="closeSecretModal()" class="w-full py-2 bg-transparent border border-red-500 text-red-500 hover:bg-red-900/20 font-mono rounded transition-colors text-xs">
+                <button onclick="closeSecretModal()" class="w-full py-2 bg-transparent border border-red-500 text-red-500 hover:bg-red-900/20 rounded transition-colors text-xs">
                     CANCEL
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- 2. PHASE 2 MODAL (PILIHAN ISTIRAHAT/PULANG) -->
+    <!-- PHASE 2 MODAL -->
     <div id="phase2Modal" class="hidden fixed inset-0 bg-black/80 z-[60] flex justify-center items-center backdrop-blur-md">
         <div class="bg-slate-800 border-2 border-yellow-500 p-8 rounded-2xl w-96 shadow-2xl scale-in text-center">
             <h3 class="text-yellow-400 font-bold text-2xl mb-2">ABSEN KEDUA</h3>
@@ -130,10 +150,10 @@
         </div>
     </div>
 
-    <!-- 3. CONFIRMATION MODAL (FINAL CHECK) -->
+    <!-- CONFIRMATION MODAL -->
     <div id="confirmModal" class="hidden fixed inset-0 bg-black/90 z-[70] flex justify-center items-center backdrop-blur-sm">
         <div class="bg-slate-900 border-2 border-blue-500 p-8 rounded-2xl w-full max-w-md shadow-2xl scale-in text-center">
-            <h3 class="text-blue-400 font-mono text-2xl mb-4 border-b border-blue-500/30 pb-4">
+            <h3 class="text-blue-400 text-2xl mb-4 border-b border-blue-500/30 pb-4">
                 KONFIRMASI ABSENSI
             </h3>
             
@@ -163,10 +183,10 @@
         </div>
     </div>
 
-
+    <!-- HEADER: Hapus K.A.R.E.N, Ganti Judul -->
     <header class="text-center mb-6 w-full max-w-6xl hidden md:block">
-        <h1 class="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-600 font-mono tracking-widest">
-            K.A.R.E.N ATTENDANCE V4.1
+        <h1 class="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-600 tracking-widest">
+            AI ATTENDANCE V5.1
         </h1>
     </header>
 
@@ -174,28 +194,31 @@
         
         <!-- KOLOM KIRI: UTILITIES -->
         <div class="flex flex-col gap-6 h-full order-2 lg:order-1">
+            <!-- CLOCK -->
             <div id="digitalClockContainer" class="bento-card p-6 flex flex-col items-center justify-center relative flex-grow lg:flex-none lg:h-1/3">
-                <div class="text-gray-400 text-xs font-mono mb-2 uppercase tracking-widest">System Time</div>
+                <div class="text-gray-400 text-xs mb-2 uppercase tracking-widest">System Time</div>
                 <div class="digital-clock text-5xl lg:text-6xl font-bold" id="clockDisplay">00:00</div>
                 <div class="digital-clock text-xl text-green-500/70 mt-1" id="secondsDisplay">00</div>
                 <div id="clockProgressBar" class="clock-progress"></div>
                 <div class="absolute bottom-2 text-[10px] text-gray-600">Local Time (WIB)</div>
             </div>
 
+            <!-- CALENDAR -->
             <div class="bento-card p-6 flex-grow flex flex-col justify-center">
                 <div class="flex justify-between items-center mb-4 border-b border-slate-700 pb-2">
-                    <h2 class="text-md font-semibold text-green-300 font-mono">DATE.LOG</h2>
-                    <span id="currentDateDisplay" class="text-xs text-gray-400 font-mono uppercase">...</span>
+                    <h2 class="text-md font-semibold text-green-300">DATE.LOG</h2>
+                    <span id="currentDateDisplay" class="text-xs text-gray-400 uppercase">...</span>
                 </div>
                 <div class="text-center w-full">
-                    <div class="flex justify-between mb-2 text-sm font-bold text-gray-300 font-mono px-2">
+                    <div class="flex justify-between mb-2 text-sm font-bold text-gray-300 px-2">
                         <span id="calMonth">...</span>
                         <span id="calYear">...</span>
                     </div>
-                    <div class="grid grid-cols-7 gap-2 text-[10px] text-gray-500 mb-2 uppercase tracking-wider font-mono">
+                    <div class="grid grid-cols-7 gap-2 text-[10px] text-gray-500 mb-2 uppercase tracking-wider">
                         <div>Su</div><div>Mo</div><div>Tu</div><div>We</div><div>Th</div><div>Fr</div><div>Sa</div>
                     </div>
-                    <div id="calendarGrid" class="grid grid-cols-7 gap-2 text-sm font-mono"></div>
+                    <!-- Grid Kalender -->
+                    <div id="calendarGrid" class="grid grid-cols-7 gap-2 text-sm"></div>
                 </div>
             </div>
         </div>
@@ -213,12 +236,12 @@
                 <div class="absolute top-4 left-4 z-40 bg-green-900/20 border border-green-500/30 px-3 py-1 rounded">
                     <div class="flex items-center gap-2">
                         <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                        <span class="text-[10px] text-green-400 font-mono tracking-widest">SYSTEM ONLINE</span>
+                        <span class="text-[10px] text-green-400 tracking-widest">SYSTEM ONLINE</span>
                     </div>
                 </div>
 
                 <div class="absolute top-4 right-4 z-40">
-                    <select id="cameraSelect" class="bg-black/50 border border-green-500/30 text-green-400 text-xs p-1 rounded font-mono focus:outline-none">
+                    <select id="cameraSelect" class="bg-black/50 border border-green-500/30 text-green-400 text-xs p-1 rounded focus:outline-none">
                         <option value="">INPUT SOURCE...</option>
                     </select>
                 </div>
@@ -239,7 +262,28 @@
     <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
     
     <script>
-        // --- CLOCK & SECRET LOGIC ---
+        // ================= CONFIG & GLOBALS =================
+        const labels = ['Ichsan', 'Refaldi', 'Hakim']; 
+        const baseImageBaseUrl = 'https://raw.githubusercontent.com/ichsanazmi/ichsanazmi.github.io/master/produktif/labeled_images';
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzoAIKLCAWts3IF4LvIxDPiuu17CGxn8naI1oIqMoMURCLbK64VKVGxY7_x-9XqwHmXhA/exec';
+        const MODEL_URL = 'https://raw.githubusercontent.com/ichsanazmi/ichsanazmi.github.io/master/produktif/models';
+
+        let labeledFaceDescriptors = [];
+        let faceMatcher;
+        let currentStream;
+        let currentBestMatch = null; 
+        let pendingData = null; 
+        let isSystemReady = false; // Flag untuk status sistem
+
+        // DOM Elements
+        const video = document.getElementById('video');
+        const loadingDiv = document.getElementById('loading');
+        const loadingText = document.getElementById('loadingText');
+        const cameraSelect = document.getElementById('cameraSelect');
+        const karenDialog = document.getElementById('karenDialog');
+        const btnScan = document.getElementById('btnScan');
+
+        // --- 1. CLOCK & SECRET LOGIC ---
         function updateClock() {
             const now = new Date();
             const hours = String(now.getHours()).padStart(2, '0');
@@ -256,7 +300,7 @@
         let clockTimer;
         let clockInterval;
         let pressDuration = 0;
-        const TARGET_DURATION = 5000;
+        const TARGET_DURATION = 3000;
 
         clockEl.addEventListener('mousedown', startClockPress);
         clockEl.addEventListener('touchstart', (e) => { e.preventDefault(); startClockPress(); });
@@ -319,25 +363,24 @@
         animateKaren();
 
         function setKarenState(state) {
-            const dialog = document.getElementById('karenDialog');
             if (state === 'idle') {
                 waveSpeed = 0.05; waveAmplitude = 10;
-                typeWriterEffect("STANDBY...", dialog);
-                dialog.style.color = "#4ade80"; 
+                typeWriterEffect("STANDBY...", karenDialog);
+                karenDialog.style.color = "#4ade80"; 
             } else if (state === 'scanning') {
                 waveSpeed = 0.3; waveAmplitude = 30;
-                dialog.innerText = "ANALYZING...";
-                dialog.style.color = "#facc15"; 
+                karenDialog.innerText = "ANALYZING...";
+                karenDialog.style.color = "#facc15"; 
             } else if (state === 'checking') {
                 waveSpeed = 0.2; waveAmplitude = 20;
-                dialog.innerText = "CHECKING SEQ...";
-                dialog.style.color = "#3b82f6"; 
+                karenDialog.innerText = "LOADING..."; 
+                karenDialog.style.color = "#3b82f6"; 
             } else if (state === 'success') {
                 waveSpeed = 0.02; waveAmplitude = 5;
-                dialog.style.color = "#4ade80"; 
+                karenDialog.style.color = "#4ade80"; 
             } else if (state === 'fail') {
                 waveSpeed = 0.1; waveAmplitude = 50;
-                dialog.style.color = "#f87171"; 
+                karenDialog.style.color = "#f87171"; 
             }
         }
 
@@ -354,6 +397,18 @@
             }, 50);
         }
 
+        // --- CALENDAR LOGIC ---
+        function getDailyDotCount(dateObj) {
+            const dateStr = dateObj.toLocaleDateString('id-ID');
+            let count = 0;
+            labels.forEach(name => {
+                const key = `attendance_count_${dateStr}_${name}`;
+                const val = parseInt(localStorage.getItem(key) || '0');
+                if (val % 2 !== 0) count++;
+            });
+            return count;
+        }
+
         function initCalendar() {
             const now = new Date();
             const year = now.getFullYear();
@@ -363,47 +418,49 @@
             document.getElementById('calMonth').innerText = monthNames[month];
             document.getElementById('calYear').innerText = year;
             document.getElementById('currentDateDisplay').innerText = now.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'short' }).toUpperCase();
+            
             const firstDay = new Date(year, month, 1).getDay();
             const daysInMonth = new Date(year, month + 1, 0).getDate();
             const grid = document.getElementById('calendarGrid');
             grid.innerHTML = '';
+            
             for(let i=0; i<firstDay; i++) grid.innerHTML += `<div></div>`;
+            
             for(let i=1; i<=daysInMonth; i++) {
                 const isToday = i === today;
-                const className = isToday ? "bg-green-600 text-black font-bold rounded-sm shadow-[0_0_10px_rgba(74,222,128,0.5)] aspect-square flex items-center justify-center border border-green-400" : "text-gray-500 hover:text-green-400 hover:bg-green-900/30 rounded-sm cursor-default aspect-square flex items-center justify-center transition-colors";
-                grid.innerHTML += `<div class="${className}">${i}</div>`;
+                const currentIterDate = new Date(year, month, i);
+                const dotCount = getDailyDotCount(currentIterDate);
+
+                let dotsHtml = '';
+                if (dotCount > 0) {
+                    const displayDots = Math.min(dotCount, 3);
+                    dotsHtml = `<div class="calendar-dots-container">`;
+                    for(let d=0; d<displayDots; d++) dotsHtml += `<div class="calendar-dot"></div>`;
+                    dotsHtml += `</div>`;
+                } else {
+                     dotsHtml = `<div class="calendar-dots-container" style="opacity:0"><div class="calendar-dot"></div></div>`;
+                }
+
+                const baseClass = "rounded cursor-default flex flex-col items-center justify-center p-1 transition-colors min-h-[40px]";
+                const activeClass = isToday ? "bg-green-600 text-black font-bold shadow-lg" : "text-gray-500 hover:text-green-400 hover:bg-green-900/30";
+                
+                grid.innerHTML += `
+                    <div class="${baseClass} ${activeClass}">
+                        <span>${i}</span>
+                        ${dotsHtml}
+                    </div>`;
             }
         }
         initCalendar();
 
-        // --- MAIN LOGIC ---
-        const video = document.getElementById('video');
-        const loadingDiv = document.getElementById('loading');
-        const loadingText = document.getElementById('loadingText');
-        const cameraSelect = document.getElementById('cameraSelect');
-        const karenDialog = document.getElementById('karenDialog');
-        const btnScan = document.getElementById('btnScan');
-        
-        let labeledFaceDescriptors = [];
-        let faceMatcher;
-        let currentStream;
-        let currentBestMatch = null; 
-        
-        let pendingData = null; 
-
-        // UPDATED LABELS
-        const labels = ['Ichsan', 'Refaldi', 'Hakim']; 
-        const baseImageBaseUrl = 'https://raw.githubusercontent.com/ichsanazmi/ichsanazmi.github.io/master/produktif/labeled_images';
-        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzoAIKLCAWts3IF4LvIxDPiuu17CGxn8naI1oIqMoMURCLbK64VKVGxY7_x-9XqwHmXhA/exec';
-        const MODEL_URL = 'https://raw.githubusercontent.com/ichsanazmi/ichsanazmi.github.io/master/produktif/models';
-        
+        // --- SYSTEM INIT ---
         Promise.all([
             faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL),
             faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
             faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL)
         ]).then(startSystem).catch(err => {
             console.error(err);
-            alert("Gagal memuat model AI.");
+            alert("Gagal memuat model AI. Periksa koneksi internet.");
         });
 
         async function startSystem() {
@@ -438,32 +495,24 @@
             return await faceapi.fetchImage(`${baseUrl}/${label}/${index}.jpg`);
         }
 
-        // OPTIMIZED: Robust Error Handling & Filter Nulls
         async function loadLabeledImages() {
             const results = await Promise.all(
                 labels.map(async label => {
                     const descriptions = [];
-                    loadingText.innerText = `LOADING: ${label}...`; // UX Feedback
+                    loadingText.innerText = `LOADING: ${label}...`; 
                     for (let i = 1; i <= 2; i++) {
                         try {
                             const img = await fetchImageWithFallback(baseImageBaseUrl, label, i);
                             const detections = await faceapi.detectSingleFace(img).withFaceLandmarks().withFaceDescriptor();
                             if (detections) descriptions.push(detections.descriptor);
                         } catch(e) {
-                            // Silent fail for missing images, just log warning
                             console.warn(`Skip image for ${label}: ${e.message}`);
                         }
                     }
-                    
-                    if (descriptions.length === 0) {
-                        console.warn(`No faces found for ${label}, skipping user.`);
-                        return null; // Return null instead of throwing error
-                    }
+                    if (descriptions.length === 0) return null; 
                     return new faceapi.LabeledFaceDescriptors(label, descriptions);
                 })
             );
-            
-            // Filter out users who failed to load
             return results.filter(res => res !== null);
         }
 
@@ -496,55 +545,21 @@
         video.addEventListener('play', () => {
             if (labeledFaceDescriptors.length > 0) {
                 faceMatcher = new faceapi.FaceMatcher(labeledFaceDescriptors, 0.6);
+                isSystemReady = true; // Tandai sistem siap
+                typeWriterEffect("SYSTEM READY", karenDialog);
+            } else {
+                typeWriterEffect("NO DATABASE", karenDialog);
+                karenDialog.style.color = "#f87171";
             }
         });
 
         // ================= LOGIC UTAMA ABSENSI =================
-
-        async function checkAttendanceStatus(name) {
-            setKarenState('checking');
-            
-            const now = new Date();
-            const tanggalStr = now.toLocaleDateString('id-ID');
-            const key = `attendance_count_${tanggalStr}_${name}`;
-            
-            let count = parseInt(localStorage.getItem(key) || '0');
-
-            let result = {
-                count: count,
-                status: "",
-                message: "",
-                needsSelection: false,
-                canSubmit: true
-            };
-
-            if (count === 0) {
-                result.status = "Hadir";
-                result.message = `Selamat bekerja, ${name}`;
-            } else if (count === 1) {
-                result.needsSelection = true;
-            } else if (count === 2) {
-                result.status = "Masuk 2";
-                result.message = `Selamat bekerja kembali, ${name}`;
-            } else if (count >= 3) {
-                result.status = "Pulang";
-                result.message = `Terima kasih, hati-hati dijalan, ${name}`;
-            }
-
-            await new Promise(r => setTimeout(r, 800));
-
-            return result;
-        }
-
-        function incrementLocalSequence(name) {
-            const today = new Date().toLocaleDateString('id-ID');
-            const key = `attendance_count_${today}_${name}`;
-            let count = parseInt(localStorage.getItem(key) || '0');
-            localStorage.setItem(key, count + 1);
-        }
-
         async function captureSnapshot() {
-            if (!faceMatcher) return;
+            // PERBAIKAN: Cek apakah sistem siap
+            if (!isSystemReady || !faceMatcher) {
+                alert("Sistem belum siap atau data wajah tidak ditemukan. Mohon tunggu atau gunakan mode manual (Tekan Jam 3 Detik).");
+                return;
+            }
 
             setKarenState('scanning');
             btnScan.disabled = true;
@@ -587,12 +602,50 @@
             }, 1000);
         }
 
-        // --- HANDLERS ---
+        // --- HANDLERS & HELPERS ---
+        async function checkAttendanceStatus(name) {
+            setKarenState('checking');
+            const now = new Date();
+            const tanggalStr = now.toLocaleDateString('id-ID');
+            const key = `attendance_count_${tanggalStr}_${name}`;
+            let count = parseInt(localStorage.getItem(key) || '0');
+
+            let result = {
+                count: count,
+                status: "",
+                message: "",
+                needsSelection: false,
+                canSubmit: true
+            };
+
+            if (count === 0) {
+                result.status = "Hadir";
+                result.message = `Selamat bekerja, ${name}`;
+            } else if (count === 1) {
+                result.needsSelection = true;
+            } else if (count === 2) {
+                result.status = "Masuk 2";
+                result.message = `Selamat bekerja kembali, ${name}`;
+            } else if (count >= 3) {
+                result.status = "Pulang";
+                result.message = `Terima kasih, hati-hati dijalan, ${name}`;
+            }
+            await new Promise(r => setTimeout(r, 800));
+            return result;
+        }
+
+        function incrementLocalSequence(name) {
+            const today = new Date().toLocaleDateString('id-ID');
+            const key = `attendance_count_${today}_${name}`;
+            let count = parseInt(localStorage.getItem(key) || '0');
+            localStorage.setItem(key, count + 1);
+            initCalendar();
+        }
+
         function handlePhase2Choice(choice) {
             document.getElementById('phase2Modal').classList.add('hidden');
             let status = "";
             let message = "";
-
             if (choice === 'Istirahat') {
                 status = "Istirahat";
                 message = `Selamat Istirahat, ${currentBestMatch.name}`;
@@ -600,16 +653,11 @@
                 status = "Pulang";
                 message = `Terima kasih, hati-hati dijalan`; 
             }
-
             prepareConfirmation(currentBestMatch.name, status, message);
         }
 
         function prepareConfirmation(name, status, message) {
-            pendingData = {
-                name: name,
-                status: status,
-                message: message
-            };
+            pendingData = { name: name, status: status, message: message };
             document.getElementById('confName').innerText = name;
             document.getElementById('confStatus').innerText = status;
             document.getElementById('confMsg').innerText = message;
