@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Face Scanner (Final Logic)</title>
+    <title>AI Face Scanner (Optimized)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
@@ -166,7 +166,7 @@
 
     <header class="text-center mb-6 w-full max-w-6xl hidden md:block">
         <h1 class="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-600 font-mono tracking-widest">
-            K.A.R.E.N ATTENDANCE V4.0
+            K.A.R.E.N ATTENDANCE V4.1
         </h1>
     </header>
 
@@ -389,10 +389,10 @@
         let currentStream;
         let currentBestMatch = null; 
         
-        // Staging Data untuk konfirmasi
         let pendingData = null; 
 
-        const labels = ['Ichsan','Refaldi','Hakim']; 
+        // UPDATED LABELS
+        const labels = ['Ichsan', 'Refaldi', 'Hakim']; 
         const baseImageBaseUrl = 'https://raw.githubusercontent.com/ichsanazmi/ichsanazmi.github.io/master/produktif/labeled_images';
         const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzoAIKLCAWts3IF4LvIxDPiuu17CGxn8naI1oIqMoMURCLbK64VKVGxY7_x-9XqwHmXhA/exec';
         const MODEL_URL = 'https://raw.githubusercontent.com/ichsanazmi/ichsanazmi.github.io/master/produktif/models';
@@ -438,21 +438,33 @@
             return await faceapi.fetchImage(`${baseUrl}/${label}/${index}.jpg`);
         }
 
+        // OPTIMIZED: Robust Error Handling & Filter Nulls
         async function loadLabeledImages() {
-            return Promise.all(
+            const results = await Promise.all(
                 labels.map(async label => {
                     const descriptions = [];
+                    loadingText.innerText = `LOADING: ${label}...`; // UX Feedback
                     for (let i = 1; i <= 2; i++) {
                         try {
                             const img = await fetchImageWithFallback(baseImageBaseUrl, label, i);
                             const detections = await faceapi.detectSingleFace(img).withFaceLandmarks().withFaceDescriptor();
                             if (detections) descriptions.push(detections.descriptor);
-                        } catch(e) {}
+                        } catch(e) {
+                            // Silent fail for missing images, just log warning
+                            console.warn(`Skip image for ${label}: ${e.message}`);
+                        }
                     }
-                    if (descriptions.length === 0) throw new Error(`Fail: ${label}`);
+                    
+                    if (descriptions.length === 0) {
+                        console.warn(`No faces found for ${label}, skipping user.`);
+                        return null; // Return null instead of throwing error
+                    }
                     return new faceapi.LabeledFaceDescriptors(label, descriptions);
                 })
             );
+            
+            // Filter out users who failed to load
+            return results.filter(res => res !== null);
         }
 
         async function getCameras() {
@@ -496,36 +508,29 @@
             const tanggalStr = now.toLocaleDateString('id-ID');
             const key = `attendance_count_${tanggalStr}_${name}`;
             
-            // Mengambil counter hari ini
             let count = parseInt(localStorage.getItem(key) || '0');
 
-            // Default
             let result = {
                 count: count,
                 status: "",
                 message: "",
-                needsSelection: false, // Untuk fase 2
+                needsSelection: false,
                 canSubmit: true
             };
 
             if (count === 0) {
-                // Absen 1: Hadir
                 result.status = "Hadir";
                 result.message = `Selamat bekerja, ${name}`;
             } else if (count === 1) {
-                // Absen 2: Pilihan
                 result.needsSelection = true;
             } else if (count === 2) {
-                // Absen 3: Masuk 2
                 result.status = "Masuk 2";
                 result.message = `Selamat bekerja kembali, ${name}`;
             } else if (count >= 3) {
-                // Absen 4+: Pulang (Logic yang sama untuk 4, 5, dst sesuai request "pesan pulang sebelumnya")
                 result.status = "Pulang";
                 result.message = `Terima kasih, hati-hati dijalan, ${name}`;
             }
 
-            // Simulasi delay
             await new Promise(r => setTimeout(r, 800));
 
             return result;
@@ -564,12 +569,10 @@
                     const logic = await checkAttendanceStatus(name);
                     
                     if (logic.needsSelection) {
-                        // Fase 2: Tampilkan Modal Pilihan
                         setKarenState('idle');
                         document.getElementById('p2Name').innerText = name;
                         document.getElementById('phase2Modal').classList.remove('hidden');
                     } else {
-                        // Fase 1, 3, 4: Langsung konfirmasi
                         prepareConfirmation(name, logic.status, logic.message);
                     }
 
@@ -585,8 +588,6 @@
         }
 
         // --- HANDLERS ---
-
-        // 1. Handle Pilihan Fase 2 (Istirahat / Pulang)
         function handlePhase2Choice(choice) {
             document.getElementById('phase2Modal').classList.add('hidden');
             let status = "";
@@ -597,32 +598,25 @@
                 message = `Selamat Istirahat, ${currentBestMatch.name}`;
             } else {
                 status = "Pulang";
-                message = `Terima kasih, hati-hati dijalan`; // Sesuai request
+                message = `Terima kasih, hati-hati dijalan`; 
             }
 
             prepareConfirmation(currentBestMatch.name, status, message);
         }
 
-        // 2. Siapkan Data untuk Konfirmasi
         function prepareConfirmation(name, status, message) {
-            // Simpan data di variabel global sementara
             pendingData = {
                 name: name,
                 status: status,
                 message: message
             };
-
-            // Isi UI Modal Konfirmasi
             document.getElementById('confName').innerText = name;
             document.getElementById('confStatus').innerText = status;
             document.getElementById('confMsg').innerText = message;
-
-            // Tampilkan Modal
             document.getElementById('confirmModal').classList.remove('hidden');
             setKarenState('idle');
         }
 
-        // 3. Tutup Modal Konfirmasi (Batal)
         function closeConfirmModal() {
             document.getElementById('confirmModal').classList.add('hidden');
             pendingData = null;
@@ -630,14 +624,9 @@
             setKarenState('idle');
         }
 
-        // 4. Eksekusi Final Submit (Setelah tombol YA ditekan)
         function executeFinalSubmit() {
             if (!pendingData) return;
-            
-            // Tutup modal dulu
             document.getElementById('confirmModal').classList.add('hidden');
-            
-            // UI Loading di Karen
             setKarenState('checking');
             typeWriterEffect("UPLOADING DATA...", karenDialog);
 
@@ -657,13 +646,9 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(dataKirim)
             }).then(() => {
-                // Update Counter Lokal setelah sukses
                 incrementLocalSequence(pendingData.name);
-                
                 setKarenState('success');
-                typeWriterEffect(pendingData.message, karenDialog); // Tampilkan pesan final di Karen
-                
-                // Reset setelah beberapa detik
+                typeWriterEffect(pendingData.message, karenDialog); 
                 setTimeout(() => {
                     setKarenState('idle');
                     btnScan.disabled = false;
@@ -677,18 +662,14 @@
             });
         }
 
-        // --- MANUAL OVERRIDE LOGIC ---
         function openSecretModal() { document.getElementById('secretModal').classList.remove('hidden'); }
         function closeSecretModal() { document.getElementById('secretModal').classList.add('hidden'); }
         
         async function submitManualAttendance() {
             const name = document.getElementById('manualNameSelect').value;
             closeSecretModal();
-            
-            // Manual dianggap seolah-olah hasil scan
             currentBestMatch = { name: name };
             const logic = await checkAttendanceStatus(name);
-
             if (logic.needsSelection) {
                 document.getElementById('p2Name').innerText = name;
                 document.getElementById('phase2Modal').classList.remove('hidden');
