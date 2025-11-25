@@ -56,6 +56,10 @@
         background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(248, 113, 113, 0.1));
         color: var(--danger-red); 
     }
+    .icon-circle.info { 
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(96, 165, 250, 0.1));
+        color: #3b82f6; 
+    }
 
     .gold { color: var(--islamic-gold); }
     .green { color: var(--islamic-green); }
@@ -77,13 +81,10 @@
     }
     .prayer-time:hover { background: rgba(16, 185, 129, 0.06); transform: translateX(4px); }
 
-    /* Table Styles for Absentees */
-    .absentee-row {
-        transition: background-color 0.2s;
-    }
-    .absentee-row:hover {
-        background-color: #fef2f2; /* Light red bg on hover */
-    }
+    /* Table Styles */
+    .data-row { transition: background-color 0.2s; }
+    .data-row:hover { background-color: #f9fafb; }
+    .status-badge { @apply px-2 py-1 rounded-md text-xs font-bold border; }
 
     @keyframes fadeInUp {
       from { opacity: 0; transform: translateY(20px); }
@@ -103,7 +104,7 @@
       <!-- LEFT SIDEBAR: Prayer & Clock -->
       <aside class="lg:col-span-1 space-y-6">
 
-        <!-- Clock Card -->
+        <!-- Clock Card + Ringkasan Status -->
         <div class="glass-dark rounded-2xl p-6 soft-shadow-lg animate-fade-in-up">
           <div class="text-center">
             <div class="icon-circle large mx-auto mb-4">
@@ -111,6 +112,20 @@
             </div>
             <div id="clock" class="text-5xl md:text-6xl font-bold text-gray-900" style="font-variant-numeric: tabular-nums;">--:--:--</div>
             <div id="date" class="text-sm text-gray-600 mt-3 font-medium"></div>
+
+            <!-- Ringkasan Status (Di bawah Jam) -->
+            <div id="miniStatus" class="mt-6 pt-4 border-t border-gray-100 hidden">
+              <div class="text-xs text-gray-500 font-bold uppercase tracking-wider mb-2">Kehadiran Hari Ini</div>
+              <div class="flex items-center justify-center gap-2">
+                 <span class="text-3xl font-bold text-green-600" id="miniPresent">-</span>
+                 <span class="text-lg text-gray-400 font-medium">/</span>
+                 <span class="text-lg text-gray-600 font-medium" id="miniTotal">-</span>
+                 <span class="text-xs text-gray-400 ml-1">Karyawan</span>
+              </div>
+              <div class="flex justify-center gap-3 mt-2">
+                 <div class="text-xs text-red-500 font-medium bg-red-50 px-2 py-1 rounded-md border border-red-100" id="miniAbsent">Belum: -</div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -146,11 +161,10 @@
 
       </aside>
 
-      <!-- RIGHT CONTENT: Absentee Dashboard -->
+      <!-- RIGHT CONTENT: Attendance Dashboard -->
       <main class="lg:col-span-3">
 
         <div class="flex items-center justify-between gap-4 mb-6 animate-fade-in-up" style="animation-delay: 0.2s;">
-          <!-- Judul diperjelas -->
           <h2 class="text-3xl md:text-4xl font-bold text-gray-900">Monitoring Absensi</h2>
           <button id="reloadCards" class="btn-primary px-5 py-2 rounded-lg flex items-center gap-2 font-medium whitespace-nowrap">
             <span class="material-icons text-base">sync</span>
@@ -158,7 +172,7 @@
           </button>
         </div>
 
-        <!-- Container for the Absentee List -->
+        <!-- Container for the Attendance List -->
         <div id="cardsContainer" class="space-y-4 animate-fade-in-up" style="animation-delay: 0.3s;">
             <!-- Content will be injected here by JS -->
         </div>
@@ -239,82 +253,75 @@ citySelect.addEventListener('change', (e) => {
 });
 
 
-/* =========== ABSENTEE DASHBOARD LOGIC =========== */
+/* =========== ATTENDANCE DASHBOARD LOGIC =========== */
 const cardsContainer = q('cardsContainer');
 const reloadCardsBtn = q('reloadCards');
 
-// Helper to determine status style
+// Helper for Status Badges
 function getStatusBadge(status) {
     const s = String(status).toLowerCase();
     if (s.includes('belum hadir')) return '<span class="px-2 py-1 bg-red-100 text-red-700 rounded-md text-xs font-bold border border-red-200">Belum Hadir</span>';
     if (s.includes('hadir')) return '<span class="px-2 py-1 bg-green-100 text-green-700 rounded-md text-xs font-bold border border-green-200">Hadir</span>';
     if (s.includes('izin') || s.includes('sakit')) return '<span class="px-2 py-1 bg-yellow-100 text-yellow-700 rounded-md text-xs font-bold border border-yellow-200">Izin/Sakit</span>';
-    return `<span class="px-2 py-1 bg-gray-100 text-gray-600 rounded-md text-xs font-bold">${esc(status)}</span>`;
+    return `<span class="px-2 py-1 bg-gray-100 text-gray-600 rounded-md text-xs font-bold border border-gray-200">${esc(status || '-')}</span>`;
 }
 
-// Function to render the specific "Belum Hadir" card
-function renderAbsenteeCard(absenteeList) {
-    // Tampilan jika semua hadir (list kosong)
-    if (absenteeList.length === 0) {
+// Render Function for ALL Employees
+function renderAttendanceList(list) {
+    if (list.length === 0) {
         return `
-            <div class="bg-white rounded-2xl p-8 soft-shadow text-center border border-green-100">
-                <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <span class="material-icons text-green-600 text-3xl">check_circle</span>
-                </div>
-                <h3 class="text-xl font-bold text-gray-900">Semua Hadir!</h3>
-                <p class="text-gray-500 mt-2">Tidak ada karyawan dengan status "Belum Hadir" hari ini.</p>
+            <div class="bg-white rounded-2xl p-8 soft-shadow text-center">
+                <p class="text-gray-500">Tidak ada data karyawan ditemukan.</p>
             </div>
         `;
     }
 
-    // Build table rows
-    const rowsHtml = absenteeList.map((row, index) => {
-        // Handle variations: JSON keys vs CSV arrays
-        const nama = row.Nama || row.nama || row[2] || "Tanpa Nama";
-        const jam = row.Jam || row.jam || row[1] || "-"; // Jam biasanya "-" untuk yang belum hadir
-        const tgl = row.Tanggal || row.tanggal || row[0] || "Hari Ini"; // Tanggal hari ini
+    // Build Rows
+    const rowsHtml = list.map((row, index) => {
+        const nama = row.Nama || "Tanpa Nama";
+        const jam = row.Jam || "-";
+        const status = row.Status || "Belum Hadir";
         
         return `
-            <tr class="absentee-row border-b border-gray-100 last:border-0">
-                <td class="py-3 pl-4 pr-2 text-sm text-gray-500 font-mono">${index + 1}</td>
+            <tr class="data-row border-b border-gray-100 last:border-0">
+                <td class="py-3 pl-4 pr-2 text-sm text-gray-500 font-mono w-10">${index + 1}</td>
                 <td class="py-3 px-2">
                     <div class="font-bold text-gray-900">${esc(nama)}</div>
-                    <div class="text-xs text-gray-400 md:hidden">${esc(tgl)}</div>
+                    <div class="text-xs text-gray-400 md:hidden">${esc(jam)}</div>
                 </td>
-                <td class="py-3 px-2 text-sm text-gray-600 hidden md:table-cell">${esc(tgl)}</td>
-                <td class="py-3 px-2 text-sm text-gray-600 hidden md:table-cell text-center">${esc(jam)}</td>
+                <td class="py-3 px-2 text-sm text-gray-600 hidden md:table-cell text-center font-mono">${esc(jam)}</td>
                 <td class="py-3 px-2 pr-4 text-right">
-                    ${getStatusBadge('Belum Hadir')}
+                    ${getStatusBadge(status)}
                 </td>
             </tr>
         `;
     }).join('');
 
     return `
-        <div class="bg-white rounded-2xl soft-shadow overflow-hidden border border-red-100">
-            <!-- Header Card -->
-            <div class="p-6 border-b border-gray-100 bg-red-50/50 flex items-center justify-between">
+        <div class="bg-white rounded-2xl soft-shadow overflow-hidden border border-gray-100">
+            <!-- Header Summary -->
+            <div class="p-6 border-b border-gray-100 bg-gray-50 flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div class="flex items-center gap-4">
-                    <div class="icon-circle danger">
-                        <span class="material-icons">person_off</span>
+                    <div class="icon-circle info">
+                        <span class="material-icons">people_alt</span>
                     </div>
                     <div>
-                        <!-- Judul Spesifik Hari Ini -->
-                        <h3 class="text-xl font-bold text-gray-900">Karyawan Belum Hadir (Hari Ini)</h3>
-                        <p class="text-sm text-red-500 font-medium mt-1">Total: ${absenteeList.length} Orang</p>
+                        <h3 class="text-xl font-bold text-gray-900">Daftar Karyawan</h3>
+                        <div class="text-xs text-gray-500 mt-1">
+                            Data berdasarkan Master (Sheet2 Col E) & Log (Sheet2 Col A-B)
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Table Container -->
+            <!-- Table -->
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse">
                     <thead>
-                        <tr class="bg-gray-50 text-gray-500 text-xs uppercase tracking-wider font-semibold border-b border-gray-100">
-                            <th class="py-3 pl-4 pr-2 w-10">#</th>
+                        <tr class="bg-white text-gray-400 text-xs uppercase tracking-wider font-semibold border-b border-gray-100">
+                            <th class="py-3 pl-4 pr-2">#</th>
                             <th class="py-3 px-2">Nama Karyawan</th>
-                            <th class="py-3 px-2 hidden md:table-cell">Tanggal</th>
-                            <th class="py-3 px-2 hidden md:table-cell text-center">Jam</th>
+                            <th class="py-3 px-2 hidden md:table-cell text-center">Waktu Scan</th>
                             <th class="py-3 px-2 pr-4 text-right">Status</th>
                         </tr>
                     </thead>
@@ -325,7 +332,7 @@ function renderAbsenteeCard(absenteeList) {
             </div>
             
             <div class="p-4 bg-gray-50 text-center text-xs text-gray-400">
-                Data disinkronisasi dari Spreadsheet
+                Data real-time dari Spreadsheet
             </div>
         </div>
     `;
@@ -335,42 +342,44 @@ async function loadCards(){
   cardsContainer.innerHTML = `
     <div class="flex flex-col items-center justify-center py-16 space-y-4">
         <div class="w-10 h-10 border-4 border-green-200 border-t-green-600 rounded-full animate-spin"></div>
-        <div class="text-gray-500 font-medium">Mengambil data absensi...</div>
+        <div class="text-gray-500 font-medium">Menghubungkan ke Spreadsheet...</div>
     </div>
   `;
 
   try {
     const res = await fetch(SHEETS_API_URL, { cache: 'no-store' });
     if(!res.ok) throw new Error('HTTP ' + res.status);
-    const data = await res.json();
-
+    const result = await res.json();
+    
+    // Data sekarang sudah matang dari backend (tidak perlu filter tanggal lagi)
     let rows = [];
-    if(Array.isArray(data)) rows = data;
-    else if(data && Array.isArray(data.data)) rows = data.data;
-    
-    // === FILTERING LOGIC (UPDATE) ===
-    // Memfilter data:
-    // 1. Backend (Google Script) sudah menghitung siapa yang belum hadir hari ini
-    // 2. Kita hanya perlu mengambil baris dengan Status mengandung "Belum Hadir"
-    
-    const absentees = rows.filter(row => {
-        let statusVal = "";
-        
-        // Deteksi struktur data (JSON Object atau Array)
-        if (typeof row === 'object' && row !== null) {
-            if(row.Status) statusVal = row.Status;
-            else if(row.status) statusVal = row.status;
-            else if(Array.isArray(row)) statusVal = row[3]; // Fallback index 3
-        }
-        
-        // Cek case-insensitive
-        return String(statusVal).toLowerCase().includes('belum hadir');
+    if(Array.isArray(result)) rows = result;
+    else if(result && Array.isArray(result.data)) rows = result.data;
+
+    // Sorting A-Z berdasarkan Nama
+    const finalDisplayList = rows.sort((a, b) => {
+        const na = (a.Nama || "").toLowerCase();
+        const nb = (b.Nama || "").toLowerCase();
+        return na.localeCompare(nb);
     });
 
-    // Render kartu khusus absensi
-    cardsContainer.innerHTML = renderAbsenteeCard(absentees);
+    // === UPDATE MINI STATUS (DI BAWAH JAM) ===
+    const total = finalDisplayList.length;
+    const hadir = finalDisplayList.filter(r => String(r.Status).toLowerCase().includes('hadir')).length;
+    const belum = finalDisplayList.filter(r => String(r.Status).toLowerCase().includes('belum')).length;
 
-    // Animasi masuk
+    const miniStatusEl = document.getElementById('miniStatus');
+    if(miniStatusEl) {
+        miniStatusEl.classList.remove('hidden');
+        document.getElementById('miniPresent').textContent = hadir;
+        document.getElementById('miniTotal').textContent = total;
+        document.getElementById('miniAbsent').textContent = `Belum: ${belum}`;
+    }
+
+    // Render Table
+    cardsContainer.innerHTML = renderAttendanceList(finalDisplayList);
+
+    // Animasi
     anime({
       targets: '#cardsContainer > div',
       translateY: [20,0],
@@ -385,19 +394,18 @@ async function loadCards(){
         <div class="bg-red-50 rounded-xl p-6 text-center border border-red-100">
             <span class="material-icons text-red-500 text-4xl mb-2">error_outline</span>
             <div class="text-red-800 font-bold">Gagal memuat data</div>
-            <div class="text-red-600 text-sm mt-1">${esc(err.message)}</div>
+            <div class="text-red-600 text-sm mt-1">Pastikan script "doGet" sudah di-update di Apps Script!</div>
+            <div class="text-xs text-gray-500 mt-2 font-mono bg-gray-100 p-2 rounded">${esc(err.message)}</div>
         </div>
     `;
   }
 }
 
-/* Refresh Handler with Animation */
 reloadCardsBtn.addEventListener('click', () => {
   anime({ targets: '#reloadCards .material-icons', rotate: '1turn', duration: 1000 });
   loadCards();
 });
 
-// Initial Load
 loadCards();
 
 </script>
