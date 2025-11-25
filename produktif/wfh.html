@@ -302,11 +302,10 @@
             // Nama-nama ini HARUS sama persis dengan nama folder di GitHub
             labels: ['Ichsan', 'Refaldi', 'Hakim'],
             
+            // Models URL dikembalikan ke repository awal
             modelsUrl: 'https://raw.githubusercontent.com/ichsanazmi/ichsanazmi.github.io/master/produktif/models',
             
-            // PENTING: Ini adalah URL tempat FOTO REFERENSI disimpan. 
-            // Foto harus bernama 1.jpg dan 2.jpg di dalam folder nama.
-            // Contoh: .../labeled_images/Ichsan/1.jpg
+            // URL Gambar
             imagesUrl: 'https://raw.githubusercontent.com/ichsanazmi/ichsanazmi.github.io/master/produktif/labeled_images',
             
             scriptUrl: 'https://script.google.com/macros/s/AKfycbzaWEf6ZwaPv0p4QMUYXpqWjMNm-QvGFUi6rCi9cYnE9APxdPatuTMv_o2YwlSR5K36Ow/exec'
@@ -426,7 +425,7 @@
             try {
                 initGeolocation();
                 
-                el.loadingText.innerText = "Memuat model AI (mungkin lama)...";
+                el.loadingText.innerText = "Memuat model AI...";
                 await Promise.all([
                     faceapi.nets.ssdMobilenetv1.loadFromUri(CONFIG.modelsUrl),
                     faceapi.nets.faceLandmark68Net.loadFromUri(CONFIG.modelsUrl),
@@ -447,10 +446,9 @@
 
                 if (state.labeledDescriptors.length === 0) {
                     logError("DATABASE KOSONG: Tidak ada wajah yang berhasil dimuat.");
-                    logError("Cek URL Gambar dan pastikan nama file 1.jpg ada.");
+                    logError("Cek URL Gambar dan pastikan file gambar tersedia (jpg/png/jpeg).");
                     el.loadingText.innerText = "Gagal memuat database.";
                     el.loadingText.style.color = "red";
-                    // Jangan hide loading screen kalau gagal total
                 } else {
                     await initCamera();
                     initClock();
@@ -464,41 +462,49 @@
             }
         }
 
-        async function loadLabeledImages() {
-            const validDescriptors = [];
-            
-            for (const label of CONFIG.labels) {
-                const descriptions = [];
-                // Load 2 images per person
-                for (let i = 1; i <= 2; i++) {
-                    const imgUrl = `${CONFIG.imagesUrl}/${label}/${i}.jpg`;
-                    try {
-                        // Gunakan fetch dulu untuk cek apakah file ada (status 200)
-                        const response = await fetch(imgUrl, { method: 'HEAD' });
-                        if (!response.ok) {
-                            throw new Error(`Status ${response.status}`);
-                        }
-
-                        const img = await faceapi.fetchImage(imgUrl);
-                        const detections = await faceapi.detectSingleFace(img).withFaceLandmarks().withFaceDescriptor();
-                        
-                        if (detections) {
-                            descriptions.push(detections.descriptor);
-                        } else {
-                            logError(`Wajah tidak terdeteksi di: ${label}/${i}.jpg`);
-                        }
-                    } catch(e) {
-                        logError(`Gagal akses ${label}/${i}.jpg: ${e.message}`);
-                    }
-                }
-                
-                if (descriptions.length > 0) {
-                    validDescriptors.push(new faceapi.LabeledFaceDescriptors(label, descriptions));
-                } else {
-                    logError(`Gagal memuat data untuk: ${label}`);
-                }
+        // --- HELPER UNTUK CEK EKSTENSI GAMBAR (Dari Kode Request) ---
+        async function fetchImageWithFallback(baseUrl, label, index) {
+            const extensions = ['jpg', 'png', 'jpeg', 'JPG', 'PNG'];
+            for (const ext of extensions) {
+                const url = `${baseUrl}/${label}/${index}.${ext}`;
+                try {
+                    const response = await fetch(url, { method: 'HEAD' });
+                    if (response.ok) return await faceapi.fetchImage(url);
+                } catch (e) {}
             }
-            return validDescriptors;
+            // Fallback default
+            return await faceapi.fetchImage(`${baseUrl}/${label}/${index}.jpg`);
+        }
+
+        // --- FUNGSI LOAD GAMBAR YANG DIPERBARUI ---
+        async function loadLabeledImages() {
+            // Menggunakan Promise.all agar loading lebih cepat (Paralel)
+            const results = await Promise.all(
+                CONFIG.labels.map(async label => {
+                    const descriptions = [];
+                    el.loadingText.innerText = `Loading: ${label}...`; 
+                    
+                    // Loop 2 gambar per orang
+                    for (let i = 1; i <= 2; i++) {
+                        try {
+                            const img = await fetchImageWithFallback(CONFIG.imagesUrl, label, i);
+                            const detections = await faceapi.detectSingleFace(img).withFaceLandmarks().withFaceDescriptor();
+                            
+                            if (detections) {
+                                descriptions.push(detections.descriptor);
+                            } else {
+                                logError(`Wajah tidak terdeteksi: ${label}/${i}`);
+                            }
+                        } catch(e) {
+                            logError(`Gagal akses: ${label}/${i} (${e.message})`);
+                        }
+                    }
+                    
+                    if (descriptions.length === 0) return null; 
+                    return new faceapi.LabeledFaceDescriptors(label, descriptions);
+                })
+            );
+            return results.filter(res => res !== null);
         }
 
         // --- SYSTEM: CAMERA ---
