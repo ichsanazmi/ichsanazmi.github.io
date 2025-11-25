@@ -33,7 +33,7 @@
             flex-direction: column;
             gap: 20px;
             width: 100%;
-            max-width: 600px; /* Lebih fokus ke tengah karena kalender hilang */
+            max-width: 600px; 
             background: white;
             padding: 20px;
             border-radius: 12px;
@@ -102,7 +102,7 @@
             padding: 10px;
             text-align: center;
             border-radius: 8px;
-            cursor: default; /* Cursor default agar user tidak curiga ini tombol rahasia */
+            cursor: default; 
             user-select: none;
             display: flex;
             justify-content: space-between;
@@ -159,17 +159,33 @@
             border: 2px solid #e2e8f0;
         }
 
-        /* Loading Screen */
+        /* Loading Screen & Error Logs */
         #loadingScreen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: white; z-index: 200;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
+            padding: 20px;
+            text-align: center;
         }
         .loader {
             width: 40px; height: 40px;
             border: 4px solid #e2e8f0; border-top: 4px solid var(--primary);
             border-radius: 50%; animation: spin 1s linear infinite;
             margin-bottom: 16px;
+        }
+        #errorLog {
+            margin-top: 20px;
+            font-size: 0.75rem;
+            color: #ef4444;
+            background: #fef2f2;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #fee2e2;
+            max-width: 100%;
+            max-height: 200px;
+            overflow-y: auto;
+            text-align: left;
+            display: none; /* Hidden by default */
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
@@ -181,6 +197,7 @@
         <div class="loader"></div>
         <div style="font-weight: bold; color: #475569;">INITIALIZING SYSTEM</div>
         <div id="loadingText" style="font-size: 0.9rem; color: #94a3b8; margin-top: 8px;">Memuat modul wajah...</div>
+        <div id="errorLog"></div>
     </div>
 
     <h1>AI Attendance <span style="font-size:0.6em; background:#e2e8f0; padding:2px 6px; border-radius:4px;">PRO GPS</span></h1>
@@ -282,10 +299,16 @@
     <script>
         // --- KONFIGURASI ---
         const CONFIG = {
+            // Nama-nama ini HARUS sama persis dengan nama folder di GitHub
             labels: ['Ichsan', 'Refaldi', 'Hakim'],
+            
             modelsUrl: 'https://raw.githubusercontent.com/ichsanazmi/ichsanazmi.github.io/master/produktif/models',
+            
+            // PENTING: Ini adalah URL tempat FOTO REFERENSI disimpan. 
+            // Foto harus bernama 1.jpg dan 2.jpg di dalam folder nama.
+            // Contoh: .../labeled_images/Ichsan/1.jpg
             imagesUrl: 'https://raw.githubusercontent.com/ichsanazmi/ichsanazmi.github.io/master/produktif/labeled_images',
-            // Ganti URL ini dengan Web App URL Google Script Anda
+            
             scriptUrl: 'https://script.google.com/macros/s/AKfycbzaWEf6ZwaPv0p4QMUYXpqWjMNm-QvGFUi6rCi9cYnE9APxdPatuTMv_o2YwlSR5K36Ow/exec'
         };
 
@@ -298,7 +321,7 @@
             pendingData: null,
             currentName: null,
             location: { lat: '', long: '', text: 'Tidak ada GPS' },
-            capturedImageBase64: null // Menyimpan foto sementara
+            capturedImageBase64: null 
         };
 
         // --- DOM ELEMENTS ---
@@ -306,6 +329,7 @@
             video: document.getElementById('video'),
             loadingScreen: document.getElementById('loadingScreen'),
             loadingText: document.getElementById('loadingText'),
+            errorLog: document.getElementById('errorLog'),
             statusText: document.getElementById('statusText'),
             btnScan: document.getElementById('btnScan'),
             cameraSelect: document.getElementById('cameraSelect'),
@@ -313,6 +337,13 @@
             locText: document.getElementById('locText'),
             previewImg: document.getElementById('previewImg')
         };
+
+        // --- UTILS: LOGGING ---
+        function logError(msg) {
+            console.warn(msg);
+            el.errorLog.style.display = 'block';
+            el.errorLog.innerHTML += `<div>• ${msg}</div>`;
+        }
 
         // --- UTILS: MODAL & UI ---
         function showModal(id) { document.getElementById(id).style.display = 'flex'; }
@@ -359,24 +390,17 @@
             }
         }
 
-        // --- SYSTEM: IMAGE CAPTURE ---
         function takePicture() {
             const canvas = document.createElement('canvas');
-            // Sesuaikan ukuran canvas dengan video
             canvas.width = el.video.videoWidth;
             canvas.height = el.video.videoHeight;
             const ctx = canvas.getContext('2d');
-            
-            // Mirror image jika video di-mirror
             ctx.translate(canvas.width, 0);
             ctx.scale(-1, 1);
-            
             ctx.drawImage(el.video, 0, 0, canvas.width, canvas.height);
-            // Kompresi JPEG kualitas 0.6 agar ringan dikirim
             return canvas.toDataURL('image/jpeg', 0.6);
         }
 
-        // --- UTILS: CLOCK & SECRET ---
         function initClock() {
             const update = () => {
                 const now = new Date();
@@ -385,7 +409,6 @@
             setInterval(update, 1000);
             update();
 
-            // Fitur Rahasia: Tahan 3 detik pada jam
             const clockEl = document.getElementById('clockContainer');
             let timer;
             const startPress = () => { timer = setTimeout(() => showModal('modalManual'), 3000); };
@@ -401,16 +424,16 @@
         // --- SYSTEM: INITIALIZATION ---
         async function initSystem() {
             try {
-                initGeolocation(); // Mulai cari GPS segera
+                initGeolocation();
                 
-                el.loadingText.innerText = "Memuat model AI...";
+                el.loadingText.innerText = "Memuat model AI (mungkin lama)...";
                 await Promise.all([
                     faceapi.nets.ssdMobilenetv1.loadFromUri(CONFIG.modelsUrl),
                     faceapi.nets.faceLandmark68Net.loadFromUri(CONFIG.modelsUrl),
                     faceapi.nets.faceRecognitionNet.loadFromUri(CONFIG.modelsUrl)
                 ]);
 
-                el.loadingText.innerText = "Mempelajari data wajah...";
+                el.loadingText.innerText = "Mempelajari wajah...";
                 state.labeledDescriptors = await loadLabeledImages();
                 
                 // Init Manual Select
@@ -422,31 +445,60 @@
                     manSel.appendChild(opt);
                 });
 
-                await initCamera();
-                initClock();
+                if (state.labeledDescriptors.length === 0) {
+                    logError("DATABASE KOSONG: Tidak ada wajah yang berhasil dimuat.");
+                    logError("Cek URL Gambar dan pastikan nama file 1.jpg ada.");
+                    el.loadingText.innerText = "Gagal memuat database.";
+                    el.loadingText.style.color = "red";
+                    // Jangan hide loading screen kalau gagal total
+                } else {
+                    await initCamera();
+                    initClock();
+                    el.loadingScreen.style.display = 'none';
+                }
 
-                el.loadingScreen.style.display = 'none';
             } catch (err) {
                 console.error(err);
-                showMessage("Gagal memuat sistem: " + err.message, "Error");
+                logError("System Init Error: " + err.message);
+                el.loadingText.innerText = "Sistem Error.";
             }
         }
 
         async function loadLabeledImages() {
-            return Promise.all(
-                CONFIG.labels.map(async label => {
-                    const descriptions = [];
-                    // Load 2 images per person for speed
-                    for (let i = 1; i <= 2; i++) {
-                        try {
-                            const img = await faceapi.fetchImage(`${CONFIG.imagesUrl}/${label}/${i}.jpg`);
-                            const detections = await faceapi.detectSingleFace(img).withFaceLandmarks().withFaceDescriptor();
-                            if (detections) descriptions.push(detections.descriptor);
-                        } catch(e) { console.warn('Skip image', label); }
+            const validDescriptors = [];
+            
+            for (const label of CONFIG.labels) {
+                const descriptions = [];
+                // Load 2 images per person
+                for (let i = 1; i <= 2; i++) {
+                    const imgUrl = `${CONFIG.imagesUrl}/${label}/${i}.jpg`;
+                    try {
+                        // Gunakan fetch dulu untuk cek apakah file ada (status 200)
+                        const response = await fetch(imgUrl, { method: 'HEAD' });
+                        if (!response.ok) {
+                            throw new Error(`Status ${response.status}`);
+                        }
+
+                        const img = await faceapi.fetchImage(imgUrl);
+                        const detections = await faceapi.detectSingleFace(img).withFaceLandmarks().withFaceDescriptor();
+                        
+                        if (detections) {
+                            descriptions.push(detections.descriptor);
+                        } else {
+                            logError(`Wajah tidak terdeteksi di: ${label}/${i}.jpg`);
+                        }
+                    } catch(e) {
+                        logError(`Gagal akses ${label}/${i}.jpg: ${e.message}`);
                     }
-                    return descriptions.length ? new faceapi.LabeledFaceDescriptors(label, descriptions) : null;
-                })
-            ).then(results => results.filter(r => r !== null));
+                }
+                
+                if (descriptions.length > 0) {
+                    validDescriptors.push(new faceapi.LabeledFaceDescriptors(label, descriptions));
+                } else {
+                    logError(`Gagal memuat data untuk: ${label}`);
+                }
+            }
+            return validDescriptors;
         }
 
         // --- SYSTEM: CAMERA ---
@@ -496,7 +548,6 @@
             el.btnScan.disabled = true;
             setStatus("MENGANALISA...", "#f59e0b");
 
-            // Delay sedikit agar UI terupdate
             setTimeout(async () => {
                 try {
                     const detections = await faceapi.detectAllFaces(el.video, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.5 }))
@@ -511,7 +562,6 @@
                     }
 
                     if (bestMatch.label !== 'unknown') {
-                        // AMBIL FOTO SAAT INI JUGA
                         state.capturedImageBase64 = takePicture();
                         processAttendance(bestMatch.label);
                     } else {
@@ -558,13 +608,11 @@
         function confirmSubmission(name, status, msg) {
             state.pendingData = { name, status, msg };
             
-            // Set data di modal konfirmasi
             document.getElementById('confName').innerText = name;
             document.getElementById('confStatus').innerText = status;
             document.getElementById('confMsg').innerText = msg;
             document.getElementById('confLoc').innerText = state.location.text;
             
-            // Set Preview Image
             if(state.capturedImageBase64) {
                 el.previewImg.src = state.capturedImageBase64;
                 el.previewImg.style.display = 'block';
@@ -578,7 +626,6 @@
         function submitManual() {
             const name = document.getElementById('manualSelect').value;
             closeModal('modalManual');
-            // Jika manual, ambil foto apa adanya dari view kamera saat ini
             state.capturedImageBase64 = takePicture();
             processAttendance(name);
         }
@@ -596,18 +643,16 @@
                 jam: now.toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit', second:'2-digit'}).replace(/\./g, ':'),
                 status: state.pendingData.status,
                 lokasi: state.location.text,
-                foto: state.capturedImageBase64, // Kirim Base64
+                foto: state.capturedImageBase64, 
                 device: 'ProGPS_Web_v5'
             };
 
-            // Kirim ke Google Script
             fetch(CONFIG.scriptUrl, {
                 method: 'POST',
                 mode: 'no-cors',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
             }).then(() => {
-                // Update Local Storage
                 const dateKey = payload.tanggal;
                 const localKey = `att_${dateKey}_${payload.nama}`;
                 const curCount = parseInt(localStorage.getItem(localKey) || '0');
