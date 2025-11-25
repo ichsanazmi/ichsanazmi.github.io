@@ -3,9 +3,9 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Dashboard Sholat</title>
+  <title>Dashboard Sholat & Kehadiran</title>
 
-  <!-- Tailwind CSS (framework CSS) -->
+  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
 
   <!-- Material Icons -->
@@ -19,26 +19,21 @@
       --islamic-green: #10b981;
       --islamic-gold: #f59e0b;
       --islamic-dark: #064e3b;
+      --danger-red: #ef4444;
       --muted: #6b7280;
-      --light-bg: #f9fafb;
     }
 
     html,body { height:100%; }
     body{
       background: linear-gradient(135deg, #f0fdf4 0%, #f0f9ff 100%);
       min-height: 100vh;
-      transition: background-image .6s ease-in-out;
-      -webkit-font-smoothing:antialiased;
-      -moz-osx-font-smoothing:grayscale;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     }
 
     .bg-overlay {
-      position:fixed;
-      inset:0;
+      position:fixed; inset:0;
       background: linear-gradient(135deg, rgba(16, 185, 129, 0.08), rgba(59, 130, 246, 0.03));
-      pointer-events:none;
-      z-index:0;
+      pointer-events:none; z-index:0;
     }
 
     .glass-dark {
@@ -47,60 +42,28 @@
       border: 1px solid rgba(16, 185, 129, 0.1);
     }
 
-    .soft-shadow { 
-      box-shadow: 0 8px 32px rgba(16, 185, 129, 0.08), 0 2px 8px rgba(0,0,0, 0.04);
-      border-radius: 1.5rem;
-    }
-
-    .soft-shadow-lg { 
-      box-shadow: 0 20px 60px rgba(16, 185, 129, 0.12), 0 4px 16px rgba(0,0,0, 0.06);
-    }
+    .soft-shadow { box-shadow: 0 8px 32px rgba(16, 185, 129, 0.08), 0 2px 8px rgba(0,0,0, 0.04); }
+    .soft-shadow-lg { box-shadow: 0 20px 60px rgba(16, 185, 129, 0.12), 0 4px 16px rgba(0,0,0, 0.06); }
 
     .icon-circle { 
       background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(245, 158, 11, 0.1));
       color: var(--islamic-green);
-      border-radius:9999px;
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      width:56px;
-      height:56px;
-      font-size: 28px;
-      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.1);
+      border-radius:9999px; display:inline-flex; align-items:center; justify-content:center;
+      width:56px; height:56px; font-size: 28px;
     }
-
     .icon-circle.large { width:72px; height:72px; font-size: 36px; }
+    .icon-circle.danger { 
+        background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(248, 113, 113, 0.1));
+        color: var(--danger-red); 
+    }
 
     .gold { color: var(--islamic-gold); }
     .green { color: var(--islamic-green); }
-    .muted { color: var(--muted); }
-
-    .card-expand { overflow:hidden; }
-    .content-wrap { position:relative; z-index:10; }
-
-    .gradient-text {
-      background: linear-gradient(135deg, var(--islamic-green), var(--islamic-gold));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-    .card-hover:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 20px 40px rgba(16, 185, 129, 0.12) !important;
-    }
-
     .btn-primary {
       background: linear-gradient(135deg, var(--islamic-green), #059669);
-      color: white;
-      border: none;
-      transition: all 0.3s ease;
+      color: white; border: none; transition: all 0.3s ease;
     }
-
-    .btn-primary:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
-    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3); }
 
     .badge-prayer {
       background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(245, 158, 11, 0.1));
@@ -108,119 +71,51 @@
     }
 
     .prayer-time {
-      display: grid;
-      grid-template-columns: auto 1fr;
-      gap: 1rem;
-      align-items: center;
-      padding: 1rem;
-      border-radius: 0.875rem;
-      transition: all 0.3s ease;
+      display: grid; grid-template-columns: auto 1fr; gap: 1rem; align-items: center;
+      padding: 1rem; border-radius: 0.875rem; transition: all 0.3s ease;
       border-bottom: 1px solid rgba(16, 185, 129, 0.08);
     }
+    .prayer-time:hover { background: rgba(16, 185, 129, 0.06); transform: translateX(4px); }
 
-    .prayer-time:last-child {
-      border-bottom: none;
+    /* Table Styles for Absentees */
+    .absentee-row {
+        transition: background-color 0.2s;
     }
-
-    .prayer-time:hover {
-      background: rgba(16, 185, 129, 0.06);
-      transform: translateX(4px);
-    }
-
-    .prayer-time-label {
-      font-weight: 700;
-      color: var(--islamic-green);
-      min-width: 70px;
-      font-size: 0.95rem;
-    }
-
-    .prayer-time-value {
-      font-weight: 600;
-      color: var(--islamic-dark);
-      font-size: 1.25rem;
-      font-variant-numeric: tabular-nums;
+    .absentee-row:hover {
+        background-color: #fef2f2; /* Light red bg on hover */
     }
 
     @keyframes fadeInUp {
-      from {
-        opacity: 0;
-        transform: translateY(20px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
     }
-
-    .animate-fade-in-up {
-      animation: fadeInUp 0.6s ease-out;
-    }
-
-    ::-webkit-scrollbar {
-      width: 8px;
-    }
-
-    ::-webkit-scrollbar-track {
-      background: rgba(16, 185, 129, 0.05);
-    }
-
-    ::-webkit-scrollbar-thumb {
-      background: rgba(16, 185, 129, 0.3);
-      border-radius: 4px;
-    }
-
-    ::-webkit-scrollbar-thumb:hover {
-      background: rgba(16, 185, 129, 0.5);
-    }
-
-    @media (max-width: 1024px) {
-      .icon-circle { width:48px; height:48px; font-size: 24px; }
-      .icon-circle.large { width:56px; height:56px; font-size: 28px; }
-    }
-
-    @media (max-width:768px){
-      .icon-circle { width:40px; height:40px; font-size: 20px; }
-      .icon-circle.large { width:48px; height:48px; font-size: 24px; }
-      .prayer-time {
-        padding: 0.875rem;
-        gap: 0.75rem;
-      }
-      .prayer-time-label {
-        min-width: 60px;
-        font-size: 0.875rem;
-      }
-      .prayer-time-value {
-        font-size: 1.1rem;
-      }
-    }
+    .animate-fade-in-up { animation: fadeInUp 0.6s ease-out; }
   </style>
 </head>
 <body>
 
-  <!-- overlay -->
   <div class="bg-overlay" aria-hidden="true"></div>
 
-  <div class="content-wrap px-4 md:px-6 py-6 max-w-full mx-auto">
+  <div class="content-wrap px-4 md:px-6 py-6 max-w-full mx-auto relative z-10">
     
-    <!-- Main Grid: Left Sidebar + Right Content -->
     <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 items-start">
 
       <!-- LEFT SIDEBAR: Prayer & Clock -->
       <aside class="lg:col-span-1 space-y-6">
 
         <!-- Clock Card -->
-        <div class="glass-dark rounded-2xl p-6 soft-shadow-lg animate-fade-in-up card-hover">
+        <div class="glass-dark rounded-2xl p-6 soft-shadow-lg animate-fade-in-up">
           <div class="text-center">
             <div class="icon-circle large mx-auto mb-4">
               <span class="material-icons">schedule</span>
             </div>
-            <div id="clock" class="text-5xl md:text-6xl font-bold text-gray-900" style="letter-spacing:0.02em; font-variant-numeric: tabular-nums;">--:--:--</div>
+            <div id="clock" class="text-5xl md:text-6xl font-bold text-gray-900" style="font-variant-numeric: tabular-nums;">--:--:--</div>
             <div id="date" class="text-sm text-gray-600 mt-3 font-medium"></div>
           </div>
         </div>
 
         <!-- Prayer Times Card -->
-        <div id="prayerCard" class="glass-dark rounded-2xl p-6 soft-shadow-lg animate-fade-in-up card-hover" style="animation-delay: 0.1s;">
+        <div id="prayerCard" class="glass-dark rounded-2xl p-6 soft-shadow-lg animate-fade-in-up" style="animation-delay: 0.1s;">
           <div class="flex items-center gap-3 mb-5">
             <div class="icon-circle">
               <span class="material-icons">mosque</span>
@@ -231,7 +126,6 @@
             </div>
           </div>
           
-          <!-- Next Prayer Info -->
           <div class="mb-5 p-4 rounded-xl badge-prayer">
             <div class="text-xs text-gray-600 font-bold uppercase tracking-wider">Sholat Berikutnya</div>
             <div class="flex items-baseline gap-2 mt-3">
@@ -240,45 +134,34 @@
             </div>
           </div>
 
-          <!-- City Selection -->
           <div class="mb-5 pb-5 border-b border-gray-200">
-            <label class="text-xs font-bold text-gray-600 uppercase tracking-wider block mb-3">Lokasi</label>
-            <div class="flex gap-2">
-              <select id="citySelect" class="flex-1 px-3 py-2 rounded-lg border border-gray-200 bg-white text-sm font-medium focus:outline-none focus:ring-2 focus:ring-green-500" aria-label="Pilih kota"></select>
-              <input id="manualCity" placeholder="Negara" class="w-28 px-3 py-2 rounded-lg border border-gray-200 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-green-500" value="Indonesia" />
-            </div>
+            <select id="citySelect" class="w-full px-3 py-2 rounded-lg border border-gray-200 bg-white text-sm font-medium focus:outline-none focus:ring-2 focus:ring-green-500 mb-2"></select>
+            <input id="manualCity" placeholder="Atau ketik kota..." class="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-green-500" style="display:none;" />
           </div>
 
-          <!-- Prayer Times Display -->
           <div id="prayerTimes" class="space-y-0">
             <div class="muted text-sm">Memuat jadwal...</div>
           </div>
-
-          <div id="prayerActions" class="text-xs mt-4"></div>
-
-          <!-- Refresh Button -->
-          <button id="refreshAll" title="Segarkan jadwal" class="btn-primary w-full mt-5 px-4 py-2 rounded-lg flex items-center justify-center gap-2 font-medium">
-            <span class="material-icons text-base">refresh</span>
-            <span>Segarkan</span>
-          </button>
         </div>
 
       </aside>
 
-      <!-- RIGHT CONTENT: Cards -->
+      <!-- RIGHT CONTENT: Absentee Dashboard -->
       <main class="lg:col-span-3">
 
-        <!-- Cards Header with Reload -->
         <div class="flex items-center justify-between gap-4 mb-6 animate-fade-in-up" style="animation-delay: 0.2s;">
-          <h2 class="text-3xl md:text-4xl font-bold text-gray-900">Informasi</h2>
+          <!-- Judul diperjelas -->
+          <h2 class="text-3xl md:text-4xl font-bold text-gray-900">Monitoring Absensi</h2>
           <button id="reloadCards" class="btn-primary px-5 py-2 rounded-lg flex items-center gap-2 font-medium whitespace-nowrap">
             <span class="material-icons text-base">sync</span>
-            <span class="hidden sm:inline">Muat Ulang</span>
+            <span class="hidden sm:inline">Muat Ulang Data</span>
           </button>
         </div>
 
-        <!-- Cards Grid: Single Column for Larger Display -->
-        <div id="cardsContainer" class="space-y-4"></div>
+        <!-- Container for the Absentee List -->
+        <div id="cardsContainer" class="space-y-4 animate-fade-in-up" style="animation-delay: 0.3s;">
+            <!-- Content will be injected here by JS -->
+        </div>
 
       </main>
 
@@ -286,7 +169,7 @@
   </div>
 
 <script>
-/* ================== CONFIG & UTILS ================== */
+/* ================== CONFIG ================== */
 const SHEETS_API_URL = "https://script.google.com/macros/s/AKfycbz-zjAGV6ytumJH01c8r3ew6O_f8BFFYaZhL-cwlg11AuCLp39GxH8y6p-cHHKhKz5N/exec";
 const ALADHAN_METHOD = "20";
 const esc = s => String(s ?? "").replace(/[&<>"]/g,m=>({ "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;" }[m]));
@@ -301,254 +184,162 @@ function updateClock(){
 setInterval(updateClock, 500);
 updateClock();
 
-/* =========== PRAYER TIMES (AlAdhan) =========== */
-const presetCities = [
-  "Jakarta","Bandung","Surabaya","Medan","Semarang","Yogyakarta","Makassar","Banda Aceh",
-  "Palembang","Malang","Padang","Denpasar","Samarinda","Pontianak","Banjarmasin","Manado"
-];
-
+/* =========== PRAYER TIMES =========== */
+const presetCities = ["Jakarta","Bandung","Surabaya","Medan","Semarang","Yogyakarta","Makassar","Banda Aceh","Palembang","Denpasar"];
 const citySelect = q('citySelect');
-const manualCity = q('manualCity');
 const prayerTimesEl = q('prayerTimes');
-const prayerActions = q('prayerActions');
-const prayerLocation = q('prayerLocation');
 const nextPrayerLabel = q('nextPrayerLabel');
 const countdownEl = q('countdown');
 
 function populateCities(){
-  citySelect.innerHTML = '';
-  presetCities.forEach(c => {
-    const o = document.createElement('option'); o.value = c; o.textContent = c; citySelect.appendChild(o);
-  });
-  const other = document.createElement('option'); other.value='__other__'; other.textContent='Lainnya'; citySelect.appendChild(other);
-  const last = localStorage.getItem('selectedCity');
-  if (last && presetCities.includes(last)) citySelect.value = last;
-  else citySelect.value = presetCities[0];
+  presetCities.forEach(c => { const o = document.createElement('option'); o.value = c; o.textContent = c; citySelect.appendChild(o); });
+  const other = document.createElement('option'); other.value='__other__'; other.textContent='Lainnya...'; citySelect.appendChild(other);
+  citySelect.value = localStorage.getItem('selectedCity') || "Jakarta";
 }
 
-/* render */
-function renderPrayerData(data, requestedCity, country){
-  try{
-    const timings = data.data.timings;
-    const readable = data.data.date.readable || '';
-    
-    const prayerOrder = [
-      { key: 'Fajr', label: 'Subuh' },
-      { key: 'Sunrise', label: 'Terbit' },
-      { key: 'Dhuhr', label: 'Dzuhur' },
-      { key: 'Asr', label: 'Ashar' },
-      { key: 'Maghrib', label: 'Maghrib' },
-      { key: 'Isha', label: 'Isya' }
-    ];
-
-    let prayerHtml = '';
-    prayerOrder.forEach(p => {
-      const time = timings[p.key] || '—';
-      prayerHtml += `
-        <div class="prayer-time">
-          <div class="prayer-time-label">${esc(p.label)}</div>
-          <div class="prayer-time-value">${esc(time)}</div>
-        </div>
-      `;
-    });
-
-    prayerTimesEl.innerHTML = `
-      <div class="text-xs text-gray-500 mb-4 font-medium">${esc(readable)}</div>
-      ${prayerHtml}
-    `;
-    
-    prayerLocation.textContent = requestedCity + (country ? (', ' + country) : '');
-    try{ localStorage.setItem('selectedCity', requestedCity); }catch(e){}
-    startNextPrayerCountdown(timings);
-    prayerActions.innerHTML = '';
-  }catch(e){
-    prayerTimesEl.innerHTML = `<div class="text-red-600 text-sm font-medium">Gagal memproses data jadwal.</div>`;
-  }
-}
-
-/* countdown */
-let countdownInterval = null;
-function startNextPrayerCountdown(timings){
-  if(countdownInterval){ clearInterval(countdownInterval); countdownInterval=null; }
-  const order = ['Fajr','Dhuhr','Asr','Maghrib','Isha'];
-  function computeNext(){
-    const now = new Date();
-    let next = null;
-    for(const key of order){
-      const tStr = (timings[key] || '').match(/\d{1,2}:\d{2}/);
-      if(!tStr) continue;
-      const [hh,mm] = tStr[0].split(':').map(n=>parseInt(n,10));
-      const cand = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hh, mm);
-      if(cand > now){ next = {key, time: cand}; break; }
-    }
-    if(!next){
-      const tStr = (timings['Fajr'] || '').match(/\d{1,2}:\d{2}/);
-      if(tStr){
-        const [hh,mm] = tStr[0].split(':').map(n=>parseInt(n,10));
-        const tom = new Date(); tom.setDate(tom.getDate()+1);
-        next = { key: 'Subuh', time: new Date(tom.getFullYear(), tom.getMonth(), tom.getDate(), hh, mm) };
-      }
-    }
-    return next;
-  }
-
-  let next = computeNext();
-  if(!next){ nextPrayerLabel.textContent='—'; countdownEl.textContent=''; return; }
-  nextPrayerLabel.textContent = next.key.replace('Fajr', 'Subuh');
-
-  function update(){
-    const now = new Date();
-    let diff = next.time - now;
-    if(diff <= 0){
-      next = computeNext();
-      if(!next){ nextPrayerLabel.textContent='—'; countdownEl.textContent=''; clearInterval(countdownInterval); return; }
-      nextPrayerLabel.textContent = next.key;
-      diff = next.time - now;
-    }
-    const h = Math.floor(diff / (1000*60*60));
-    const m = Math.floor((diff % (1000*60*60)) / (1000*60));
-    const s = Math.floor((diff % (1000*60)) / 1000);
-    countdownEl.textContent = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-  }
-  update();
-  countdownInterval = setInterval(update, 1000);
-}
-
-/* robust fetch attempts */
-async function fetchPrayerTimes(requestedCity, country){
-  prayerTimesEl.innerHTML = '<div class="muted text-sm">Memuat jadwal...</div>';
-  prayerActions.innerHTML = '';
-  const city = String(requestedCity || '').trim();
-  const cnt = String(country || '').trim();
-
-  if(!city){ prayerTimesEl.innerHTML = '<div class="text-red-600 text-sm font-medium">Tentukan nama kota terlebih dahulu.</div>'; return; }
-
-  const attempts = [
-    {city, country: cnt},
-    {city, country: ''},
-    {city: city.toLowerCase(), country: cnt},
-    {city: city.toLowerCase(), country: ''},
-  ];
-
-  let lastErr = null;
-  for(const a of attempts){
-    try{
-      const params = new URLSearchParams({ city: a.city, method: ALADHAN_METHOD });
-      if(a.country) params.set('country', a.country);
-      const url = `https://api.aladhan.com/v1/timingsByCity?${params.toString()}`;
-      const res = await fetch(url, { cache: 'no-store' });
-      if(!res.ok){ lastErr = 'HTTP ' + res.status; continue; }
+async function fetchPrayerTimes(city){
+  try {
+      const res = await fetch(`https://api.aladhan.com/v1/timingsByCity?city=${city}&country=Indonesia&method=${ALADHAN_METHOD}`);
       const data = await res.json();
-      if(data && (data.code === 200 || data.status === 'OK' || (data.data && data.data.timings))){
-        renderPrayerData(data, requestedCity, country);
-        return;
-      } else {
-        lastErr = JSON.stringify(data && data.data ? data.data : data);
-      }
-    }catch(err){
-      lastErr = err.message || String(err);
-    }
-  }
-
-  prayerTimesEl.innerHTML = `<div class="text-red-600 text-sm font-medium">Gagal menemukan jadwal untuk <strong>${esc(city)}</strong>.</div>`;
-  prayerActions.innerHTML = `
-    <div class="flex flex-wrap gap-2">
-      <button id="retryBtn" class="px-3 py-1 rounded-lg bg-amber-400 text-white text-xs font-semibold hover:bg-amber-500 transition">Coba lagi</button>
-      <button id="fallbackBtn" class="px-3 py-1 rounded-lg bg-gray-200 text-gray-800 text-xs font-semibold hover:bg-gray-300 transition">Jakarta</button>
-      <button id="editBtn" class="px-3 py-1 rounded-lg border border-green-500 text-green-600 text-xs font-semibold hover:bg-green-50 transition">Edit</button>
-    </div>
-  `;
-  document.getElementById('retryBtn').onclick = () => fetchPrayerTimes(city, country);
-  document.getElementById('fallbackBtn').onclick = () => { citySelect.value='Jakarta'; fetchPrayerTimes('Jakarta','Indonesia'); };
-  document.getElementById('editBtn').onclick = () => { citySelect.value='__other__'; ensureManualInput(); const m = document.getElementById('manualCityInput'); if(m) m.focus(); };
+      renderPrayerData(data.data, city);
+  } catch(e) { prayerTimesEl.innerHTML = `<div class="text-red-500 text-sm">Gagal memuat jadwal.</div>`; }
 }
 
-/* manual input UI */
-function ensureManualInput(){
-  let manual = document.getElementById('manualCityInput');
-  if(citySelect.value === '__other__'){
-    if(!manual){
-      manual = document.createElement('input');
-      manual.id = 'manualCityInput';
-      manual.placeholder = 'Nama kota';
-      manual.className = 'mt-2 p-2 border border-gray-200 rounded-lg w-full text-sm focus:outline-none focus:ring-2 focus:ring-green-500';
-      manual.addEventListener('change', ()=> {
-        const v = manual.value.trim();
-        if(v) fetchPrayerTimes(v, manualCity.value);
-      });
-      citySelect.parentElement.appendChild(manual);
-      const stored = localStorage.getItem('selectedCity');
-      if(stored && !presetCities.includes(stored)) manual.value = stored;
+function renderPrayerData(data, city){
+    q('prayerLocation').textContent = city + ", Indonesia";
+    const timings = data.timings;
+    const order = { 'Fajr':'Subuh', 'Dhuhr':'Dzuhur', 'Asr':'Ashar', 'Maghrib':'Maghrib', 'Isha':'Isya' };
+    
+    let html = '';
+    for(const [key, label] of Object.entries(order)){
+        html += `<div class="prayer-time"><div class="text-green-600 font-bold w-20">${label}</div><div class="font-bold text-gray-800 text-lg">${timings[key]}</div></div>`;
     }
-  } else {
-    if(manual) manual.remove();
-    fetchPrayerTimes(citySelect.value, manualCity.value);
-  }
+    prayerTimesEl.innerHTML = html;
+    
+    const now = new Date();
+    let nextName = "Besok"; let nextTime = null;
+    for(const [key, label] of Object.entries(order)){
+        const [h,m] = timings[key].split(':');
+        const pDate = new Date(); pDate.setHours(h,m,0);
+        if(pDate > now) { nextName = label; nextTime = pDate; break; }
+    }
+    nextPrayerLabel.textContent = nextName;
+    if(nextTime) {
+        countdownEl.textContent = "Menunggu...";
+    }
 }
 
-/* init prayer section */
 populateCities();
-citySelect.addEventListener('change', ensureManualInput);
-manualCity.addEventListener('change', ()=> {
-  const manual = document.getElementById('manualCityInput');
-  const cityToUse = manual ? manual.value.trim() : citySelect.value;
-  if(cityToUse) fetchPrayerTimes(cityToUse, manualCity.value);
+fetchPrayerTimes(citySelect.value);
+citySelect.addEventListener('change', (e) => {
+    if(e.target.value !== '__other__') {
+        localStorage.setItem('selectedCity', e.target.value);
+        fetchPrayerTimes(e.target.value);
+    }
 });
-const initialCity = localStorage.getItem('selectedCity') || citySelect.value;
-fetchPrayerTimes(initialCity, manualCity.value);
 
-/* ========== CARDS: fetch from Google Apps Script & anime.js animations ========== */
+
+/* =========== ABSENTEE DASHBOARD LOGIC =========== */
 const cardsContainer = q('cardsContainer');
 const reloadCardsBtn = q('reloadCards');
 
-function createCardHTML(title, detailsObj, idx){
-  const id = `card-${idx}`;
-  let detailsHtml = '';
+// Helper to determine status style
+function getStatusBadge(status) {
+    const s = String(status).toLowerCase();
+    if (s.includes('belum hadir')) return '<span class="px-2 py-1 bg-red-100 text-red-700 rounded-md text-xs font-bold border border-red-200">Belum Hadir</span>';
+    if (s.includes('hadir')) return '<span class="px-2 py-1 bg-green-100 text-green-700 rounded-md text-xs font-bold border border-green-200">Hadir</span>';
+    if (s.includes('izin') || s.includes('sakit')) return '<span class="px-2 py-1 bg-yellow-100 text-yellow-700 rounded-md text-xs font-bold border border-yellow-200">Izin/Sakit</span>';
+    return `<span class="px-2 py-1 bg-gray-100 text-gray-600 rounded-md text-xs font-bold">${esc(status)}</span>`;
+}
 
-  if(Array.isArray(detailsObj)){
-    detailsHtml = detailsObj.map((v,i)=>`
-      <div class="py-3 border-t border-gray-200 first:border-t-0 first:pt-0">
-        <div class="text-base text-gray-700 leading-relaxed">${esc(v)}</div>
-      </div>
-    `).join('');
-  } else if(typeof detailsObj === 'object' && detailsObj !== null){
-    detailsHtml = Object.keys(detailsObj).map(k=>`
-      <div class="py-3 border-t border-gray-200 first:border-t-0 first:pt-0">
-        <div class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">${esc(k)}</div>
-        <div class="text-lg text-gray-900 font-semibold leading-relaxed">${esc(detailsObj[k])}</div>
-      </div>
-    `).join('');
-  } else {
-    detailsHtml = `<div class="text-base text-gray-700 leading-relaxed">${esc(detailsObj)}</div>`;
-  }
+// Function to render the specific "Belum Hadir" card
+function renderAbsenteeCard(absenteeList) {
+    // Tampilan jika semua hadir (list kosong)
+    if (absenteeList.length === 0) {
+        return `
+            <div class="bg-white rounded-2xl p-8 soft-shadow text-center border border-green-100">
+                <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span class="material-icons text-green-600 text-3xl">check_circle</span>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900">Semua Hadir!</h3>
+                <p class="text-gray-500 mt-2">Tidak ada karyawan dengan status "Belum Hadir" hari ini.</p>
+            </div>
+        `;
+    }
 
-  return `
-    <article class="card-item bg-white rounded-2xl p-6 soft-shadow overflow-hidden transition-all duration-300 card-hover border border-gray-100">
-      <header class="flex items-start justify-between gap-4 mb-5">
-        <div class="flex items-start gap-4 flex-1 min-w-0">
-          <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-green-500 to-green-400 flex items-center justify-center text-white flex-shrink-0 shadow-md">
-            <span class="material-icons text-2xl">description</span>
-          </div>
-          <div class="flex-1 min-w-0">
-            <h3 class="text-2xl font-bold text-gray-900 leading-snug">${esc(title)}</h3>
-          </div>
+    // Build table rows
+    const rowsHtml = absenteeList.map((row, index) => {
+        // Handle variations: JSON keys vs CSV arrays
+        const nama = row.Nama || row.nama || row[2] || "Tanpa Nama";
+        const jam = row.Jam || row.jam || row[1] || "-"; // Jam biasanya "-" untuk yang belum hadir
+        const tgl = row.Tanggal || row.tanggal || row[0] || "Hari Ini"; // Tanggal hari ini
+        
+        return `
+            <tr class="absentee-row border-b border-gray-100 last:border-0">
+                <td class="py-3 pl-4 pr-2 text-sm text-gray-500 font-mono">${index + 1}</td>
+                <td class="py-3 px-2">
+                    <div class="font-bold text-gray-900">${esc(nama)}</div>
+                    <div class="text-xs text-gray-400 md:hidden">${esc(tgl)}</div>
+                </td>
+                <td class="py-3 px-2 text-sm text-gray-600 hidden md:table-cell">${esc(tgl)}</td>
+                <td class="py-3 px-2 text-sm text-gray-600 hidden md:table-cell text-center">${esc(jam)}</td>
+                <td class="py-3 px-2 pr-4 text-right">
+                    ${getStatusBadge('Belum Hadir')}
+                </td>
+            </tr>
+        `;
+    }).join('');
+
+    return `
+        <div class="bg-white rounded-2xl soft-shadow overflow-hidden border border-red-100">
+            <!-- Header Card -->
+            <div class="p-6 border-b border-gray-100 bg-red-50/50 flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <div class="icon-circle danger">
+                        <span class="material-icons">person_off</span>
+                    </div>
+                    <div>
+                        <!-- Judul Spesifik Hari Ini -->
+                        <h3 class="text-xl font-bold text-gray-900">Karyawan Belum Hadir (Hari Ini)</h3>
+                        <p class="text-sm text-red-500 font-medium mt-1">Total: ${absenteeList.length} Orang</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Table Container -->
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-gray-50 text-gray-500 text-xs uppercase tracking-wider font-semibold border-b border-gray-100">
+                            <th class="py-3 pl-4 pr-2 w-10">#</th>
+                            <th class="py-3 px-2">Nama Karyawan</th>
+                            <th class="py-3 px-2 hidden md:table-cell">Tanggal</th>
+                            <th class="py-3 px-2 hidden md:table-cell text-center">Jam</th>
+                            <th class="py-3 px-2 pr-4 text-right">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100">
+                        ${rowsHtml}
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="p-4 bg-gray-50 text-center text-xs text-gray-400">
+                Data disinkronisasi dari Spreadsheet
+            </div>
         </div>
-        <button class="expand-btn flex-shrink-0 p-2 rounded-lg hover:bg-gray-100 transition duration-200" aria-expanded="false" data-target="${id}">
-          <span class="material-icons text-gray-600 text-2xl">expand_more</span>
-        </button>
-      </header>
-      <div id="${id}" class="card-expand mt-4" style="height:0; opacity:0;">
-        <div class="text-gray-600">
-          ${detailsHtml}
-        </div>
-      </div>
-    </article>
-  `;
+    `;
 }
 
 async function loadCards(){
-  cardsContainer.innerHTML = `<div class="text-center py-16"><div class="text-gray-500 font-medium text-lg">Memuat data...</div></div>`;
-  try{
+  cardsContainer.innerHTML = `
+    <div class="flex flex-col items-center justify-center py-16 space-y-4">
+        <div class="w-10 h-10 border-4 border-green-200 border-t-green-600 rounded-full animate-spin"></div>
+        <div class="text-gray-500 font-medium">Mengambil data absensi...</div>
+    </div>
+  `;
+
+  try {
     const res = await fetch(SHEETS_API_URL, { cache: 'no-store' });
     if(!res.ok) throw new Error('HTTP ' + res.status);
     const data = await res.json();
@@ -556,112 +347,57 @@ async function loadCards(){
     let rows = [];
     if(Array.isArray(data)) rows = data;
     else if(data && Array.isArray(data.data)) rows = data.data;
-    else rows = [];
-
-    cardsContainer.innerHTML = '';
-    if(rows.length === 0){
-      cardsContainer.innerHTML = `<div class="text-center py-16"><div class="text-gray-500 font-medium text-lg">Spreadsheet kosong atau format tidak dikenali.</div></div>`;
-      return;
-    }
-
-    rows.forEach((row, i) => {
-      let title = '';
-      let details = null;
-      if(Array.isArray(row)){
-        title = row[0] ?? `Entri ${i+1}`;
-        details = row.slice(1);
-      } else if(typeof row === 'object' && row !== null){
-        const keys = Object.keys(row);
-        title = row[keys[0]] ?? `Entri ${i+1}`;
-        const detailObj = {};
-        keys.slice(1).forEach(k => detailObj[k] = row[k]);
-        details = detailObj;
-      } else {
-        title = String(row);
-        details = '';
-      }
-
-      const wrapper = document.createElement('div');
-      wrapper.innerHTML = createCardHTML(title, details, i+1);
-      cardsContainer.appendChild(wrapper.firstElementChild);
-    });
-
-    // animate cards in
-    anime({
-      targets: '.card-item',
-      translateY: [24,0],
-      opacity: [0,1],
-      duration: 700,
-      delay: anime.stagger(80),
-      easing: 'easeOutCubic'
-    });
-
-    // attach expand handlers that use anime.js
-    document.querySelectorAll('.expand-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const targetId = btn.getAttribute('data-target');
-        const el = document.getElementById(targetId);
-        const expanded = btn.getAttribute('aria-expanded') === 'true';
-        if(expanded){
-          anime.remove(el);
-          anime({
-            targets: el,
-            height: [el.scrollHeight + 'px', 0],
-            opacity: [1, 0],
-            duration: 380,
-            easing: 'easeInOutCubic',
-            complete: () => {
-              el.style.height = '0';
-            }
-          });
-          btn.setAttribute('aria-expanded', 'false');
-          btn.querySelector('.material-icons').textContent = 'expand_more';
-        } else {
-          el.style.height = 'auto';
-          const full = el.scrollHeight;
-          el.style.height = '0';
-          el.style.opacity = '0';
-          anime.remove(el);
-          anime({
-            targets: el,
-            height: [0, full + 'px'],
-            opacity: [0, 1],
-            duration: 420,
-            easing: 'easeOutCubic',
-            begin: () => { el.style.display = 'block'; }
-          });
-          btn.setAttribute('aria-expanded', 'true');
-          btn.querySelector('.material-icons').textContent = 'expand_less';
+    
+    // === FILTERING LOGIC (UPDATE) ===
+    // Memfilter data:
+    // 1. Backend (Google Script) sudah menghitung siapa yang belum hadir hari ini
+    // 2. Kita hanya perlu mengambil baris dengan Status mengandung "Belum Hadir"
+    
+    const absentees = rows.filter(row => {
+        let statusVal = "";
+        
+        // Deteksi struktur data (JSON Object atau Array)
+        if (typeof row === 'object' && row !== null) {
+            if(row.Status) statusVal = row.Status;
+            else if(row.status) statusVal = row.status;
+            else if(Array.isArray(row)) statusVal = row[3]; // Fallback index 3
         }
-      });
+        
+        // Cek case-insensitive
+        return String(statusVal).toLowerCase().includes('belum hadir');
     });
 
-  }catch(err){
+    // Render kartu khusus absensi
+    cardsContainer.innerHTML = renderAbsenteeCard(absentees);
+
+    // Animasi masuk
+    anime({
+      targets: '#cardsContainer > div',
+      translateY: [20,0],
+      opacity: [0,1],
+      duration: 800,
+      easing: 'easeOutExpo'
+    });
+
+  } catch(err) {
     console.error(err);
-    cardsContainer.innerHTML = `<div class="text-red-600 text-base font-medium text-center py-16">Gagal memuat data: ${esc(err.message)}</div>`;
+    cardsContainer.innerHTML = `
+        <div class="bg-red-50 rounded-xl p-6 text-center border border-red-100">
+            <span class="material-icons text-red-500 text-4xl mb-2">error_outline</span>
+            <div class="text-red-800 font-bold">Gagal memuat data</div>
+            <div class="text-red-600 text-sm mt-1">${esc(err.message)}</div>
+        </div>
+    `;
   }
 }
 
-/* refresh handlers */
+/* Refresh Handler with Animation */
 reloadCardsBtn.addEventListener('click', () => {
-  loadCards();
-  anime({
-    targets: '#reloadCards .material-icons',
-    rotate: [0, 360],
-    duration: 600,
-    easing: 'easeInOutSine'
-  });
-});
-
-q('refreshAll').addEventListener('click', ()=> {
-  const manual = document.getElementById('manualCityInput');
-  const cityToUse = manual ? manual.value.trim() : (citySelect.value || '');
-  if(cityToUse) fetchPrayerTimes(cityToUse, manualCity.value);
-  anime({ targets: '#refreshAll .material-icons', rotate: [0, 360], duration: 600, easing: 'easeInOutSine' });
+  anime({ targets: '#reloadCards .material-icons', rotate: '1turn', duration: 1000 });
   loadCards();
 });
 
-/* initial load */
+// Initial Load
 loadCards();
 
 </script>
