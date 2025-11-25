@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Face Scanner (GPS & Photo)</title>
+    <style>
+        /* CSS Minimalis & Responsif */
+        :root {
+            --primary: #2563eb;
+            --success: #22c55e;
+            --bg: #f8fafc;
+            --text: #0f172a;
+        }
+
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+            padding: 20px; 
+            background: var(--bg); 
+            color: var(--text); 
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        h1 { margin: 0 0 20px 0; font-size: 1.5rem; text-align: center; }
+
+        /* Layout Utama */
+        .main-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            width: 100%;
+            max-width: 600px; /* Lebih fokus ke tengah karena kalender hilang */
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        /* Video / Camera Wrapper */
+        .video-wrapper {
+            background: #000;
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+            width: 100%;
+            padding-top: 75%; /* Aspect Ratio 4:3 */
+        }
+        
+        video { 
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; 
+            height: 100%; 
+            object-fit: cover;
+            transform: scaleX(-1); /* Mirror effect */ 
+        }
+
+        /* Controls Area */
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        /* Buttons */
+        button {
+            width: 100%;
+            padding: 14px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            background: #e2e8f0;
+            transition: all 0.2s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+        }
+        button:hover { filter: brightness(0.95); transform: translateY(-1px); }
+        button:active { transform: translateY(0); }
+        button.primary { background: var(--primary); color: white; box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3); }
+        button.success { background: var(--success); color: white; }
+        button.danger { background: #ef4444; color: white; }
+        button:disabled { background: #cbd5e1; cursor: not-allowed; box-shadow: none; transform: none; }
+
+        select { 
+            width: 100%; padding: 10px; 
+            border: 1px solid #cbd5e1; border-radius: 6px; 
+            font-size: 14px;
+        }
+
+        /* Info Components */
+        .clock-box {
+            background: #1e293b;
+            color: #4ade80;
+            padding: 10px;
+            text-align: center;
+            border-radius: 8px;
+            cursor: default; /* Cursor default agar user tidak curiga ini tombol rahasia */
+            user-select: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .clock-time { font-size: 1.5rem; font-weight: bold; font-family: monospace; letter-spacing: 2px; }
+        .location-icon { font-size: 0.8rem; color: #94a3b8; display: flex; align-items: center; gap: 4px; }
+        
+        .status-box {
+            padding: 12px;
+            background: #f1f5f9;
+            border-left: 5px solid var(--primary);
+            font-weight: bold;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Modals */
+        .modal-overlay {
+            display: none;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+        }
+        .modal-box {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        @keyframes popIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+        .modal-title { font-size: 1.2rem; font-weight: bold; margin-bottom: 16px; border-bottom: 1px solid #eee; padding-bottom: 8px; }
+        .modal-body { margin-bottom: 20px; color: #334155; }
+        .btn-group { display: flex; gap: 10px; }
+        .btn-group button { margin-top: 0; }
+
+        /* Snapshot Preview */
+        .snapshot-preview {
+            width: 100%;
+            height: 150px;
+            background: #000;
+            border-radius: 6px;
+            object-fit: cover;
+            margin-bottom: 10px;
+            border: 2px solid #e2e8f0;
+        }
+
+        /* Loading Screen */
+        #loadingScreen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: white; z-index: 200;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+        .loader {
+            width: 40px; height: 40px;
+            border: 4px solid #e2e8f0; border-top: 4px solid var(--primary);
+            border-radius: 50%; animation: spin 1s linear infinite;
+            margin-bottom: 16px;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+    <!-- LOADING SCREEN -->
+    <div id="loadingScreen">
+        <div class="loader"></div>
+        <div style="font-weight: bold; color: #475569;">INITIALIZING SYSTEM</div>
+        <div id="loadingText" style="font-size: 0.9rem; color: #94a3b8; margin-top: 8px;">Memuat modul wajah...</div>
+    </div>
+
+    <h1>AI Attendance <span style="font-size:0.6em; background:#e2e8f0; padding:2px 6px; border-radius:4px;">PRO GPS</span></h1>
+
+    <div class="main-container">
+        <!-- HEADER INFO -->
+        <div id="clockContainer" class="clock-box">
+            <div class="clock-time" id="clockDisplay">00:00</div>
+            <div class="location-icon" id="locStatus">
+                <span>📍</span> <span id="locText">Mencari Lokasi...</span>
+            </div>
+        </div>
+
+        <!-- CAMERA VIEW -->
+        <div class="video-wrapper">
+            <video id="video" autoplay muted playsinline></video>
+        </div>
+
+        <!-- CONTROLS & STATUS -->
+        <div class="controls">
+            <div class="status-box">
+                <span>STATUS:</span>
+                <span id="statusText" style="color: var(--primary);">STANDBY</span>
+            </div>
+
+            <select id="cameraSelect"></select>
+
+            <button id="btnScan" class="primary" onclick="captureSnapshot()">
+                <span>📸</span> SCAN WAJAH & ABSEN
+            </button>
+        </div>
+    </div>
+
+    <!-- MODAL: MANUAL INPUT (SECRET) -->
+    <div id="modalManual" class="modal-overlay">
+        <div class="modal-box">
+            <div class="modal-title">Manual Override</div>
+            <div class="modal-body">
+                <p>Pilih nama secara manual jika kamera bermasalah:</p>
+                <select id="manualSelect"></select>
+            </div>
+            <div class="btn-group">
+                <button class="danger" onclick="closeModal('modalManual')">Batal</button>
+                <button class="primary" onclick="submitManual()">Pilih</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: PILIHAN STATUS (PHASE 2) -->
+    <div id="modalPhase2" class="modal-overlay">
+        <div class="modal-box">
+            <div class="modal-title">Halo, <span id="p2Name">User</span></div>
+            <div class="modal-body">Silakan pilih status kehadiran Anda:</div>
+            <div class="btn-group">
+                <button class="primary" style="background:#f59e0b" onclick="handlePhase2('Istirahat')">Istirahat</button>
+                <button class="primary" style="background:#ef4444" onclick="handlePhase2('Pulang')">Pulang</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: KONFIRMASI & PREVIEW -->
+    <div id="modalConfirm" class="modal-overlay">
+        <div class="modal-box">
+            <div class="modal-title">Konfirmasi Absensi</div>
+            <div class="modal-body">
+                <!-- Preview Foto yang akan dikirim -->
+                <img id="previewImg" class="snapshot-preview" src="" alt="Snapshot">
+                
+                <div style="display:flex; justify-content:space-between; margin-bottom:8px; margin-top:10px;">
+                    <span>Nama:</span> <strong id="confName">...</strong>
+                </div>
+                <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+                    <span>Status:</span> <strong id="confStatus" style="color:var(--primary)">...</strong>
+                </div>
+                <div style="background:#f1f5f9; padding:8px; border-radius:4px; font-size:0.8rem; color:#64748b; display:flex; gap:5px; align-items:center;">
+                    <span>📍</span> <span id="confLoc">...</span>
+                </div>
+                <div style="margin-top:10px; font-size:0.9rem; text-align:center;">
+                    <em id="confMsg">...</em>
+                </div>
+            </div>
+            <div class="btn-group">
+                <button onclick="closeModal('modalConfirm')">Batal</button>
+                <button class="success" onclick="executeSubmit()">Kirim Data</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: PESAN UMUM -->
+    <div id="modalMessage" class="modal-overlay">
+        <div class="modal-box">
+            <div class="modal-title" id="msgTitle">Info</div>
+            <div class="modal-body" id="msgBody">...</div>
+            <button class="primary" onclick="closeModal('modalMessage')">OK</button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+    <script>
+        // --- KONFIGURASI ---
+        const CONFIG = {
+            labels: ['Ichsan', 'Refaldi', 'Hakim'],
+            modelsUrl: 'https://raw.githubusercontent.com/ichsanazmi/ichsanazmi.github.io/master/produktif/models',
+            imagesUrl: 'https://raw.githubusercontent.com/ichsanazmi/ichsanazmi.github.io/master/produktif/labeled_images',
+            // Ganti URL ini dengan Web App URL Google Script Anda
+            scriptUrl: 'https://script.google.com/macros/s/AKfycbzaWEf6ZwaPv0p4QMUYXpqWjMNm-QvGFUi6rCi9cYnE9APxdPatuTMv_o2YwlSR5K36Ow/exec'
+        };
+
+        // --- STATE GLOBAL ---
+        let state = {
+            labeledDescriptors: [],
+            faceMatcher: null,
+            stream: null,
+            isReady: false,
+            pendingData: null,
+            currentName: null,
+            location: { lat: '', long: '', text: 'Tidak ada GPS' },
+            capturedImageBase64: null // Menyimpan foto sementara
+        };
+
+        // --- DOM ELEMENTS ---
+        const el = {
+            video: document.getElementById('video'),
+            loadingScreen: document.getElementById('loadingScreen'),
+            loadingText: document.getElementById('loadingText'),
+            statusText: document.getElementById('statusText'),
+            btnScan: document.getElementById('btnScan'),
+            cameraSelect: document.getElementById('cameraSelect'),
+            clockDisplay: document.getElementById('clockDisplay'),
+            locText: document.getElementById('locText'),
+            previewImg: document.getElementById('previewImg')
+        };
+
+        // --- UTILS: MODAL & UI ---
+        function showModal(id) { document.getElementById(id).style.display = 'flex'; }
+        function closeModal(id) { 
+            document.getElementById(id).style.display = 'none';
+            if(id === 'modalConfirm') el.btnScan.disabled = false;
+        }
+        function showMessage(msg, title="Info") {
+            document.getElementById('msgTitle').innerText = title;
+            document.getElementById('msgBody').innerText = msg;
+            showModal('modalMessage');
+        }
+        function setStatus(text, color = 'var(--text)') {
+            el.statusText.innerText = text;
+            el.statusText.style.color = color;
+        }
+
+        // --- SYSTEM: GEOLOCATION ---
+        function initGeolocation() {
+            if ("geolocation" in navigator) {
+                el.locText.innerText = "Mengambil koordinat...";
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const lat = position.coords.latitude.toFixed(5);
+                        const long = position.coords.longitude.toFixed(5);
+                        state.location = {
+                            lat: lat,
+                            long: long,
+                            text: `${lat}, ${long}`
+                        };
+                        el.locText.innerText = "GPS Aktif";
+                        el.locText.style.color = "#4ade80";
+                    },
+                    (error) => {
+                        console.warn("GPS Error:", error);
+                        state.location.text = "GPS Nonaktif";
+                        el.locText.innerText = "GPS Mati";
+                        el.locText.style.color = "#ef4444";
+                    },
+                    { enableHighAccuracy: true, timeout: 5000 }
+                );
+            } else {
+                el.locText.innerText = "GPS Tidak Didukung";
+            }
+        }
+
+        // --- SYSTEM: IMAGE CAPTURE ---
+        function takePicture() {
+            const canvas = document.createElement('canvas');
+            // Sesuaikan ukuran canvas dengan video
+            canvas.width = el.video.videoWidth;
+            canvas.height = el.video.videoHeight;
+            const ctx = canvas.getContext('2d');
+            
+            // Mirror image jika video di-mirror
+            ctx.translate(canvas.width, 0);
+            ctx.scale(-1, 1);
+            
+            ctx.drawImage(el.video, 0, 0, canvas.width, canvas.height);
+            // Kompresi JPEG kualitas 0.6 agar ringan dikirim
+            return canvas.toDataURL('image/jpeg', 0.6);
+        }
+
+        // --- UTILS: CLOCK & SECRET ---
+        function initClock() {
+            const update = () => {
+                const now = new Date();
+                el.clockDisplay.innerText = now.toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'});
+            };
+            setInterval(update, 1000);
+            update();
+
+            // Fitur Rahasia: Tahan 3 detik pada jam
+            const clockEl = document.getElementById('clockContainer');
+            let timer;
+            const startPress = () => { timer = setTimeout(() => showModal('modalManual'), 3000); };
+            const endPress = () => clearTimeout(timer);
+
+            clockEl.addEventListener('mousedown', startPress);
+            clockEl.addEventListener('mouseup', endPress);
+            clockEl.addEventListener('mouseleave', endPress);
+            clockEl.addEventListener('touchstart', (e) => { e.preventDefault(); startPress(); });
+            clockEl.addEventListener('touchend', endPress);
+        }
+
+        // --- SYSTEM: INITIALIZATION ---
+        async function initSystem() {
+            try {
+                initGeolocation(); // Mulai cari GPS segera
+                
+                el.loadingText.innerText = "Memuat model AI...";
+                await Promise.all([
+                    faceapi.nets.ssdMobilenetv1.loadFromUri(CONFIG.modelsUrl),
+                    faceapi.nets.faceLandmark68Net.loadFromUri(CONFIG.modelsUrl),
+                    faceapi.nets.faceRecognitionNet.loadFromUri(CONFIG.modelsUrl)
+                ]);
+
+                el.loadingText.innerText = "Mempelajari data wajah...";
+                state.labeledDescriptors = await loadLabeledImages();
+                
+                // Init Manual Select
+                const manSel = document.getElementById('manualSelect');
+                manSel.innerHTML = '';
+                CONFIG.labels.forEach(n => {
+                    const opt = document.createElement('option');
+                    opt.value = n; opt.innerText = n;
+                    manSel.appendChild(opt);
+                });
+
+                await initCamera();
+                initClock();
+
+                el.loadingScreen.style.display = 'none';
+            } catch (err) {
+                console.error(err);
+                showMessage("Gagal memuat sistem: " + err.message, "Error");
+            }
+        }
+
+        async function loadLabeledImages() {
+            return Promise.all(
+                CONFIG.labels.map(async label => {
+                    const descriptions = [];
+                    // Load 2 images per person for speed
+                    for (let i = 1; i <= 2; i++) {
+                        try {
+                            const img = await faceapi.fetchImage(`${CONFIG.imagesUrl}/${label}/${i}.jpg`);
+                            const detections = await faceapi.detectSingleFace(img).withFaceLandmarks().withFaceDescriptor();
+                            if (detections) descriptions.push(detections.descriptor);
+                        } catch(e) { console.warn('Skip image', label); }
+                    }
+                    return descriptions.length ? new faceapi.LabeledFaceDescriptors(label, descriptions) : null;
+                })
+            ).then(results => results.filter(r => r !== null));
+        }
+
+        // --- SYSTEM: CAMERA ---
+        async function initCamera() {
+            const devices = await navigator.mediaDevices.enumerateDevices();
+            const videoDevs = devices.filter(d => d.kind === 'videoinput');
+            
+            el.cameraSelect.innerHTML = '';
+            videoDevs.forEach((d, i) => {
+                const opt = document.createElement('option');
+                opt.value = d.deviceId;
+                opt.innerText = d.label || `Kamera ${i+1}`;
+                el.cameraSelect.appendChild(opt);
+            });
+            
+            el.cameraSelect.onchange = () => startStream(el.cameraSelect.value);
+            startStream(videoDevs[0]?.deviceId);
+        }
+
+        async function startStream(deviceId) {
+            if (state.stream) state.stream.getTracks().forEach(t => t.stop());
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: deviceId ? { deviceId: { exact: deviceId } } : true 
+                });
+                state.stream = stream;
+                el.video.srcObject = stream;
+            } catch (err) {
+                showMessage("Tidak bisa akses kamera. Pastikan izin diberikan.", "Error");
+            }
+        }
+
+        el.video.addEventListener('play', () => {
+            if (state.labeledDescriptors.length > 0) {
+                state.faceMatcher = new faceapi.FaceMatcher(state.labeledDescriptors, 0.6);
+                state.isReady = true;
+                setStatus("SIAP SCAN", "#22c55e");
+            } else {
+                setStatus("DATABASE KOSONG", "#ef4444");
+            }
+        });
+
+        // --- LOGIC: ATTENDANCE ---
+        async function captureSnapshot() {
+            if (!state.isReady) return showMessage("Sistem belum siap. Tunggu sebentar.");
+            
+            el.btnScan.disabled = true;
+            setStatus("MENGANALISA...", "#f59e0b");
+
+            // Delay sedikit agar UI terupdate
+            setTimeout(async () => {
+                try {
+                    const detections = await faceapi.detectAllFaces(el.video, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.5 }))
+                        .withFaceLandmarks()
+                        .withFaceDescriptors();
+                    
+                    let bestMatch = { label: 'unknown' };
+                    
+                    if (detections.length > 0 && state.faceMatcher) {
+                        const results = detections.map(d => state.faceMatcher.findBestMatch(d.descriptor));
+                        bestMatch = results.find(r => r.label !== 'unknown') || results[0];
+                    }
+
+                    if (bestMatch.label !== 'unknown') {
+                        // AMBIL FOTO SAAT INI JUGA
+                        state.capturedImageBase64 = takePicture();
+                        processAttendance(bestMatch.label);
+                    } else {
+                        setStatus("WAJAH TIDAK DIKENAL", "#ef4444");
+                        setTimeout(() => { 
+                            setStatus("SIAP SCAN", "#22c55e");
+                            el.btnScan.disabled = false;
+                        }, 2000);
+                    }
+                } catch (e) {
+                    console.error(e);
+                    el.btnScan.disabled = false;
+                    setStatus("ERROR SISTEM", "#ef4444");
+                }
+            }, 100);
+        }
+
+        function processAttendance(name) {
+            state.currentName = name;
+            const dateKey = new Date().toLocaleDateString('id-ID');
+            const localKey = `att_${dateKey}_${name}`;
+            const count = parseInt(localStorage.getItem(localKey) || '0');
+
+            if (count === 1) {
+                document.getElementById('p2Name').innerText = name;
+                showModal('modalPhase2');
+            } else {
+                let status = "Hadir";
+                let msg = `Selamat bekerja, ${name}`;
+                if (count === 2) { status = "Masuk Kembali"; msg = `Selamat bekerja kembali, ${name}`; }
+                else if (count >= 3) { status = "Pulang"; msg = `Terima kasih, hati-hati di jalan.`; }
+
+                confirmSubmission(name, status, msg);
+            }
+        }
+
+        function handlePhase2(choice) {
+            closeModal('modalPhase2');
+            const status = choice;
+            const msg = choice === 'Istirahat' ? `Selamat beristirahat, ${state.currentName}` : `Hati-hati di jalan.`;
+            confirmSubmission(state.currentName, status, msg);
+        }
+
+        function confirmSubmission(name, status, msg) {
+            state.pendingData = { name, status, msg };
+            
+            // Set data di modal konfirmasi
+            document.getElementById('confName').innerText = name;
+            document.getElementById('confStatus').innerText = status;
+            document.getElementById('confMsg').innerText = msg;
+            document.getElementById('confLoc').innerText = state.location.text;
+            
+            // Set Preview Image
+            if(state.capturedImageBase64) {
+                el.previewImg.src = state.capturedImageBase64;
+                el.previewImg.style.display = 'block';
+            } else {
+                el.previewImg.style.display = 'none';
+            }
+
+            showModal('modalConfirm');
+        }
+
+        function submitManual() {
+            const name = document.getElementById('manualSelect').value;
+            closeModal('modalManual');
+            // Jika manual, ambil foto apa adanya dari view kamera saat ini
+            state.capturedImageBase64 = takePicture();
+            processAttendance(name);
+        }
+
+        function executeSubmit() {
+            if (!state.pendingData) return;
+            closeModal('modalConfirm');
+            setStatus("MENGIRIM DATA + FOTO...", "#2563eb");
+
+            const now = new Date();
+            const payload = {
+                action: 'save',
+                nama: state.pendingData.name,
+                tanggal: now.toLocaleDateString('id-ID'),
+                jam: now.toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit', second:'2-digit'}).replace(/\./g, ':'),
+                status: state.pendingData.status,
+                lokasi: state.location.text,
+                foto: state.capturedImageBase64, // Kirim Base64
+                device: 'ProGPS_Web_v5'
+            };
+
+            // Kirim ke Google Script
+            fetch(CONFIG.scriptUrl, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            }).then(() => {
+                // Update Local Storage
+                const dateKey = payload.tanggal;
+                const localKey = `att_${dateKey}_${payload.nama}`;
+                const curCount = parseInt(localStorage.getItem(localKey) || '0');
+                localStorage.setItem(localKey, curCount + 1);
+
+                showMessage(`Data & Foto berhasil dikirim!\n${state.pendingData.msg}`, "Sukses");
+                setStatus("SIAP SCAN", "#22c55e");
+            }).catch(err => {
+                showMessage("Gagal kirim ke server.", "Error");
+                setStatus("ERROR KONEKSI", "#ef4444");
+            }).finally(() => {
+                el.btnScan.disabled = false;
+                state.pendingData = null;
+                state.capturedImageBase64 = null;
+            });
+        }
+
+        // Start
+        initSystem();
+    </script>
+</body>
+</html>
