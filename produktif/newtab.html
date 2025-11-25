@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Dashboard Sholat & Kehadiran</title>
+  <title>Dashboard Sholat & Log</title>
 
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -19,7 +19,6 @@
       --islamic-green: #10b981;
       --islamic-gold: #f59e0b;
       --islamic-dark: #064e3b;
-      --danger-red: #ef4444;
       --muted: #6b7280;
     }
 
@@ -42,7 +41,6 @@
       border: 1px solid rgba(16, 185, 129, 0.1);
     }
 
-    .soft-shadow { box-shadow: 0 8px 32px rgba(16, 185, 129, 0.08), 0 2px 8px rgba(0,0,0, 0.04); }
     .soft-shadow-lg { box-shadow: 0 20px 60px rgba(16, 185, 129, 0.12), 0 4px 16px rgba(0,0,0, 0.06); }
 
     .icon-circle { 
@@ -52,22 +50,9 @@
       width:56px; height:56px; font-size: 28px;
     }
     .icon-circle.large { width:72px; height:72px; font-size: 36px; }
-    .icon-circle.danger { 
-        background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(248, 113, 113, 0.1));
-        color: var(--danger-red); 
-    }
-    .icon-circle.info { 
-        background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(96, 165, 250, 0.1));
-        color: #3b82f6; 
-    }
 
     .gold { color: var(--islamic-gold); }
     .green { color: var(--islamic-green); }
-    .btn-primary {
-      background: linear-gradient(135deg, var(--islamic-green), #059669);
-      color: white; border: none; transition: all 0.3s ease;
-    }
-    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3); }
 
     .badge-prayer {
       background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(245, 158, 11, 0.1));
@@ -81,10 +66,11 @@
     }
     .prayer-time:hover { background: rgba(16, 185, 129, 0.06); transform: translateX(4px); }
 
-    /* Table Styles */
-    .data-row { transition: background-color 0.2s; }
-    .data-row:hover { background-color: #f9fafb; }
-    .status-badge { @apply px-2 py-1 rounded-md text-xs font-bold border; }
+    /* Scrollbar untuk Log */
+    .log-scroll::-webkit-scrollbar { width: 4px; }
+    .log-scroll::-webkit-scrollbar-track { background: transparent; }
+    .log-scroll::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 4px; }
+    .log-scroll::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
 
     @keyframes fadeInUp {
       from { opacity: 0; transform: translateY(20px); }
@@ -97,95 +83,78 @@
 
   <div class="bg-overlay" aria-hidden="true"></div>
 
-  <div class="content-wrap px-4 md:px-6 py-6 max-w-full mx-auto relative z-10">
+  <div class="content-wrap px-4 md:px-6 py-6 w-full mx-auto relative z-10 flex flex-col items-center justify-center min-h-screen">
     
-    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 items-start">
+    <!-- Container terpusat untuk Jam & Jadwal Sholat -->
+    <div class="w-full max-w-md space-y-6">
 
-      <!-- LEFT SIDEBAR: Prayer & Clock -->
-      <aside class="lg:col-span-1 space-y-6">
+      <!-- Clock Card + Log Sheet2 -->
+      <div class="glass-dark rounded-2xl p-6 soft-shadow-lg animate-fade-in-up">
+        <div class="text-center">
+          <div class="icon-circle large mx-auto mb-4">
+            <span class="material-icons">schedule</span>
+          </div>
+          <div id="clock" class="text-5xl md:text-6xl font-bold text-gray-900" style="font-variant-numeric: tabular-nums;">--:--:--</div>
+          <div id="date" class="text-sm text-gray-600 mt-3 font-medium"></div>
 
-        <!-- Clock Card + Ringkasan Status -->
-        <div class="glass-dark rounded-2xl p-6 soft-shadow-lg animate-fade-in-up">
-          <div class="text-center">
-            <div class="icon-circle large mx-auto mb-4">
-              <span class="material-icons">schedule</span>
-            </div>
-            <div id="clock" class="text-5xl md:text-6xl font-bold text-gray-900" style="font-variant-numeric: tabular-nums;">--:--:--</div>
-            <div id="date" class="text-sm text-gray-600 mt-3 font-medium"></div>
+          <!-- AREA LOG SHEET 2 DI BAWAH JAM -->
+          <div class="mt-6 pt-4 border-t border-gray-100">
+             <div class="flex items-center justify-between mb-2 px-1">
+                <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">Log Kedatangan</span>
+                <span class="text-[10px] text-gray-400 bg-gray-50 px-2 py-0.5 rounded-full border border-gray-100">Sheet2 A & B</span>
+             </div>
+             
+             <!-- List Container -->
+             <div id="logContainer" class="h-40 overflow-y-auto log-scroll bg-gray-50/50 rounded-xl border border-gray-100 p-2 space-y-2">
+                 <!-- Loading State -->
+                 <div class="flex flex-col items-center justify-center h-full text-gray-400 gap-2">
+                    <span class="material-icons animate-spin text-sm">sync</span>
+                    <span class="text-xs">Memuat data...</span>
+                 </div>
+             </div>
+          </div>
+        </div>
+      </div>
 
-            <!-- Ringkasan Status (Di bawah Jam) -->
-            <div id="miniStatus" class="mt-6 pt-4 border-t border-gray-100 hidden">
-              <div class="text-xs text-gray-500 font-bold uppercase tracking-wider mb-2">Kehadiran Hari Ini</div>
-              <div class="flex items-center justify-center gap-2">
-                 <span class="text-3xl font-bold text-green-600" id="miniPresent">-</span>
-                 <span class="text-lg text-gray-400 font-medium">/</span>
-                 <span class="text-lg text-gray-600 font-medium" id="miniTotal">-</span>
-                 <span class="text-xs text-gray-400 ml-1">Karyawan</span>
-              </div>
-              <div class="flex justify-center gap-3 mt-2">
-                 <div class="text-xs text-red-500 font-medium bg-red-50 px-2 py-1 rounded-md border border-red-100" id="miniAbsent">Belum: -</div>
-              </div>
-            </div>
+      <!-- Prayer Times Card -->
+      <div id="prayerCard" class="glass-dark rounded-2xl p-6 soft-shadow-lg animate-fade-in-up" style="animation-delay: 0.1s;">
+        <div class="flex items-center gap-3 mb-5">
+          <div class="icon-circle">
+            <span class="material-icons">mosque</span>
+          </div>
+          <div>
+            <h2 class="text-lg font-bold text-gray-900">Jadwal Sholat</h2>
+            <p id="prayerLocation" class="text-xs text-gray-500 mt-1 font-semibold">—</p>
+          </div>
+        </div>
+        
+        <div class="mb-5 p-4 rounded-xl badge-prayer">
+          <div class="text-xs text-gray-600 font-bold uppercase tracking-wider">Sholat Berikutnya</div>
+          <div class="flex items-baseline gap-2 mt-3">
+            <div id="nextPrayerLabel" class="text-3xl font-bold green">—</div>
+            <div id="countdown" class="text-sm font-semibold text-gray-700">—</div>
           </div>
         </div>
 
-        <!-- Prayer Times Card -->
-        <div id="prayerCard" class="glass-dark rounded-2xl p-6 soft-shadow-lg animate-fade-in-up" style="animation-delay: 0.1s;">
-          <div class="flex items-center gap-3 mb-5">
-            <div class="icon-circle">
-              <span class="material-icons">mosque</span>
-            </div>
-            <div>
-              <h2 class="text-lg font-bold text-gray-900">Jadwal Sholat</h2>
-              <p id="prayerLocation" class="text-xs text-gray-500 mt-1 font-semibold">—</p>
-            </div>
-          </div>
-          
-          <div class="mb-5 p-4 rounded-xl badge-prayer">
-            <div class="text-xs text-gray-600 font-bold uppercase tracking-wider">Sholat Berikutnya</div>
-            <div class="flex items-baseline gap-2 mt-3">
-              <div id="nextPrayerLabel" class="text-3xl font-bold green">—</div>
-              <div id="countdown" class="text-sm font-semibold text-gray-700">—</div>
-            </div>
-          </div>
-
-          <div class="mb-5 pb-5 border-b border-gray-200">
-            <select id="citySelect" class="w-full px-3 py-2 rounded-lg border border-gray-200 bg-white text-sm font-medium focus:outline-none focus:ring-2 focus:ring-green-500 mb-2"></select>
-            <input id="manualCity" placeholder="Atau ketik kota..." class="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-green-500" style="display:none;" />
-          </div>
-
-          <div id="prayerTimes" class="space-y-0">
-            <div class="muted text-sm">Memuat jadwal...</div>
-          </div>
+        <div class="mb-5 pb-5 border-b border-gray-200">
+          <select id="citySelect" class="w-full px-3 py-2 rounded-lg border border-gray-200 bg-white text-sm font-medium focus:outline-none focus:ring-2 focus:ring-green-500 mb-2"></select>
+          <input id="manualCity" placeholder="Atau ketik kota..." class="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-green-500" style="display:none;" />
         </div>
 
-      </aside>
-
-      <!-- RIGHT CONTENT: Attendance Dashboard -->
-      <main class="lg:col-span-3">
-
-        <div class="flex items-center justify-between gap-4 mb-6 animate-fade-in-up" style="animation-delay: 0.2s;">
-          <h2 class="text-3xl md:text-4xl font-bold text-gray-900">Monitoring Absensi</h2>
-          <button id="reloadCards" class="btn-primary px-5 py-2 rounded-lg flex items-center gap-2 font-medium whitespace-nowrap">
-            <span class="material-icons text-base">sync</span>
-            <span class="hidden sm:inline">Muat Ulang Data</span>
-          </button>
+        <div id="prayerTimes" class="space-y-0">
+          <div class="muted text-sm">Memuat jadwal...</div>
         </div>
-
-        <!-- Container for the Attendance List -->
-        <div id="cardsContainer" class="space-y-4 animate-fade-in-up" style="animation-delay: 0.3s;">
-            <!-- Content will be injected here by JS -->
-        </div>
-
-      </main>
+      </div>
 
     </div>
   </div>
 
 <script>
 /* ================== CONFIG ================== */
+// PENTING: GANTI URL DI BAWAH DENGAN URL WEB APP GOOGLE SCRIPT ANDA
 const SHEETS_API_URL = "https://script.google.com/macros/s/AKfycbz-zjAGV6ytumJH01c8r3ew6O_f8BFFYaZhL-cwlg11AuCLp39GxH8y6p-cHHKhKz5N/exec";
 const ALADHAN_METHOD = "20";
+
 const esc = s => String(s ?? "").replace(/[&<>"]/g,m=>({ "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;" }[m]));
 const q = id => document.getElementById(id);
 
@@ -197,6 +166,67 @@ function updateClock(){
 }
 setInterval(updateClock, 500);
 updateClock();
+
+/* =========== SHEET2 LOG DATA =========== */
+async function loadSheet2Data() {
+    const container = q('logContainer');
+    
+    try {
+        // PERUBAHAN DI SINI: Menambahkan ?action=log untuk meminta data Sheet2
+        const res = await fetch(SHEETS_API_URL + "?action=log");
+        if (!res.ok) throw new Error("Gagal terhubung");
+        const json = await res.json();
+        
+        const rows = json.data || [];
+
+        if(rows.length === 0) {
+            container.innerHTML = `
+                <div class="flex flex-col items-center justify-center h-full text-gray-400">
+                    <span class="text-xs">Belum ada data di Sheet2</span>
+                </div>`;
+            return;
+        }
+
+        // Render List
+        let html = '';
+        rows.forEach(item => {
+            // Coba ambil jam saja jika formatnya panjang
+            let waktuTampil = item.waktu;
+            // Jika ada spasi (misal "25/11/2025 08:00"), ambil bagian jamnya
+            if(waktuTampil.includes(' ')) {
+                waktuTampil = waktuTampil.split(' ')[1]; 
+            }
+
+            html += `
+                <div class="flex items-center justify-between p-2 bg-white rounded-lg border border-gray-100 shadow-sm animate-fade-in-up">
+                    <div class="flex items-center gap-3 overflow-hidden">
+                        <div class="w-8 h-8 rounded-full bg-green-50 text-green-600 flex items-center justify-center flex-shrink-0 text-xs font-bold border border-green-100">
+                            ${item.nama.substring(0,2).toUpperCase()}
+                        </div>
+                        <div class="text-sm font-semibold text-gray-700 truncate">${esc(item.nama)}</div>
+                    </div>
+                    <div class="text-xs font-mono font-medium text-gray-500 bg-gray-50 px-2 py-1 rounded border border-gray-100">
+                        ${esc(waktuTampil)}
+                    </div>
+                </div>
+            `;
+        });
+        
+        container.innerHTML = html;
+
+    } catch (e) {
+        console.error(e);
+        container.innerHTML = `
+            <div class="flex flex-col items-center justify-center h-full text-red-400 gap-1">
+               <span class="material-icons text-sm">error_outline</span>
+               <span class="text-[10px]">Gagal memuat log</span>
+            </div>`;
+    }
+}
+
+// Load data Sheet2 saat mulai dan refresh setiap 30 detik
+loadSheet2Data();
+setInterval(loadSheet2Data, 30000); 
 
 /* =========== PRAYER TIMES =========== */
 const presetCities = ["Jakarta","Bandung","Surabaya","Medan","Semarang","Yogyakarta","Makassar","Banda Aceh","Palembang","Denpasar"];
@@ -251,162 +281,6 @@ citySelect.addEventListener('change', (e) => {
         fetchPrayerTimes(e.target.value);
     }
 });
-
-
-/* =========== ATTENDANCE DASHBOARD LOGIC =========== */
-const cardsContainer = q('cardsContainer');
-const reloadCardsBtn = q('reloadCards');
-
-// Helper for Status Badges
-function getStatusBadge(status) {
-    const s = String(status).toLowerCase();
-    if (s.includes('belum hadir')) return '<span class="px-2 py-1 bg-red-100 text-red-700 rounded-md text-xs font-bold border border-red-200">Belum Hadir</span>';
-    if (s.includes('hadir')) return '<span class="px-2 py-1 bg-green-100 text-green-700 rounded-md text-xs font-bold border border-green-200">Hadir</span>';
-    if (s.includes('izin') || s.includes('sakit')) return '<span class="px-2 py-1 bg-yellow-100 text-yellow-700 rounded-md text-xs font-bold border border-yellow-200">Izin/Sakit</span>';
-    return `<span class="px-2 py-1 bg-gray-100 text-gray-600 rounded-md text-xs font-bold border border-gray-200">${esc(status || '-')}</span>`;
-}
-
-// Render Function for ALL Employees
-function renderAttendanceList(list) {
-    if (list.length === 0) {
-        return `
-            <div class="bg-white rounded-2xl p-8 soft-shadow text-center">
-                <p class="text-gray-500">Tidak ada data karyawan ditemukan.</p>
-            </div>
-        `;
-    }
-
-    // Build Rows
-    const rowsHtml = list.map((row, index) => {
-        const nama = row.Nama || "Tanpa Nama";
-        const jam = row.Jam || "-";
-        const status = row.Status || "Belum Hadir";
-        
-        return `
-            <tr class="data-row border-b border-gray-100 last:border-0">
-                <td class="py-3 pl-4 pr-2 text-sm text-gray-500 font-mono w-10">${index + 1}</td>
-                <td class="py-3 px-2">
-                    <div class="font-bold text-gray-900">${esc(nama)}</div>
-                    <div class="text-xs text-gray-400 md:hidden">${esc(jam)}</div>
-                </td>
-                <td class="py-3 px-2 text-sm text-gray-600 hidden md:table-cell text-center font-mono">${esc(jam)}</td>
-                <td class="py-3 px-2 pr-4 text-right">
-                    ${getStatusBadge(status)}
-                </td>
-            </tr>
-        `;
-    }).join('');
-
-    return `
-        <div class="bg-white rounded-2xl soft-shadow overflow-hidden border border-gray-100">
-            <!-- Header Summary -->
-            <div class="p-6 border-b border-gray-100 bg-gray-50 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div class="flex items-center gap-4">
-                    <div class="icon-circle info">
-                        <span class="material-icons">people_alt</span>
-                    </div>
-                    <div>
-                        <h3 class="text-xl font-bold text-gray-900">Daftar Karyawan</h3>
-                        <div class="text-xs text-gray-500 mt-1">
-                            Data berdasarkan Master (Sheet2 Col E) & Log (Sheet2 Col A-B)
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Table -->
-            <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
-                    <thead>
-                        <tr class="bg-white text-gray-400 text-xs uppercase tracking-wider font-semibold border-b border-gray-100">
-                            <th class="py-3 pl-4 pr-2">#</th>
-                            <th class="py-3 px-2">Nama Karyawan</th>
-                            <th class="py-3 px-2 hidden md:table-cell text-center">Waktu Scan</th>
-                            <th class="py-3 px-2 pr-4 text-right">Status</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-100">
-                        ${rowsHtml}
-                    </tbody>
-                </table>
-            </div>
-            
-            <div class="p-4 bg-gray-50 text-center text-xs text-gray-400">
-                Data real-time dari Spreadsheet
-            </div>
-        </div>
-    `;
-}
-
-async function loadCards(){
-  cardsContainer.innerHTML = `
-    <div class="flex flex-col items-center justify-center py-16 space-y-4">
-        <div class="w-10 h-10 border-4 border-green-200 border-t-green-600 rounded-full animate-spin"></div>
-        <div class="text-gray-500 font-medium">Menghubungkan ke Spreadsheet...</div>
-    </div>
-  `;
-
-  try {
-    const res = await fetch(SHEETS_API_URL, { cache: 'no-store' });
-    if(!res.ok) throw new Error('HTTP ' + res.status);
-    const result = await res.json();
-    
-    // Data sekarang sudah matang dari backend (tidak perlu filter tanggal lagi)
-    let rows = [];
-    if(Array.isArray(result)) rows = result;
-    else if(result && Array.isArray(result.data)) rows = result.data;
-
-    // Sorting A-Z berdasarkan Nama
-    const finalDisplayList = rows.sort((a, b) => {
-        const na = (a.Nama || "").toLowerCase();
-        const nb = (b.Nama || "").toLowerCase();
-        return na.localeCompare(nb);
-    });
-
-    // === UPDATE MINI STATUS (DI BAWAH JAM) ===
-    const total = finalDisplayList.length;
-    const hadir = finalDisplayList.filter(r => String(r.Status).toLowerCase().includes('hadir')).length;
-    const belum = finalDisplayList.filter(r => String(r.Status).toLowerCase().includes('belum')).length;
-
-    const miniStatusEl = document.getElementById('miniStatus');
-    if(miniStatusEl) {
-        miniStatusEl.classList.remove('hidden');
-        document.getElementById('miniPresent').textContent = hadir;
-        document.getElementById('miniTotal').textContent = total;
-        document.getElementById('miniAbsent').textContent = `Belum: ${belum}`;
-    }
-
-    // Render Table
-    cardsContainer.innerHTML = renderAttendanceList(finalDisplayList);
-
-    // Animasi
-    anime({
-      targets: '#cardsContainer > div',
-      translateY: [20,0],
-      opacity: [0,1],
-      duration: 800,
-      easing: 'easeOutExpo'
-    });
-
-  } catch(err) {
-    console.error(err);
-    cardsContainer.innerHTML = `
-        <div class="bg-red-50 rounded-xl p-6 text-center border border-red-100">
-            <span class="material-icons text-red-500 text-4xl mb-2">error_outline</span>
-            <div class="text-red-800 font-bold">Gagal memuat data</div>
-            <div class="text-red-600 text-sm mt-1">Pastikan script "doGet" sudah di-update di Apps Script!</div>
-            <div class="text-xs text-gray-500 mt-2 font-mono bg-gray-100 p-2 rounded">${esc(err.message)}</div>
-        </div>
-    `;
-  }
-}
-
-reloadCardsBtn.addEventListener('click', () => {
-  anime({ targets: '#reloadCards .material-icons', rotate: '1turn', duration: 1000 });
-  loadCards();
-});
-
-loadCards();
 
 </script>
 </body>
