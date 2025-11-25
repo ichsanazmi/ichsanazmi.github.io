@@ -105,12 +105,17 @@
              </div>
              
              <!-- List Container -->
-             <div id="logContainer" class="h-40 overflow-y-auto log-scroll bg-gray-50/50 rounded-xl border border-gray-100 p-2 space-y-2">
-                 <!-- Loading State -->
+             <div id="logContainer" class="h-40 overflow-y-auto log-scroll bg-gray-50/50 rounded-xl border border-gray-100 p-2 space-y-2 relative">
+                 <!-- Loading State (Initial) -->
                  <div class="flex flex-col items-center justify-center h-full text-gray-400 gap-2">
                     <span class="material-icons animate-spin text-sm">sync</span>
-                    <span class="text-xs">Memuat data...</span>
+                    <span class="text-xs">Menunggu konfigurasi...</span>
                  </div>
+             </div>
+             
+             <!-- Refresh Log Button -->
+             <div class="text-center mt-2">
+                <button onclick="loadSheet2Data()" class="text-[10px] text-blue-500 hover:underline">Refresh Log</button>
              </div>
           </div>
         </div>
@@ -151,8 +156,9 @@
 
 <script>
 /* ================== CONFIG ================== */
-// PENTING: GANTI URL DI BAWAH DENGAN URL WEB APP GOOGLE SCRIPT ANDA
-const SHEETS_API_URL = "https://script.google.com/macros/s/AKfycbzoAIKLCAWts3IF4LvIxDPiuu17CGxn8naI1oIqMoMURCLbK64VKVGxY7_x-9XqwHmXhA/exec";
+// !!! PENTING: GANTI URL DI BAWAH INI DENGAN URL DEPLOYMENT APPS SCRIPT ANDA !!!
+// Pastikan akses deployment adalah "Anyone" (Siapa Saja)
+const SHEETS_API_URL = "https://script.google.com/macros/s/AKfycbzoAIKLCAWts3IF4LvIxDPiuu17CGxn8naI1oIqMoMURCLbK64VKVGxY7_x-9XqwHmXhA/exec"; 
 const ALADHAN_METHOD = "20";
 
 const esc = s => String(s ?? "").replace(/[&<>"]/g,m=>({ "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;" }[m]));
@@ -170,19 +176,45 @@ updateClock();
 /* =========== SHEET2 LOG DATA =========== */
 async function loadSheet2Data() {
     const container = q('logContainer');
+
+    // 1. Cek apakah URL masih default/belum diisi
+    if (SHEETS_API_URL === "GANTI_DENGAN_URL_WEB_APP_ANDA_DISINI" || !SHEETS_API_URL.includes("script.google.com")) {
+        container.innerHTML = `
+            <div class="flex flex-col items-center justify-center h-full text-amber-500 p-4 text-center">
+                <span class="material-icons text-2xl mb-1">link_off</span>
+                <span class="text-xs font-bold">URL Belum Dikonfigurasi</span>
+                <span class="text-[9px] mt-1 text-gray-500">Ganti variabel 'SHEETS_API_URL' di kode dengan URL Web App Apps Script Anda.</span>
+            </div>`;
+        return;
+    }
+
+    // Set loading
+    container.innerHTML = `
+        <div class="flex flex-col items-center justify-center h-full text-gray-400 gap-2">
+           <span class="material-icons animate-spin text-sm">sync</span>
+           <span class="text-xs">Memuat data...</span>
+        </div>`;
     
     try {
-        // PERUBAHAN DI SINI: Menambahkan ?action=log untuk meminta data Sheet2
+        // Fetch ke URL + ?action=log
         const res = await fetch(SHEETS_API_URL + "?action=log");
-        if (!res.ok) throw new Error("Gagal terhubung");
+        if (!res.ok) throw new Error("Gagal terhubung (HTTP " + res.status + ")");
+        
         const json = await res.json();
         
+        // Cek status error dari Script
+        if (json.status === 'error') {
+            throw new Error(json.message || "Error dari server");
+        }
+
         const rows = json.data || [];
 
         if(rows.length === 0) {
             container.innerHTML = `
-                <div class="flex flex-col items-center justify-center h-full text-gray-400">
-                    <span class="text-xs">Belum ada data di Sheet2</span>
+                <div class="flex flex-col items-center justify-center h-full text-gray-400 p-4 text-center">
+                    <span class="material-icons text-gray-300 text-lg mb-1">inbox</span>
+                    <span class="text-xs font-semibold">Data Kosong</span>
+                    <span class="text-[10px] mt-1">Sheet2 belum memiliki data log.</span>
                 </div>`;
             return;
         }
@@ -190,22 +222,19 @@ async function loadSheet2Data() {
         // Render List
         let html = '';
         rows.forEach(item => {
-            // Coba ambil jam saja jika formatnya panjang
-            let waktuTampil = item.waktu;
-            // Jika ada spasi (misal "25/11/2025 08:00"), ambil bagian jamnya
-            if(waktuTampil.includes(' ')) {
-                waktuTampil = waktuTampil.split(' ')[1]; 
-            }
+            let waktuTampil = item.waktu || "-";
+            let namaTampil = item.nama || "Tanpa Nama";
+            let inisial = namaTampil.substring(0,2).toUpperCase();
 
             html += `
                 <div class="flex items-center justify-between p-2 bg-white rounded-lg border border-gray-100 shadow-sm animate-fade-in-up">
                     <div class="flex items-center gap-3 overflow-hidden">
                         <div class="w-8 h-8 rounded-full bg-green-50 text-green-600 flex items-center justify-center flex-shrink-0 text-xs font-bold border border-green-100">
-                            ${item.nama.substring(0,2).toUpperCase()}
+                            ${inisial}
                         </div>
-                        <div class="text-sm font-semibold text-gray-700 truncate">${esc(item.nama)}</div>
+                        <div class="text-sm font-semibold text-gray-700 truncate">${esc(namaTampil)}</div>
                     </div>
-                    <div class="text-xs font-mono font-medium text-gray-500 bg-gray-50 px-2 py-1 rounded border border-gray-100">
+                    <div class="text-[10px] font-mono font-medium text-gray-500 bg-gray-50 px-2 py-1 rounded border border-gray-100 whitespace-nowrap">
                         ${esc(waktuTampil)}
                     </div>
                 </div>
@@ -215,11 +244,12 @@ async function loadSheet2Data() {
         container.innerHTML = html;
 
     } catch (e) {
-        console.error(e);
+        console.warn("Fetch Error:", e); // Use warn to avoid cluttering console
         container.innerHTML = `
-            <div class="flex flex-col items-center justify-center h-full text-red-400 gap-1">
-               <span class="material-icons text-sm">error_outline</span>
-               <span class="text-[10px]">Gagal memuat log</span>
+            <div class="flex flex-col items-center justify-center h-full text-red-500 gap-1 p-2 text-center">
+               <span class="material-icons text-lg">error_outline</span>
+               <span class="text-xs font-bold">Gagal Memuat</span>
+               <span class="text-[9px] text-gray-500 break-all px-2">Cek console & pastikan deployment 'Anyone'</span>
             </div>`;
     }
 }
