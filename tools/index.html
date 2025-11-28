@@ -8,7 +8,7 @@
     <!-- PWA Manifest Link -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#121212">
-    <meta name="description" content="A minimalist focus dashboard with tasks and pomodoro timer.">
+    <meta name="description" content="A minimalist focus dashboard with tasks, diary, and pomodoro timer.">
     <link rel="apple-touch-icon" href="icon-192.png">
 
     <!-- Tailwind CSS -->
@@ -124,7 +124,7 @@
 
         .slider-track {
             display: flex;
-            width: 300vw;
+            width: 400vw; /* 4 Slides */
             height: 100%;
             transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
         }
@@ -234,8 +234,14 @@
         .cal-day { padding: 8px 0; border-radius: 6px; }
         .cal-day.today { background: var(--accent); color: white; font-weight: bold; }
 
+        /* Diary Styles */
+        .diary-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; height: 70vh; }
+        .diary-editor { background: var(--card-bg); border-radius: 20px; padding: 1.5rem; border: 1px solid var(--border); display: flex; flex-direction: column; }
+        .diary-textarea { flex: 1; background: transparent; border: none; resize: none; outline: none; font-size: 1.1rem; line-height: 1.6; color: var(--text-main); }
+        .diary-calendar-container { background: var(--card-bg); border-radius: 20px; padding: 1.5rem; border: 1px solid var(--border); }
+
         @media (max-width: 900px) {
-            .bento-grid, .bm-grid { grid-template-columns: 1fr; grid-template-rows: auto; height: auto; }
+            .bento-grid, .bm-grid, .diary-grid { grid-template-columns: 1fr; grid-template-rows: auto; height: auto; }
             .slide { align-items: flex-start; }
             .bento-wrapper { padding-top: 40px; padding-bottom: 150px; }
             .fab-container { bottom: 90px; right: 20px; }
@@ -297,20 +303,25 @@
     <!-- MAIN APP CONTAINER -->
     <div id="app-container">
         
-        <!-- NAV DOCK -->
+        <!-- NAV DOCK (Icon Only) -->
         <nav class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-card/90 backdrop-blur-md border border-border shadow-2xl rounded-full px-6 py-3 flex gap-8 items-center transition-all duration-300">
-            <button onclick="goToSlide(0)" class="nav-btn group flex flex-col items-center justify-center gap-1 text-muted hover:text-primary transition-colors" data-slide="0">
+            <!-- Bookmarks -->
+            <button onclick="goToSlide(0)" class="nav-btn group flex flex-col items-center justify-center gap-1 text-muted hover:text-primary transition-colors" data-slide="0" title="Bookmarks">
                 <svg class="w-6 h-6 group-hover:scale-110 transition-transform" viewBox="0 0 24 24"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
-                <span class="text-[0.65rem] font-medium tracking-wide">Reads</span>
             </button>
-            <button onclick="goToSlide(1)" class="nav-btn group flex flex-col items-center justify-center gap-1 text-muted hover:text-primary transition-colors" data-slide="1">
+            <!-- Focus -->
+            <button onclick="goToSlide(1)" class="nav-btn group flex flex-col items-center justify-center gap-1 text-muted hover:text-primary transition-colors" data-slide="1" title="Focus">
                 <div class="bg-primary/10 p-2 rounded-full group-hover:bg-primary/20 transition-colors">
                     <svg class="w-6 h-6 text-primary group-hover:scale-110 transition-transform" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                 </div>
             </button>
-            <button onclick="goToSlide(2)" class="nav-btn group flex flex-col items-center justify-center gap-1 text-muted hover:text-primary transition-colors" data-slide="2">
+            <!-- Dashboard -->
+            <button onclick="goToSlide(2)" class="nav-btn group flex flex-col items-center justify-center gap-1 text-muted hover:text-primary transition-colors" data-slide="2" title="Dashboard">
                 <svg class="w-6 h-6 group-hover:scale-110 transition-transform" viewBox="0 0 24 24"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
-                <span class="text-[0.65rem] font-medium tracking-wide">Dash</span>
+            </button>
+            <!-- Diary (New) -->
+            <button onclick="goToSlide(3)" class="nav-btn group flex flex-col items-center justify-center gap-1 text-muted hover:text-primary transition-colors" data-slide="3" title="Diary">
+                <svg class="w-6 h-6 group-hover:scale-110 transition-transform" viewBox="0 0 24 24"><path d="M2 6h4"/><path d="M2 10h4"/><path d="M2 14h4"/><path d="M2 18h4"/><rect width="16" height="20" x="4" y="2" rx="2"/><path d="M16 2v20"/><path d="M9.5 10a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1Z"/><path d="M15 10a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1Z"/><path d="M9.5 14a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1Z"/><path d="M15 14a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1Z"/></svg>
             </button>
         </nav>
 
@@ -398,6 +409,32 @@
                     </div>
                 </div>
             </div>
+
+            <!-- SLIDE 3: Diary (New) -->
+            <div class="slide" id="slide-3">
+                <div class="bento-wrapper">
+                    <div class="bento-header flex justify-between items-center mb-4">
+                        <h2 class="text-primary">My Diary</h2>
+                    </div>
+                    <div class="diary-grid">
+                        <div class="diary-editor">
+                             <div class="flex items-center justify-between mb-4 pb-2 border-b border-border">
+                                <span id="diary-date-label" class="font-bold text-main text-lg">Today</span>
+                            </div>
+                            <textarea id="diary-content" class="diary-textarea" placeholder="Dear diary..."></textarea>
+                        </div>
+                        <div class="diary-calendar-container">
+                             <div class="calendar-header flex justify-between mb-4 font-bold text-primary">
+                                <span onclick="changeDiaryMonth(-1)" class="cursor-pointer hover:scale-125 transition-transform">&lt;</span>
+                                <span id="diary-cal-month-year">Date</span>
+                                <span onclick="changeDiaryMonth(1)" class="cursor-pointer hover:scale-125 transition-transform">&gt;</span>
+                            </div>
+                            <div class="calendar-grid text-sm" id="diary-calendar-days"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 
@@ -418,8 +455,12 @@
             todos: [], 
             notes: "", 
             bookmarks: [], 
+            diary: {}, // Format: { "YYYY-MM-DD": "Content" }
+            quotes: [], // Local cache of quotes from sheet
             currentDate: new Date(),
-            selectedDateString: new Date().toISOString().split('T')[0], // YYYY-MM-DD
+            selectedDateString: new Date().toISOString().split('T')[0], // YYYY-MM-DD for tasks
+            diaryDateString: new Date().toISOString().split('T')[0], // YYYY-MM-DD for diary
+            diaryViewDate: new Date(), // For calendar navigation in diary
             editingId: null 
         };
         let currentSlideIndex = 1;
@@ -444,30 +485,37 @@
         }
 
         async function syncCloud() {
-            // Prepare Tasks for Cloud
-            // Map: Date(A) Status(B) Task(C) Desc(D)
+            // Prepare Tasks
             const cloudTasks = state.todos.map(t => ({
                 date: t.date,
-                status: t.completed ? "Selesai" : "Belum", // Map boolean to string
+                status: t.completed ? "Selesai" : "Belum",
                 text: t.title,
                 description: t.desc
             }));
 
-            // Prepare Notes
-            const noteContent = state.notes;
+            // Prepare Bookmarks (Full Replace Sync)
+            const cloudBookmarks = state.bookmarks.map(b => ({
+                title: b.title,
+                url: b.url
+            }));
+            
+            // Prepare Diary (Full Replace for simplicity, or just recent)
+            // Ideally we push all local diary entries
+            const cloudDiary = Object.keys(state.diary).map(dateKey => ({
+                date: dateKey,
+                content: state.diary[dateKey]
+            }));
 
             document.getElementById('sync-status').innerText = "Syncing...";
             document.getElementById('sync-status').style.opacity = '1';
 
-            // We fire both requests. 
-            // Note: In a real app, you might want to chain them or bundle them if the GAS supports it.
-            // Based on your GAS, we call separate actions.
-            
-            // 1. Sync Tasks
-            await callApi('push_tasks', { tasks: cloudTasks });
-            
-            // 2. Sync Notes
-            await callApi('sync_notes', { noteContent: noteContent });
+            // Fire requests
+            await Promise.all([
+                callApi('push_tasks', { tasks: cloudTasks }),
+                callApi('sync_notes', { noteContent: state.notes }),
+                callApi('push_bookmarks', { bookmarks: cloudBookmarks }),
+                callApi('push_daily_notes', { notes: cloudDiary })
+            ]);
 
             document.getElementById('sync-status').innerText = "Synced";
             setTimeout(() => { document.getElementById('sync-status').style.opacity='0'; }, 2000);
@@ -477,30 +525,62 @@
             document.getElementById('sync-status').innerText = "Fetching...";
             document.getElementById('sync-status').style.opacity = '1';
 
-            // 1. Fetch Tasks
-            const taskRes = await callApi('fetch_tasks');
+            // Fetch All Data
+            const [taskRes, noteRes, quoteRes, bmRes, diaryRes] = await Promise.all([
+                callApi('fetch_tasks'),
+                callApi('fetch_notes'),
+                callApi('fetch_quotes'),
+                callApi('fetch_bookmarks'),
+                callApi('fetch_daily_notes')
+            ]);
+
+            // 1. Tasks
             if(taskRes && taskRes.result === 'success') {
-                // Merge cloud tasks. Simple strategy: Replace local with cloud for simplicity in this context.
-                // Convert Cloud structure back to Local
                 state.todos = taskRes.data.map((t, idx) => ({
-                    id: Date.now() + idx, // Generate pseudo ID
+                    id: Date.now() + idx,
                     title: t.text,
                     desc: t.description,
-                    // Check for "Selesai" string or boolean true for backward compatibility
                     completed: (t.status === "Selesai" || t.status === true || t.status === "TRUE"),
                     date: t.date
                 }));
             }
 
-            // 2. Fetch Notes
-            const noteRes = await callApi('fetch_notes');
+            // 2. Notes
             if(noteRes && noteRes.result === 'success') {
                 state.notes = noteRes.data;
                 document.getElementById('quick-notes').value = state.notes;
             }
 
+            // 3. Quotes
+            if(quoteRes && quoteRes.result === 'success') {
+                state.quotes = quoteRes.data; // Array of {quote, author}
+                // Refresh quote display with fetched data
+                fetchQuote(); 
+            }
+
+            // 4. Bookmarks
+            if(bmRes && bmRes.result === 'success') {
+                state.bookmarks = bmRes.data.map((b, idx) => ({
+                    id: Date.now() + idx + 1000,
+                    title: b.title,
+                    url: b.url,
+                    status: 'toread' // Defaulting to to-read as status isn't synced in this version
+                }));
+            }
+
+            // 5. Diary
+            if(diaryRes && diaryRes.result === 'success') {
+                // Convert array [{date, content}] to object map
+                state.diary = {};
+                diaryRes.data.forEach(d => {
+                    state.diary[d.date] = d.content;
+                });
+                renderDiary();
+            }
+
             renderTodos();
-            saveLocal(false); // Save to local storage but don't trigger cloud sync again
+            renderBookmarks();
+            saveLocal(false);
             
             document.getElementById('sync-status').innerText = "Synced";
             setTimeout(() => { document.getElementById('sync-status').style.opacity='0'; }, 2000);
@@ -508,10 +588,10 @@
 
         function triggerSync() {
             clearTimeout(syncTimer);
-            syncTimer = setTimeout(syncCloud, 2000); // Debounce 2 seconds
+            syncTimer = setTimeout(syncCloud, 2000); 
         }
 
-        /* --- THEME & PREFERENCES --- */
+        /* --- THEME & PREFS --- */
         function initTheme() {
             const savedTheme = localStorage.getItem('appTheme') || 'theme-dark';
             setTheme(savedTheme);
@@ -541,7 +621,7 @@
             setTimeout(() => { track.style.transition = 'transform 0.6s cubic-bezier(0.25, 1, 0.5, 1)'; }, 100);
         }
         function goToSlide(index) {
-            if (index >= 0 && index <= 2) {
+            if (index >= 0 && index <= 3) {
                 currentSlideIndex = index;
                 const track = document.getElementById('sliderTrack');
                 track.style.transform = `translateX(-${currentSlideIndex * 100}vw)`;
@@ -559,7 +639,7 @@
             });
         }
 
-        /* --- POMODORO LOGIC --- */
+        /* --- POMODORO --- */
         let pomoInterval = null; let pomoTimeLeft = 1500; let isPomoRunning = false;
         function togglePomoModal() { document.getElementById('pomo-modal-overlay').classList.toggle('open'); }
         function formatTime(s) { return `${Math.floor(s/60).toString().padStart(2,'0')}:${(s%60).toString().padStart(2,'0')}`; }
@@ -584,21 +664,23 @@
 
         /* --- DATA MANAGEMENT --- */
         function loadData() {
-            // Load Local first
             const t = localStorage.getItem('myTodos');
             if(t) state.todos = JSON.parse(t);
             const b = localStorage.getItem('myBookmarks');
             if(b) state.bookmarks = JSON.parse(b);
+            const d = localStorage.getItem('myDiary');
+            if(d) state.diary = JSON.parse(d);
+            
             state.notes = localStorage.getItem('myNotes') || "";
             document.getElementById('quick-notes').value = state.notes;
             
-            // Render local state
             updateDateLabel();
             renderTodos();
             renderBookmarks();
+            renderDiary();
+            renderDiaryCalendar();
             fetchQuote();
 
-            // Then Fetch Cloud
             if(navigator.onLine) {
                 fetchCloud();
             }
@@ -608,6 +690,7 @@
             localStorage.setItem('myTodos', JSON.stringify(state.todos));
             localStorage.setItem('myBookmarks', JSON.stringify(state.bookmarks));
             localStorage.setItem('myNotes', state.notes);
+            localStorage.setItem('myDiary', JSON.stringify(state.diary));
             
             if(shouldSync) triggerSync();
         }
@@ -618,7 +701,7 @@
             const title = titleIn.value.trim(); const url = urlIn.value.trim();
             if(!title || !url) return;
             state.bookmarks.unshift({ id: Date.now(), title: title, url: url.startsWith('http') ? url : 'https://' + url, status: 'toread' });
-            titleIn.value = ''; urlIn.value = ''; renderBookmarks(); saveLocal(false); // Bookmarks usually local
+            titleIn.value = ''; urlIn.value = ''; renderBookmarks(); saveLocal();
         }
         function renderBookmarks() {
             const toReadList = document.getElementById('list-toread'); const readList = document.getElementById('list-read');
@@ -634,8 +717,8 @@
                 if(bm.status === 'toread') toReadList.appendChild(el); else readList.appendChild(el);
             });
         }
-        window.toggleBookmark = (id) => { const bm = state.bookmarks.find(b => b.id == id); if(bm) { bm.status = bm.status === 'toread' ? 'read' : 'toread'; renderBookmarks(); saveLocal(false); } }
-        window.delBookmark = (id) => { if(confirm("Delete bookmark?")) { state.bookmarks = state.bookmarks.filter(b => b.id != id); renderBookmarks(); saveLocal(false); } }
+        window.toggleBookmark = (id) => { const bm = state.bookmarks.find(b => b.id == id); if(bm) { bm.status = bm.status === 'toread' ? 'read' : 'toread'; renderBookmarks(); saveLocal(); } }
+        window.delBookmark = (id) => { if(confirm("Delete bookmark?")) { state.bookmarks = state.bookmarks.filter(b => b.id != id); renderBookmarks(); saveLocal(); } }
 
         /* --- DATE & TODO LOGIC --- */
         function updateDateLabel() {
@@ -668,22 +751,14 @@
                 if(task) { task.title = t.value; task.desc = d.value; }
                 state.editingId = null; btn.innerText = "Add";
             } else {
-                state.todos.unshift({ 
-                    id: Date.now(), 
-                    title: t.value, 
-                    desc: d.value, 
-                    completed: false,
-                    date: state.selectedDateString // Bind to selected date
-                });
+                state.todos.unshift({ id: Date.now(), title: t.value, desc: d.value, completed: false, date: state.selectedDateString });
             }
             t.value = ''; d.value = ''; renderTodos(); saveLocal();
         }
 
         function renderTodos() {
             const el = document.getElementById('task-list');
-            // Filter by selected Date
             const filtered = state.todos.filter(t => t.date === state.selectedDateString);
-            
             el.innerHTML = filtered.map(t => `
                 <div class="task-item ${t.completed?'completed':''}">
                     <input type="checkbox" ${t.completed?'checked':''} onchange="toggle(${t.id})" class="accent-primary w-5 h-5">
@@ -706,13 +781,63 @@
         window.del = (id) => { state.todos = state.todos.filter(x=>x.id!==id); renderTodos(); saveLocal(); }
         
         document.getElementById('quick-notes').addEventListener('input', (e) => { 
-            state.notes = e.target.value; 
-            // Debounced save for notes
-            localStorage.setItem('myNotes', state.notes);
-            triggerSync();
+            state.notes = e.target.value; localStorage.setItem('myNotes', state.notes); triggerSync();
         });
 
-        /* --- CALENDAR --- */
+        /* --- DIARY LOGIC --- */
+        document.getElementById('diary-content').addEventListener('input', (e) => {
+            state.diary[state.diaryDateString] = e.target.value;
+            saveLocal();
+        });
+
+        function renderDiary() {
+            const content = state.diary[state.diaryDateString] || "";
+            document.getElementById('diary-content').value = content;
+            
+            const today = new Date().toISOString().split('T')[0];
+            const label = document.getElementById('diary-date-label');
+            if(state.diaryDateString === today) label.innerText = "Today";
+            else label.innerText = state.diaryDateString;
+
+            // Highlight calendar
+            renderDiaryCalendar();
+        }
+
+        function renderDiaryCalendar() {
+            const y = state.diaryViewDate.getFullYear(), m = state.diaryViewDate.getMonth();
+            document.getElementById('diary-cal-month-year').innerText = new Date(y, m).toLocaleString('default', {month:'long', year:'numeric'});
+            const fd = new Date(y, m, 1).getDay(), dim = new Date(y, m+1, 0).getDate();
+            const el = document.getElementById('diary-calendar-days'); el.innerHTML = '';
+            
+            // Empty slots
+            for(let i=0; i<fd; i++) el.innerHTML += `<div></div>`;
+            
+            for(let i=1; i<=dim; i++) {
+                // Construct date string YYYY-MM-DD
+                const currentDateStr = `${y}-${String(m+1).padStart(2,'0')}-${String(i).padStart(2,'0')}`;
+                
+                let classes = "cal-day cursor-pointer hover:bg-input transition-colors";
+                
+                // Highlight if selected
+                if(currentDateStr === state.diaryDateString) classes += " bg-primary text-white font-bold";
+                // Highlight if has entry
+                else if(state.diary[currentDateStr]) classes += " border border-primary";
+
+                el.innerHTML += `<div class="${classes}" onclick="pickDiaryDate('${currentDateStr}')">${i}</div>`;
+            }
+        }
+
+        window.changeDiaryMonth = (delta) => {
+            state.diaryViewDate.setMonth(state.diaryViewDate.getMonth() + delta);
+            renderDiaryCalendar();
+        }
+
+        window.pickDiaryDate = (dateStr) => {
+            state.diaryDateString = dateStr;
+            renderDiary();
+        }
+
+        /* --- CALENDAR (DASHBOARD) --- */
         function renderCalendar() {
             const y = state.currentDate.getFullYear(), m = state.currentDate.getMonth();
             document.getElementById('cal-month-year').innerText = new Date(y, m).toLocaleString('default', {month:'long', year:'numeric'});
@@ -729,6 +854,15 @@
 
         /* --- QUOTE --- */
         async function fetchQuote() {
+            // Check cache from Sheet first
+            if (state.quotes && state.quotes.length > 0) {
+                const rand = state.quotes[Math.floor(Math.random() * state.quotes.length)];
+                document.getElementById('quote-text').innerText = `"${rand.quote}"`;
+                document.getElementById('quote-author').innerText = `- ${rand.author}`;
+                return;
+            }
+
+            // Fallback to API or Offline
             if(!navigator.onLine) { document.getElementById('quote-text').innerText = "\"Focus is the key to productivity.\""; document.getElementById('quote-author').innerText = "- Offline Mode"; return; }
             try {
                 const r = await fetch('https://api.quotable.io/random?maxLength=80');
@@ -739,7 +873,7 @@
         }
 
         /* --- INIT --- */
-        initTheme(); initSlide(); renderCalendar(); loadData();
+        initTheme(); initSlide(); renderCalendar(); renderDiaryCalendar(); loadData();
     </script>
 </body>
 </html>
