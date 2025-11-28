@@ -39,7 +39,7 @@
         :root {
             --transition-speed: 0.3s;
             --font-main: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            --fab-size: 56px; /* Slightly smaller for cleaner look */
+            --fab-size: 56px;
         }
 
         .theme-dark {
@@ -141,110 +141,51 @@
             align-items: center;
         }
 
-        /* --- 4. FABS (FLOATING ACTION BUTTONS) --- */
+        /* --- 4. FABS --- */
         .fab-container {
-            position: fixed;
-            bottom: 110px; /* Above nav bar */
-            right: 24px;
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-            z-index: 200;
-            align-items: center;
+            position: fixed; bottom: 110px; right: 24px;
+            display: flex; flex-direction: column; gap: 16px; z-index: 200; align-items: center;
         }
 
         .fab {
-            width: var(--fab-size);
-            height: var(--fab-size);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-            transition: transform 0.2s, background-color 0.2s;
-            position: relative;
+            width: var(--fab-size); height: var(--fab-size); border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3); transition: transform 0.2s; position: relative;
         }
 
-        /* Pomodoro FAB */
-        .pomo-fab {
-            background: var(--accent);
-            color: white; /* Always white icons on accent */
-        }
+        .pomo-fab { background: var(--accent); color: white; }
         .pomo-fab:hover { transform: scale(1.05) rotate(5deg); }
 
-        /* Settings FAB */
-        .pref-fab {
-            background: var(--card-bg);
-            color: var(--text-muted);
-            border: 1px solid var(--border);
-            width: 48px; /* Slightly smaller than main action */
-            height: 48px;
-        }
+        .pref-fab { background: var(--card-bg); color: var(--text-muted); border: 1px solid var(--border); width: 48px; height: 48px; }
         .pref-fab:hover { transform: scale(1.05); color: var(--accent); border-color: var(--accent); }
 
         .pomo-badge {
-            position: absolute;
-            top: -2px; right: -2px;
-            background: #ef4444;
-            color: white;
-            font-size: 0.7rem;
-            width: 18px; height: 18px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 0;
-            border: 2px solid var(--card-bg); /* Contrast border */
+            position: absolute; top: -2px; right: -2px; background: #ef4444; color: white;
+            font-size: 0.7rem; width: 18px; height: 18px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; opacity: 0;
+            border: 2px solid var(--card-bg);
         }
         .pomo-badge.active { opacity: 1; }
 
         /* --- 5. MODALS --- */
         .modal-overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: var(--modal-overlay);
-            z-index: 300;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s;
-            backdrop-filter: blur(4px);
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--modal-overlay); z-index: 300; display: flex; justify-content: center; align-items: center;
+            opacity: 0; pointer-events: none; transition: opacity 0.3s; backdrop-filter: blur(4px);
         }
         .modal-overlay.open { opacity: 1; pointer-events: auto; }
 
         .app-modal {
-            background: var(--card-bg);
-            padding: 2rem;
-            border-radius: 24px;
-            width: 90%;
-            max-width: 400px;
-            text-align: center;
-            border: 1px solid var(--border);
-            transform: translateY(20px);
-            transition: transform 0.3s;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            background: var(--card-bg); padding: 2rem; border-radius: 24px; width: 90%; max-width: 400px;
+            text-align: center; border: 1px solid var(--border); transform: translateY(20px); transition: transform 0.3s;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
         }
         .modal-overlay.open .app-modal { transform: translateY(0); }
 
-        /* Theme Buttons in Modal */
-        .theme-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            margin-top: 1.5rem;
-        }
+        .theme-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 1.5rem; }
         .theme-option {
-            padding: 12px;
-            border-radius: 12px;
-            border: 1px solid var(--border);
-            background: var(--input-bg);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            transition: all 0.2s;
+            padding: 12px; border-radius: 12px; border: 1px solid var(--border); background: var(--input-bg);
+            cursor: pointer; display: flex; align-items: center; gap: 10px; transition: all 0.2s;
         }
         .theme-option:hover { border-color: var(--accent); }
         .theme-option.active { border-color: var(--accent); background: var(--accent); color: white; }
@@ -257,7 +198,7 @@
         .bento-wrapper { width: 100%; max-width: 1200px; height: 100%; display: flex; flex-direction: column; justify-content: center; }
         .bento-grid { display: grid; grid-template-columns: 2fr 1fr; grid-template-rows: 1fr 1fr; gap: 1.5rem; height: 70vh; }
         .bento-card { background: var(--card-bg); border-radius: 20px; padding: 1.5rem; border: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; }
-        input[type="text"], textarea, input[type="url"] { background: var(--input-bg); border: 1px solid var(--border); color: var(--text-main); padding: 10px; border-radius: 10px; font-family: inherit; }
+        input[type="text"], textarea, input[type="url"], input[type="number"], input[type="date"] { background: var(--input-bg); border: 1px solid var(--border); color: var(--text-main); padding: 10px; border-radius: 10px; font-family: inherit; }
         
         .clock-container { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 2rem; }
         .digital-clock { font-size: clamp(4rem, 15vw, 10rem); font-weight: 200; line-height: 1; letter-spacing: -2px; }
@@ -305,16 +246,12 @@
 </head>
 <body class="theme-dark text-main bg-background">
 
-    <!-- FLOATING ACTION BUTTONS (STACKED) -->
+    <!-- FLOATING ACTION BUTTONS -->
     <div class="fab-container">
-        <!-- Preference FAB -->
         <button class="fab pref-fab" onclick="togglePrefModal()" title="Preferences">
             <svg viewBox="0 0 24 24"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.18-.08a2 2 0 0 0-2 2v.44a2 2 0 0 0 2 2h.18a2 2 0 0 1 1.73 1l.25.43a2 2 0 0 1 0 2l-.08.18a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.18.08a2 2 0 0 0 2-2v-.44a2 2 0 0 0-2-2h-.18a2 2 0 0 1-1.73-1l-.25-.43a2 2 0 0 1 0-2l.08-.18a2 2 0 0 0-2-2zM12 8a4 4 0 1 1-4 4 4 4 0 0 1 4-4z"/></svg>
         </button>
-
-        <!-- Pomodoro FAB -->
         <button class="fab pomo-fab" onclick="togglePomoModal()" title="Pomodoro Timer">
-            <!-- Consistent Timer Icon -->
             <svg viewBox="0 0 24 24"><path d="M10 2h4"/><path d="M12 14v-4"/><path d="M4 13a8 8 0 0 1 8-7 8 8 0 1 1-8 7"/><path d="M22 6l-2.7 2.7"/><path d="M2 6l2.7 2.7"/></svg>
             <div class="pomo-badge" id="pomo-badge">!</div>
         </button>
@@ -327,22 +264,13 @@
                 <h2 class="text-primary m-0">Preferences</h2>
                 <button onclick="togglePrefModal()" class="text-muted hover:text-primary"><svg style="width:20px;height:20px;" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="M6 6 18 18"/></svg></button>
             </div>
-
             <div class="text-left">
                 <h3 class="text-main font-semibold text-sm uppercase tracking-wider mb-2">Color Theme</h3>
                 <div class="theme-grid">
-                    <div class="theme-option" onclick="setTheme('theme-dark')" data-theme="theme-dark">
-                        <div class="theme-dot" style="background:#121212;"></div> Dark
-                    </div>
-                    <div class="theme-option" onclick="setTheme('theme-light')" data-theme="theme-light">
-                        <div class="theme-dot" style="background:#f4f6f8;"></div> Light
-                    </div>
-                    <div class="theme-option" onclick="setTheme('theme-ocean')" data-theme="theme-ocean">
-                        <div class="theme-dot" style="background:#0f172a;"></div> Ocean
-                    </div>
-                    <div class="theme-option" onclick="setTheme('theme-forest')" data-theme="theme-forest">
-                        <div class="theme-dot" style="background:#1a2f1a;"></div> Forest
-                    </div>
+                    <div class="theme-option" onclick="setTheme('theme-dark')" data-theme="theme-dark"><div class="theme-dot" style="background:#121212;"></div> Dark</div>
+                    <div class="theme-option" onclick="setTheme('theme-light')" data-theme="theme-light"><div class="theme-dot" style="background:#f4f6f8;"></div> Light</div>
+                    <div class="theme-option" onclick="setTheme('theme-ocean')" data-theme="theme-ocean"><div class="theme-dot" style="background:#0f172a;"></div> Ocean</div>
+                    <div class="theme-option" onclick="setTheme('theme-forest')" data-theme="theme-forest"><div class="theme-dot" style="background:#1a2f1a;"></div> Forest</div>
                 </div>
             </div>
         </div>
@@ -358,9 +286,9 @@
                 <input type="number" id="pomo-duration" class="duration-input" value="25" min="1" max="120">
             </div>
             <div class="flex gap-3 justify-center mt-4">
-                <button class="bg-primary text-white px-6 py-2 rounded-lg font-bold hover:opacity-90 transition-opacity" onclick="startPomodoro()" id="btn-pomo-start">Start</button>
-                <button class="bg-input text-main border border-border px-6 py-2 rounded-lg hover:border-primary transition-colors" onclick="resetPomodoro()">Reset</button>
-                <button class="bg-input text-main border border-border px-6 py-2 rounded-lg hover:border-primary transition-colors" onclick="togglePomoModal()">Close</button>
+                <button class="bg-primary text-white px-6 py-2 rounded-lg font-bold hover:opacity-90" onclick="startPomodoro()" id="btn-pomo-start">Start</button>
+                <button class="bg-input text-main border border-border px-6 py-2 rounded-lg" onclick="resetPomodoro()">Reset</button>
+                <button class="bg-input text-main border border-border px-6 py-2 rounded-lg" onclick="togglePomoModal()">Close</button>
             </div>
             <p class="text-muted mt-4 text-xs">(Sound will play & notification sent when time is up)</p>
         </div>
@@ -369,71 +297,50 @@
     <!-- MAIN APP CONTAINER -->
     <div id="app-container">
         
-        <!-- NEW FLOATING NAV DOCK -->
+        <!-- NAV DOCK -->
         <nav class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-card/90 backdrop-blur-md border border-border shadow-2xl rounded-full px-6 py-3 flex gap-8 items-center transition-all duration-300">
-            <!-- Bookmarks Tab -->
             <button onclick="goToSlide(0)" class="nav-btn group flex flex-col items-center justify-center gap-1 text-muted hover:text-primary transition-colors" data-slide="0">
                 <svg class="w-6 h-6 group-hover:scale-110 transition-transform" viewBox="0 0 24 24"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
                 <span class="text-[0.65rem] font-medium tracking-wide">Reads</span>
             </button>
-
-            <!-- Focus Tab (Center) -->
             <button onclick="goToSlide(1)" class="nav-btn group flex flex-col items-center justify-center gap-1 text-muted hover:text-primary transition-colors" data-slide="1">
                 <div class="bg-primary/10 p-2 rounded-full group-hover:bg-primary/20 transition-colors">
-                    <!-- Consistent Clock Icon -->
                     <svg class="w-6 h-6 text-primary group-hover:scale-110 transition-transform" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                 </div>
             </button>
-
-            <!-- Dashboard Tab -->
             <button onclick="goToSlide(2)" class="nav-btn group flex flex-col items-center justify-center gap-1 text-muted hover:text-primary transition-colors" data-slide="2">
                 <svg class="w-6 h-6 group-hover:scale-110 transition-transform" viewBox="0 0 24 24"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
                 <span class="text-[0.65rem] font-medium tracking-wide">Dash</span>
             </button>
         </nav>
 
-        <!-- TRACK WIDTH 300VW -->
         <div class="slider-track" id="sliderTrack">
             
-            <!-- SLIDE 0: Bookmarks (Left) -->
+            <!-- SLIDE 0: Bookmarks -->
             <div class="slide" id="slide-0">
                 <div class="bento-wrapper">
                     <div class="bento-header text-primary">
-                        <h2>Bookmark Manager <span id="bm-sync-status" class="text-muted opacity-0 text-sm transition-opacity">Synced</span></h2>
+                        <h2>Bookmark Manager</h2>
                     </div>
-                    
-                    <!-- Input Area -->
                     <div class="mb-6 flex gap-3 flex-wrap">
                         <input type="text" id="bm-title-in" placeholder="Page Title" class="flex-1 bg-input border-border text-main rounded-lg p-2">
                         <input type="url" id="bm-url-in" placeholder="https://example.com" class="flex-[2] bg-input border-border text-main rounded-lg p-2">
                         <button class="bg-primary text-white px-4 py-2 rounded-lg font-bold shadow-lg shadow-primary/30 hover:opacity-90" onclick="addBookmark()">Save</button>
                     </div>
-
                     <div class="bm-grid">
-                        <!-- Col 1: To Read -->
                         <div class="bm-column border-t-4 border-t-status-unread/50">
-                            <div class="bm-header text-status-unread">
-                                <span class="status-dot unread mr-2"></span> To Read
-                            </div>
-                            <div class="bm-list" id="list-toread">
-                                <!-- Items -->
-                            </div>
+                            <div class="bm-header text-status-unread"><span class="status-dot unread mr-2"></span> To Read</div>
+                            <div class="bm-list" id="list-toread"></div>
                         </div>
-                        
-                        <!-- Col 2: Read -->
                         <div class="bm-column border-t-4 border-t-status-read/50">
-                            <div class="bm-header text-status-read">
-                                <span class="status-dot read mr-2"></span> Done Reading
-                            </div>
-                            <div class="bm-list" id="list-read">
-                                <!-- Items -->
-                            </div>
+                            <div class="bm-header text-status-read"><span class="status-dot read mr-2"></span> Done Reading</div>
+                            <div class="bm-list" id="list-read"></div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- SLIDE 1: Clock (Center - Default) -->
+            <!-- SLIDE 1: Clock -->
             <div class="slide" id="slide-1">
                 <div class="clock-container">
                     <div class="digital-clock text-main animate-pulse" id="clock">00:00:00</div>
@@ -445,7 +352,7 @@
                 </div>
             </div>
 
-            <!-- SLIDE 2: Dashboard (Right) -->
+            <!-- SLIDE 2: Dashboard -->
             <div class="slide" id="slide-2">
                 <div class="bento-wrapper">
                     <div class="bento-header flex justify-between items-center mb-4">
@@ -454,6 +361,17 @@
                     <div class="bento-grid">
                         <!-- Tasks -->
                         <div class="bento-card task-card">
+                            <!-- DATE NAVIGATOR -->
+                            <div class="flex items-center justify-between mb-4 pb-2 border-b border-border">
+                                <button onclick="changeDate(-1)" class="text-muted hover:text-primary"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button>
+                                <div class="flex items-center gap-2">
+                                    <span id="display-date-label" class="font-bold text-main">Today</span>
+                                    <input type="date" id="date-picker" onchange="pickDate(this.value)" class="bg-transparent border-none text-transparent w-6 h-6 cursor-pointer absolute opacity-0">
+                                    <svg class="w-4 h-4 text-primary pointer-events-none" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                                </div>
+                                <button onclick="changeDate(1)" class="text-muted hover:text-primary"><svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></button>
+                            </div>
+                            <!-- INPUT -->
                             <div class="task-input-area">
                                 <input type="text" id="task-title-in" placeholder="Task Title" class="flex-[2]">
                                 <input type="text" id="task-desc-in" placeholder="Desc" class="flex-[3]">
@@ -484,12 +402,14 @@
     </div>
 
     <script>
+        const CONFIG = {
+            API_URL: 'https://script.google.com/macros/s/AKfycbz8y5ena3plYJoXwotwT-NakjvI23JB6y59Qo0R4jpV8JOj4tWEDIpKQJSvX1I2tII4/exec'
+        };
+
         /* --- PWA REGISTRATION --- */
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js')
-                    .then(reg => console.log('SW registered'))
-                    .catch(err => console.log('SW failed', err));
+                navigator.serviceWorker.register('sw.js').catch(err => console.log('SW failed', err));
             });
         }
 
@@ -498,10 +418,97 @@
             todos: [], 
             notes: "", 
             bookmarks: [], 
-            currentDate: new Date(), 
+            currentDate: new Date(),
+            selectedDateString: new Date().toISOString().split('T')[0], // YYYY-MM-DD
             editingId: null 
         };
         let currentSlideIndex = 1;
+        let syncTimer = null;
+
+        /* --- API & SYNC --- */
+        async function callApi(action, payload = {}) {
+            try {
+                // Using text/plain to avoid CORS preflight issues with GAS
+                const response = await fetch(CONFIG.API_URL, {
+                    method: "POST",
+                    body: JSON.stringify({ action, ...payload })
+                });
+                return await response.json();
+            } catch (error) {
+                console.error("Sync Error:", error);
+                document.getElementById('sync-status').innerText = "Sync Error";
+                document.getElementById('sync-status').style.color = "var(--status-unread)";
+                document.getElementById('sync-status').style.opacity = '1';
+                return null;
+            }
+        }
+
+        async function syncCloud() {
+            // Prepare Tasks for Cloud
+            // Map: Date(A) Status(B) Task(C) Desc(D)
+            const cloudTasks = state.todos.map(t => ({
+                date: t.date,
+                status: t.completed, // Boolean will become TRUE/FALSE in sheets
+                text: t.title,
+                description: t.desc
+            }));
+
+            // Prepare Notes
+            const noteContent = state.notes;
+
+            document.getElementById('sync-status').innerText = "Syncing...";
+            document.getElementById('sync-status').style.opacity = '1';
+
+            // We fire both requests. 
+            // Note: In a real app, you might want to chain them or bundle them if the GAS supports it.
+            // Based on your GAS, we call separate actions.
+            
+            // 1. Sync Tasks
+            await callApi('push_tasks', { tasks: cloudTasks });
+            
+            // 2. Sync Notes
+            await callApi('sync_notes', { noteContent: noteContent });
+
+            document.getElementById('sync-status').innerText = "Synced";
+            setTimeout(() => { document.getElementById('sync-status').style.opacity='0'; }, 2000);
+        }
+
+        async function fetchCloud() {
+            document.getElementById('sync-status').innerText = "Fetching...";
+            document.getElementById('sync-status').style.opacity = '1';
+
+            // 1. Fetch Tasks
+            const taskRes = await callApi('fetch_tasks');
+            if(taskRes && taskRes.result === 'success') {
+                // Merge cloud tasks. Simple strategy: Replace local with cloud for simplicity in this context.
+                // Convert Cloud structure back to Local
+                state.todos = taskRes.data.map((t, idx) => ({
+                    id: Date.now() + idx, // Generate pseudo ID
+                    title: t.text,
+                    desc: t.description,
+                    completed: (t.status === true || t.status === "TRUE"),
+                    date: t.date
+                }));
+            }
+
+            // 2. Fetch Notes
+            const noteRes = await callApi('fetch_notes');
+            if(noteRes && noteRes.result === 'success') {
+                state.notes = noteRes.data;
+                document.getElementById('quick-notes').value = state.notes;
+            }
+
+            renderTodos();
+            saveLocal(false); // Save to local storage but don't trigger cloud sync again
+            
+            document.getElementById('sync-status').innerText = "Synced";
+            setTimeout(() => { document.getElementById('sync-status').style.opacity='0'; }, 2000);
+        }
+
+        function triggerSync() {
+            clearTimeout(syncTimer);
+            syncTimer = setTimeout(syncCloud, 2000); // Debounce 2 seconds
+        }
 
         /* --- THEME & PREFERENCES --- */
         function initTheme() {
@@ -511,16 +518,11 @@
         function setTheme(theme) {
             document.body.className = theme + " text-main bg-background";
             localStorage.setItem('appTheme', theme);
-            
-            // Update active state in modal
             document.querySelectorAll('.theme-option').forEach(opt => {
                 opt.classList.toggle('active', opt.dataset.theme === theme);
             });
         }
-        function togglePrefModal() {
-            const modal = document.getElementById('pref-modal-overlay');
-            modal.classList.toggle('open');
-        }
+        function togglePrefModal() { document.getElementById('pref-modal-overlay').classList.toggle('open'); }
 
         /* --- CLOCK --- */
         setInterval(() => {
@@ -535,11 +537,8 @@
             track.style.transition = 'none'; 
             track.style.transform = `translateX(-100vw)`;
             updateNavState();
-            setTimeout(() => {
-                track.style.transition = 'transform 0.6s cubic-bezier(0.25, 1, 0.5, 1)';
-            }, 100);
+            setTimeout(() => { track.style.transition = 'transform 0.6s cubic-bezier(0.25, 1, 0.5, 1)'; }, 100);
         }
-
         function goToSlide(index) {
             if (index >= 0 && index <= 2) {
                 currentSlideIndex = index;
@@ -548,28 +547,21 @@
                 updateNavState();
             }
         }
-
         function updateNavState() {
             document.querySelectorAll('.nav-btn').forEach(btn => {
                 const slideIdx = parseInt(btn.getAttribute('data-slide'));
                 if(slideIdx === currentSlideIndex) {
-                    btn.classList.add('text-primary');
-                    btn.classList.remove('text-muted');
+                    btn.classList.add('text-primary'); btn.classList.remove('text-muted');
                 } else {
-                    btn.classList.remove('text-primary');
-                    btn.classList.add('text-muted');
+                    btn.classList.remove('text-primary'); btn.classList.add('text-muted');
                 }
             });
         }
 
         /* --- POMODORO LOGIC --- */
-        let pomoInterval = null;
-        let pomoTimeLeft = 1500;
-        let isPomoRunning = false;
-
+        let pomoInterval = null; let pomoTimeLeft = 1500; let isPomoRunning = false;
         function togglePomoModal() { document.getElementById('pomo-modal-overlay').classList.toggle('open'); }
         function formatTime(s) { return `${Math.floor(s/60).toString().padStart(2,'0')}:${(s%60).toString().padStart(2,'0')}`; }
-
         function startPomodoro() {
             if (isPomoRunning) { clearInterval(pomoInterval); isPomoRunning = false; document.getElementById('btn-pomo-start').innerText = "Resume"; return; }
             if (pomoTimeLeft === 0 || !pomoInterval) { pomoTimeLeft = parseInt(document.getElementById('pomo-duration').value) * 60; }
@@ -582,111 +574,91 @@
         }
         function resetPomodoro() { clearInterval(pomoInterval); isPomoRunning = false; pomoTimeLeft = parseInt(document.getElementById('pomo-duration').value) * 60; document.getElementById('pomo-timer-display').innerText = formatTime(pomoTimeLeft); document.getElementById('btn-pomo-start').innerText = "Start"; document.getElementById('pomo-badge').classList.remove('active'); pomoInterval = null; }
         function completePomodoro() { resetPomodoro(); playAlarmSound(); if (Notification.permission === "granted") new Notification("Time is up!"); else alert("Time is up!"); }
-        
         function playAlarmSound() {
             const AC = window.AudioContext || window.webkitAudioContext; if(!AC) return;
             const ctx = new AC(); const o = ctx.createOscillator(); const g = ctx.createGain();
             o.connect(g); g.connect(ctx.destination); o.type='sine'; o.frequency.value=880;
-            g.gain.setValueAtTime(0.1, ctx.currentTime); g.gain.exponentialRampToValueAtTime(0.00001, ctx.currentTime+0.5);
-            o.start(); o.stop(ctx.currentTime+0.5);
+            g.gain.setValueAtTime(0.1, ctx.currentTime); g.gain.exponentialRampToValueAtTime(0.00001, ctx.currentTime+0.5); o.start(); o.stop(ctx.currentTime+0.5);
         }
 
         /* --- DATA MANAGEMENT --- */
         function loadData() {
+            // Load Local first
             const t = localStorage.getItem('myTodos');
             if(t) state.todos = JSON.parse(t);
-            
             const b = localStorage.getItem('myBookmarks');
             if(b) state.bookmarks = JSON.parse(b);
-
             state.notes = localStorage.getItem('myNotes') || "";
             document.getElementById('quick-notes').value = state.notes;
             
+            // Render local state
+            updateDateLabel();
             renderTodos();
             renderBookmarks();
             fetchQuote();
+
+            // Then Fetch Cloud
+            if(navigator.onLine) {
+                fetchCloud();
+            }
         }
 
-        function saveLocal() {
+        function saveLocal(shouldSync = true) {
             localStorage.setItem('myTodos', JSON.stringify(state.todos));
             localStorage.setItem('myBookmarks', JSON.stringify(state.bookmarks));
             localStorage.setItem('myNotes', state.notes);
             
-            const status = document.getElementById('sync-status');
-            const bmStatus = document.getElementById('bm-sync-status');
-            status.style.opacity = '1'; bmStatus.style.opacity = '1';
-            setTimeout(()=> { status.style.opacity='0'; bmStatus.style.opacity='0'; }, 2000);
+            if(shouldSync) triggerSync();
         }
 
-        /* --- BOOKMARK LOGIC --- */
+        /* --- BOOKMARKS --- */
         function addBookmark() {
-            const titleIn = document.getElementById('bm-title-in');
-            const urlIn = document.getElementById('bm-url-in');
-            const title = titleIn.value.trim();
-            const url = urlIn.value.trim();
-
+            const titleIn = document.getElementById('bm-title-in'); const urlIn = document.getElementById('bm-url-in');
+            const title = titleIn.value.trim(); const url = urlIn.value.trim();
             if(!title || !url) return;
-
-            state.bookmarks.unshift({
-                id: Date.now(),
-                title: title,
-                url: url.startsWith('http') ? url : 'https://' + url,
-                status: 'toread'
-            });
-
-            titleIn.value = ''; urlIn.value = '';
-            renderBookmarks(); saveLocal();
+            state.bookmarks.unshift({ id: Date.now(), title: title, url: url.startsWith('http') ? url : 'https://' + url, status: 'toread' });
+            titleIn.value = ''; urlIn.value = ''; renderBookmarks(); saveLocal(false); // Bookmarks usually local
         }
-
         function renderBookmarks() {
-            const toReadList = document.getElementById('list-toread');
-            const readList = document.getElementById('list-read');
-            toReadList.innerHTML = '';
-            readList.innerHTML = '';
-
+            const toReadList = document.getElementById('list-toread'); const readList = document.getElementById('list-read');
+            toReadList.innerHTML = ''; readList.innerHTML = '';
             state.bookmarks.forEach(bm => {
-                const el = document.createElement('div');
-                el.className = 'bm-item';
-                
+                const el = document.createElement('div'); el.className = 'bm-item';
                 const actionBtn = bm.status === 'toread' 
                     ? `<button onclick="toggleBookmark('${bm.id}')" title="Mark Read" class="text-status-read hover:scale-110 transition-transform"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></button>`
                     : `<button onclick="toggleBookmark('${bm.id}')" title="Mark Unread" class="text-muted hover:scale-110 transition-transform"><svg viewBox="0 0 24 24"><path d="M12.5 8c-2.65 0-5.05.99-6.9 2.6L2 7v9h9l-3.62-3.62c1.39-1.16 3.16-1.88 5.12-1.88 3.54 0 6.55 2.31 7.6 5.5l2.37-.78C21.08 11.03 17.15 8 12.5 8z"/></svg></button>`;
-
                 el.innerHTML = `
-                    <div class="bm-content">
-                        <a href="${bm.url}" target="_blank" class="bm-title">${bm.title}</a>
-                        <div class="bm-url">${bm.url}</div>
-                    </div>
-                    <div class="bm-actions">
-                        ${actionBtn}
-                        <button onclick="delBookmark('${bm.id}')" class="text-status-unread hover:scale-110 transition-transform"><svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></button>
-                    </div>
-                `;
-
-                if(bm.status === 'toread') toReadList.appendChild(el);
-                else readList.appendChild(el);
+                    <div class="bm-content"><a href="${bm.url}" target="_blank" class="bm-title">${bm.title}</a><div class="bm-url">${bm.url}</div></div>
+                    <div class="bm-actions">${actionBtn}<button onclick="delBookmark('${bm.id}')" class="text-status-unread hover:scale-110 transition-transform"><svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></button></div>`;
+                if(bm.status === 'toread') toReadList.appendChild(el); else readList.appendChild(el);
             });
         }
+        window.toggleBookmark = (id) => { const bm = state.bookmarks.find(b => b.id == id); if(bm) { bm.status = bm.status === 'toread' ? 'read' : 'toread'; renderBookmarks(); saveLocal(false); } }
+        window.delBookmark = (id) => { if(confirm("Delete bookmark?")) { state.bookmarks = state.bookmarks.filter(b => b.id != id); renderBookmarks(); saveLocal(false); } }
 
-        window.toggleBookmark = (id) => {
-            const bm = state.bookmarks.find(b => b.id == id);
-            if(bm) {
-                bm.status = bm.status === 'toread' ? 'read' : 'toread';
-                renderBookmarks(); saveLocal();
-            }
+        /* --- DATE & TODO LOGIC --- */
+        function updateDateLabel() {
+            const today = new Date().toISOString().split('T')[0];
+            const disp = document.getElementById('display-date-label');
+            if(state.selectedDateString === today) disp.innerText = "Today";
+            else disp.innerText = state.selectedDateString;
+            document.getElementById('date-picker').value = state.selectedDateString;
         }
 
-        window.delBookmark = (id) => {
-            if(confirm("Delete bookmark?")) {
-                state.bookmarks = state.bookmarks.filter(b => b.id != id);
-                renderBookmarks(); saveLocal();
-            }
+        window.changeDate = (delta) => {
+            const d = new Date(state.selectedDateString);
+            d.setDate(d.getDate() + delta);
+            state.selectedDateString = d.toISOString().split('T')[0];
+            updateDateLabel();
+            renderTodos();
         }
 
-        /* --- TODO LOGIC --- */
+        window.pickDate = (val) => {
+            if(val) { state.selectedDateString = val; updateDateLabel(); renderTodos(); }
+        }
+
         function addTask() {
-            const t = document.getElementById('task-title-in');
-            const d = document.getElementById('task-desc-in');
+            const t = document.getElementById('task-title-in'); const d = document.getElementById('task-desc-in');
             const btn = document.querySelector('.task-input-area button');
             if(!t.value) return;
 
@@ -695,14 +667,23 @@
                 if(task) { task.title = t.value; task.desc = d.value; }
                 state.editingId = null; btn.innerText = "Add";
             } else {
-                state.todos.unshift({ id: Date.now(), title: t.value, desc: d.value, completed: false });
+                state.todos.unshift({ 
+                    id: Date.now(), 
+                    title: t.value, 
+                    desc: d.value, 
+                    completed: false,
+                    date: state.selectedDateString // Bind to selected date
+                });
             }
             t.value = ''; d.value = ''; renderTodos(); saveLocal();
         }
 
         function renderTodos() {
             const el = document.getElementById('task-list');
-            el.innerHTML = state.todos.map(t => `
+            // Filter by selected Date
+            const filtered = state.todos.filter(t => t.date === state.selectedDateString);
+            
+            el.innerHTML = filtered.map(t => `
                 <div class="task-item ${t.completed?'completed':''}">
                     <input type="checkbox" ${t.completed?'checked':''} onchange="toggle(${t.id})" class="accent-primary w-5 h-5">
                     <div class="task-content" style="flex:1">
@@ -723,7 +704,12 @@
         window.toggle = (id) => { const i = state.todos.find(x=>x.id==id); if(i){ i.completed=!i.completed; renderTodos(); saveLocal(); } }
         window.del = (id) => { state.todos = state.todos.filter(x=>x.id!==id); renderTodos(); saveLocal(); }
         
-        document.getElementById('quick-notes').addEventListener('input', (e) => { state.notes = e.target.value; saveLocal(); });
+        document.getElementById('quick-notes').addEventListener('input', (e) => { 
+            state.notes = e.target.value; 
+            // Debounced save for notes
+            localStorage.setItem('myNotes', state.notes);
+            triggerSync();
+        });
 
         /* --- CALENDAR --- */
         function renderCalendar() {
@@ -742,10 +728,7 @@
 
         /* --- QUOTE --- */
         async function fetchQuote() {
-            if(!navigator.onLine) {
-                document.getElementById('quote-text').innerText = "\"Focus is the key to productivity.\"";
-                document.getElementById('quote-author').innerText = "- Offline Mode"; return;
-            }
+            if(!navigator.onLine) { document.getElementById('quote-text').innerText = "\"Focus is the key to productivity.\""; document.getElementById('quote-author').innerText = "- Offline Mode"; return; }
             try {
                 const r = await fetch('https://api.quotable.io/random?maxLength=80');
                 const d = await r.json();
@@ -755,10 +738,7 @@
         }
 
         /* --- INIT --- */
-        initTheme();
-        initSlide(); 
-        renderCalendar();
-        loadData();
+        initTheme(); initSlide(); renderCalendar(); loadData();
     </script>
 </body>
 </html>
