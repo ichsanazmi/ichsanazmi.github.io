@@ -448,7 +448,7 @@
             // Map: Date(A) Status(B) Task(C) Desc(D)
             const cloudTasks = state.todos.map(t => ({
                 date: t.date,
-                status: t.completed, // Boolean will become TRUE/FALSE in sheets
+                status: t.completed ? "Selesai" : "Belum", // Map boolean to string
                 text: t.title,
                 description: t.desc
             }));
@@ -486,7 +486,8 @@
                     id: Date.now() + idx, // Generate pseudo ID
                     title: t.text,
                     desc: t.description,
-                    completed: (t.status === true || t.status === "TRUE"),
+                    // Check for "Selesai" string or boolean true for backward compatibility
+                    completed: (t.status === "Selesai" || t.status === true || t.status === "TRUE"),
                     date: t.date
                 }));
             }
