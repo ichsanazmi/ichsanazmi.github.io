@@ -1,47 +1,39 @@
-const CACHE_NAME = 'focus-dashboard-v1';
-const ASSETS_TO_CACHE = [
-    './',
-    './index.html',
-    './manifest.json'
+const CACHE_NAME = 'focus-dashboard-v2';
+const ASSETS = [
+  './',
+  './index.html',
+  './manifest.json',
+  // Note: If you have local icon files, add them here. 
+  // If they are missing, the service worker might warn but still run.
+  // './icon-192.png', 
+  // './icon-512.png'
 ];
 
-// 1. Install Event: Cache files
 self.addEventListener('install', (event) => {
-    event.waitUntil(
-        caches.open(CACHE_NAME)
-            .then((cache) => {
-                console.log('Opened cache');
-                return cache.addAll(ASSETS_TO_CACHE);
-            })
-    );
+  event.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => {
+      console.log('[SW] Caching assets');
+      return cache.addAll(ASSETS);
+    })
+  );
+  self.skipWaiting();
 });
 
-// 2. Fetch Event: Serve from cache if offline
-self.addEventListener('fetch', (event) => {
-    event.respondWith(
-        caches.match(event.request)
-            .then((response) => {
-                // Cache hit - return response
-                if (response) {
-                    return response;
-                }
-                return fetch(event.request);
-            })
-    );
-});
-
-// 3. Activate Event: Clean up old caches
 self.addEventListener('activate', (event) => {
-    const cacheWhitelist = [CACHE_NAME];
-    event.waitUntil(
-        caches.keys().then((cacheNames) => {
-            return Promise.all(
-                cacheNames.map((cacheName) => {
-                    if (cacheWhitelist.indexOf(cacheName) === -1) {
-                        return caches.delete(cacheName);
-                    }
-                })
-            );
-        })
-    );
+  event.waitUntil(
+    caches.keys().then((keys) => {
+      return Promise.all(
+        keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key))
+      );
+    })
+  );
+  self.clients.claim();
+});
+
+self.addEventListener('fetch', (event) => {
+  event.respondWith(
+    caches.match(event.request).then((cachedResponse) => {
+      return cachedResponse || fetch(event.request);
+    })
+  );
 });
