@@ -278,6 +278,15 @@
                     <div class="theme-option" onclick="setTheme('theme-ocean')" data-theme="theme-ocean"><div class="theme-dot" style="background:#0f172a;"></div> Ocean</div>
                     <div class="theme-option" onclick="setTheme('theme-forest')" data-theme="theme-forest"><div class="theme-dot" style="background:#1a2f1a;"></div> Forest</div>
                 </div>
+
+                <!-- INSTALL APP SECTION -->
+                <div id="install-section" class="mt-6 hidden">
+                     <h3 class="text-main font-semibold text-sm uppercase tracking-wider mb-2">App Install</h3>
+                     <button onclick="installPwa()" class="w-full py-3 rounded-xl border border-primary text-primary font-bold hover:bg-primary hover:text-white transition-colors flex justify-center items-center gap-2">
+                        <svg style="width:20px;height:20px;" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                        Install App
+                     </button>
+                </div>
             </div>
         </div>
     </div>
@@ -449,6 +458,36 @@
                 navigator.serviceWorker.register('sw.js').catch(err => console.log('SW failed', err));
             });
         }
+
+        /* --- PWA INSTALL LOGIC --- */
+        let deferredPrompt;
+        
+        window.addEventListener('beforeinstallprompt', (e) => {
+            // Prevent the mini-infobar from appearing on mobile
+            e.preventDefault();
+            // Stash the event so it can be triggered later.
+            deferredPrompt = e;
+            // Update UI notify the user they can install the PWA
+            document.getElementById('install-section').classList.remove('hidden');
+        });
+
+        async function installPwa() {
+            if (!deferredPrompt) return;
+            // Show the install prompt
+            deferredPrompt.prompt();
+            // Wait for the user to respond to the prompt
+            const { outcome } = await deferredPrompt.userChoice;
+            console.log(`User response to the install prompt: ${outcome}`);
+            // We've used the prompt, and can't use it again, throw it away
+            deferredPrompt = null;
+            // Hide button
+            document.getElementById('install-section').classList.add('hidden');
+        }
+
+        window.addEventListener('appinstalled', () => {
+             document.getElementById('install-section').classList.add('hidden');
+             deferredPrompt = null;
+        });
 
         /* --- STATE --- */
         let state = { 
