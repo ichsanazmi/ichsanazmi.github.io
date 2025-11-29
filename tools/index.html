@@ -9,7 +9,10 @@
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#121212">
     <meta name="description" content="A minimalist focus dashboard with tasks, diary, and pomodoro timer.">
+    <!-- IOS Support -->
     <link rel="apple-touch-icon" href="icon-192.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -179,6 +182,7 @@
             background: var(--card-bg); padding: 2rem; border-radius: 24px; width: 90%; max-width: 400px;
             text-align: center; border: 1px solid var(--border); transform: translateY(20px); transition: transform 0.3s;
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            max-height: 80vh; overflow-y: auto;
         }
         .modal-overlay.open .app-modal { transform: translateY(0); }
 
@@ -270,7 +274,9 @@
                 <h2 class="text-primary m-0">Preferences</h2>
                 <button onclick="togglePrefModal()" class="text-muted hover:text-primary"><svg style="width:20px;height:20px;" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="M6 6 18 18"/></svg></button>
             </div>
+            
             <div class="text-left">
+                <!-- THEME SECTION -->
                 <h3 class="text-main font-semibold text-sm uppercase tracking-wider mb-2">Color Theme</h3>
                 <div class="theme-grid">
                     <div class="theme-option" onclick="setTheme('theme-dark')" data-theme="theme-dark"><div class="theme-dot" style="background:#121212;"></div> Dark</div>
@@ -280,12 +286,30 @@
                 </div>
 
                 <!-- INSTALL APP SECTION -->
-                <div id="install-section" class="mt-6 hidden">
+                <div class="mt-8 pt-6 border-t border-border">
                      <h3 class="text-main font-semibold text-sm uppercase tracking-wider mb-2">App Install</h3>
-                     <button onclick="installPwa()" class="w-full py-3 rounded-xl border border-primary text-primary font-bold hover:bg-primary hover:text-white transition-colors flex justify-center items-center gap-2">
+                     
+                     <!-- Generate Icons Button -->
+                     <button onclick="generateIcons()" class="w-full py-2 mb-2 rounded-xl border border-border text-muted text-sm hover:text-main transition-colors flex justify-center items-center gap-2">
+                        <svg style="width:16px;height:16px;" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                        Download Placeholder Icons
+                     </button>
+                     <p class="text-[10px] text-muted text-center mb-4">Click above if "Install App" doesn't appear</p>
+
+                     <!-- Install Button (Hidden by default) -->
+                     <button id="install-btn" onclick="installPwa()" class="hidden w-full py-3 rounded-xl bg-primary text-white font-bold hover:opacity-90 transition-colors flex justify-center items-center gap-2 mb-2">
                         <svg style="width:20px;height:20px;" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                         Install App
                      </button>
+
+                     <!-- Status / Instructions -->
+                     <div id="install-status" class="text-xs text-muted mt-2 bg-input p-3 rounded-lg">
+                        <p class="mb-1 font-bold">Status: <span id="pwa-status">Checking...</span></p>
+                        <p class="opacity-80">
+                            • Must use HTTPS or Localhost<br>
+                            • iOS: Use Safari > Share > Add to Home Screen
+                        </p>
+                     </div>
                 </div>
             </div>
         </div>
@@ -452,54 +476,100 @@
             API_URL: 'https://script.google.com/macros/s/AKfycbz8y5ena3plYJoXwotwT-NakjvI23JB6y59Qo0R4jpV8JOj4tWEDIpKQJSvX1I2tII4/exec'
         };
 
-        /* --- PWA REGISTRATION --- */
+        /* --- PWA INSTALL LOGIC --- */
+        let deferredPrompt;
+        const statusEl = document.getElementById('pwa-status');
+
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js').catch(err => console.log('SW failed', err));
+                navigator.serviceWorker.register('sw.js')
+                    .then(() => { 
+                        console.log('SW Registered');
+                        if (statusEl.innerText === "Checking...") statusEl.innerText = "Service Worker Active. Waiting for prompt...";
+                    })
+                    .catch(err => { 
+                        console.log('SW failed', err);
+                        statusEl.innerText = "Service Worker Failed (Check console)";
+                    });
             });
         }
 
-        /* --- PWA INSTALL LOGIC --- */
-        let deferredPrompt;
-        
         window.addEventListener('beforeinstallprompt', (e) => {
-            // Prevent the mini-infobar from appearing on mobile
             e.preventDefault();
-            // Stash the event so it can be triggered later.
             deferredPrompt = e;
-            // Update UI notify the user they can install the PWA
-            document.getElementById('install-section').classList.remove('hidden');
+            document.getElementById('install-btn').classList.remove('hidden');
+            statusEl.innerText = "Ready to Install";
+        });
+
+        window.addEventListener('appinstalled', () => {
+             document.getElementById('install-btn').classList.add('hidden');
+             statusEl.innerText = "App Installed";
+             deferredPrompt = null;
         });
 
         async function installPwa() {
             if (!deferredPrompt) return;
-            // Show the install prompt
             deferredPrompt.prompt();
-            // Wait for the user to respond to the prompt
             const { outcome } = await deferredPrompt.userChoice;
             console.log(`User response to the install prompt: ${outcome}`);
-            // We've used the prompt, and can't use it again, throw it away
             deferredPrompt = null;
-            // Hide button
-            document.getElementById('install-section').classList.add('hidden');
         }
-
-        window.addEventListener('appinstalled', () => {
-             document.getElementById('install-section').classList.add('hidden');
-             deferredPrompt = null;
-        });
+        
+        // Helper to generate icons on the fly so users don't need to manually create them
+        function generateIcons() {
+            const sizes = [192, 512];
+            
+            sizes.forEach(size => {
+                const canvas = document.createElement('canvas');
+                canvas.width = size;
+                canvas.height = size;
+                const ctx = canvas.getContext('2d');
+                
+                // Get current theme accent color if possible, else default
+                const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#bb86fc';
+                
+                // Draw Background
+                ctx.fillStyle = accent;
+                ctx.beginPath();
+                // Draw rounded rect or circle? Let's do a simple circle for adaptive icons
+                ctx.arc(size/2, size/2, size/2, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Draw 'F' Icon
+                ctx.fillStyle = 'white';
+                ctx.font = `bold ${size/2}px sans-serif`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('F', size/2, size/2 + (size * 0.05)); // Slight offset for visual center
+                
+                // Convert to Blob and Download
+                canvas.toBlob(blob => {
+                    const link = document.createElement('a');
+                    link.download = `icon-${size}.png`;
+                    link.href = URL.createObjectURL(blob);
+                    link.click();
+                }, 'image/png');
+            });
+            
+            alert("Icons downloaded!\n\nMove 'icon-192.png' and 'icon-512.png' to your project folder.\nThen refresh this page.");
+        }
+        
+        // Check if already installed
+        if (window.matchMedia('(display-mode: standalone)').matches) {
+            statusEl.innerText = "Running as App";
+        }
 
         /* --- STATE --- */
         let state = { 
             todos: [], 
             notes: "", 
             bookmarks: [], 
-            diary: {}, // Format: { "YYYY-MM-DD": "Content" }
-            quotes: [], // Local cache of quotes from sheet
+            diary: {}, 
+            quotes: [], 
             currentDate: new Date(),
-            selectedDateString: new Date().toISOString().split('T')[0], // YYYY-MM-DD for tasks
-            diaryDateString: new Date().toISOString().split('T')[0], // YYYY-MM-DD for diary
-            diaryViewDate: new Date(), // For calendar navigation in diary
+            selectedDateString: new Date().toISOString().split('T')[0], 
+            diaryDateString: new Date().toISOString().split('T')[0], 
+            diaryViewDate: new Date(), 
             editingId: null 
         };
         let currentSlideIndex = 1;
@@ -508,7 +578,6 @@
         /* --- API & SYNC --- */
         async function callApi(action, payload = {}) {
             try {
-                // Using text/plain to avoid CORS preflight issues with GAS
                 const response = await fetch(CONFIG.API_URL, {
                     method: "POST",
                     body: JSON.stringify({ action, ...payload })
@@ -524,7 +593,6 @@
         }
 
         async function syncCloud() {
-            // Prepare Tasks
             const cloudTasks = state.todos.map(t => ({
                 date: t.date,
                 status: t.completed ? "Selesai" : "Belum",
@@ -532,14 +600,11 @@
                 description: t.desc
             }));
 
-            // Prepare Bookmarks (Full Replace Sync)
             const cloudBookmarks = state.bookmarks.map(b => ({
                 title: b.title,
                 url: b.url
             }));
             
-            // Prepare Diary (Full Replace for simplicity, or just recent)
-            // Ideally we push all local diary entries
             const cloudDiary = Object.keys(state.diary).map(dateKey => ({
                 date: dateKey,
                 content: state.diary[dateKey]
@@ -548,7 +613,6 @@
             document.getElementById('sync-status').innerText = "Syncing...";
             document.getElementById('sync-status').style.opacity = '1';
 
-            // Fire requests
             await Promise.all([
                 callApi('push_tasks', { tasks: cloudTasks }),
                 callApi('sync_notes', { noteContent: state.notes }),
@@ -564,7 +628,6 @@
             document.getElementById('sync-status').innerText = "Fetching...";
             document.getElementById('sync-status').style.opacity = '1';
 
-            // Fetch All Data
             const [taskRes, noteRes, quoteRes, bmRes, diaryRes] = await Promise.all([
                 callApi('fetch_tasks'),
                 callApi('fetch_notes'),
@@ -573,7 +636,6 @@
                 callApi('fetch_daily_notes')
             ]);
 
-            // 1. Tasks
             if(taskRes && taskRes.result === 'success') {
                 state.todos = taskRes.data.map((t, idx) => ({
                     id: Date.now() + idx,
@@ -584,32 +646,26 @@
                 }));
             }
 
-            // 2. Notes
             if(noteRes && noteRes.result === 'success') {
                 state.notes = noteRes.data;
                 document.getElementById('quick-notes').value = state.notes;
             }
 
-            // 3. Quotes
             if(quoteRes && quoteRes.result === 'success') {
-                state.quotes = quoteRes.data; // Array of {quote, author}
-                // Refresh quote display with fetched data
+                state.quotes = quoteRes.data; 
                 fetchQuote(); 
             }
 
-            // 4. Bookmarks
             if(bmRes && bmRes.result === 'success') {
                 state.bookmarks = bmRes.data.map((b, idx) => ({
                     id: Date.now() + idx + 1000,
                     title: b.title,
                     url: b.url,
-                    status: 'toread' // Defaulting to to-read as status isn't synced in this version
+                    status: 'toread' 
                 }));
             }
 
-            // 5. Diary
             if(diaryRes && diaryRes.result === 'success') {
-                // Convert array [{date, content}] to object map
                 state.diary = {};
                 diaryRes.data.forEach(d => {
                     state.diary[d.date] = d.content;
