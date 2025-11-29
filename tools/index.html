@@ -214,7 +214,12 @@
         .task-card { grid-row: span 2; }
         .task-input-area { display: flex; gap: 10px; margin-bottom: 1rem; flex-wrap: wrap; align-items: flex-start; }
         .task-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
-        .task-item { background: var(--bg-color); padding: 12px; border-radius: 12px; display: flex; align-items: flex-start; gap: 10px; border: 1px solid var(--border); }
+        .task-item { 
+            background: var(--bg-color); padding: 12px; border-radius: 12px; 
+            display: flex; align-items: flex-start; gap: 10px; border: 1px solid var(--border); 
+            cursor: pointer; transition: border-color 0.2s;
+        }
+        .task-item:hover { border-color: var(--accent); }
         .task-item.completed .task-content { text-decoration: line-through; opacity: 0.6; }
         .task-content { flex: 1; min-width: 0; } /* min-width 0 needed for ellipsis */
         .task-desc-preview {
@@ -344,6 +349,33 @@
         </div>
     </div>
 
+    <!-- NEW TASK DETAIL MODAL -->
+    <div class="modal-overlay" id="task-modal-overlay">
+        <div class="app-modal" style="text-align: left;">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-primary m-0">Task Details</h2>
+                <button onclick="closeTaskModal()" class="text-muted hover:text-primary"><svg style="width:20px;height:20px;" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="M6 6 18 18"/></svg></button>
+            </div>
+            
+            <div class="flex flex-col gap-4">
+                <div>
+                    <label class="text-xs text-muted font-bold uppercase">Title</label>
+                    <input type="text" id="modal-task-title" class="w-full mt-1 bg-input border border-border text-main rounded-lg p-3 font-bold">
+                </div>
+                <div>
+                    <label class="text-xs text-muted font-bold uppercase">Description</label>
+                    <textarea id="modal-task-desc" class="w-full mt-1 bg-input border border-border text-main rounded-lg p-3 h-32 resize-none" placeholder="Add description..."></textarea>
+                </div>
+                <div class="flex gap-2 mt-2">
+                    <button onclick="saveTaskFromModal()" class="flex-1 bg-primary text-white py-3 rounded-xl font-bold hover:opacity-90">Save Changes</button>
+                    <button onclick="deleteTaskFromModal()" class="bg-input text-status-unread border border-border px-4 py-3 rounded-xl hover:bg-status-unread hover:text-white transition-colors">
+                        <svg style="width:20px;height:20px;" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- MAIN APP CONTAINER -->
     <div id="app-container">
         
@@ -426,13 +458,12 @@
                                 </div>
                                 <button onclick="changeDate(1)" class="text-muted hover:text-primary"><svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></button>
                             </div>
-                            <!-- INPUT -->
+                            <!-- INPUT (Only for Adding) -->
                             <div class="task-input-area">
-                                <input type="text" id="task-title-in" placeholder="Task Title" class="flex-[2]">
-                                <!-- Changed to Textarea for multiline edit -->
-                                <textarea id="task-desc-in" placeholder="Description" class="flex-[3] bg-input border-border text-main rounded-lg p-2 resize-y min-h-[46px]" rows="1"></textarea>
+                                <input type="text" id="task-title-in" placeholder="New Task..." class="flex-[2]">
                                 <button class="bg-primary text-white px-4 py-2 rounded-lg font-bold shadow-lg shadow-primary/30 hover:opacity-90" onclick="addTask()">Add</button>
                             </div>
+                            <!-- LIST -->
                             <div class="task-list" id="task-list"></div>
                         </div>
                         <!-- Notes -->
@@ -848,23 +879,18 @@
             if(val) { state.selectedDateString = val; updateDateLabel(); renderTodos(); }
         }
 
+        // Add task simply creates a new one, editing handles details
         function addTask() {
-            const t = document.getElementById('task-title-in'); const d = document.getElementById('task-desc-in');
-            const btn = document.querySelector('.task-input-area button');
+            const t = document.getElementById('task-title-in'); 
             if(!t.value) return;
 
-            if(state.editingId) {
-                const task = state.todos.find(x => x.id === state.editingId);
-                if(task) { task.title = t.value; task.desc = d.value; }
-                state.editingId = null; btn.innerText = "Add";
-            } else {
-                state.todos.unshift({ id: Date.now(), title: t.value, desc: d.value, completed: false, date: state.selectedDateString });
-            }
-            t.value = ''; d.value = ''; renderTodos(); saveLocal();
+            state.todos.unshift({ id: Date.now(), title: t.value, desc: "", completed: false, date: state.selectedDateString });
+            t.value = ''; renderTodos(); saveLocal();
         }
 
         /* --- TASK REORDERING LOGIC --- */
-        function moveTask(id, direction) {
+        function moveTask(id, direction, e) {
+            if(e) e.stopPropagation(); // Prevent opening modal
             // Find current task in list of ALL tasks
             const allIndex = state.todos.findIndex(t => t.id === id);
             if(allIndex === -1) return;
@@ -898,29 +924,60 @@
             const el = document.getElementById('task-list');
             const filtered = state.todos.filter(t => t.date === state.selectedDateString);
             el.innerHTML = filtered.map((t, idx) => `
-                <div class="task-item ${t.completed?'completed':''}">
-                    <input type="checkbox" ${t.completed?'checked':''} onchange="toggle(${t.id})" class="accent-primary w-5 h-5 mt-1">
+                <div class="task-item ${t.completed?'completed':''}" onclick="openTaskModal(${t.id})">
+                    <input type="checkbox" ${t.completed?'checked':''} onclick="event.stopPropagation()" onchange="toggle(${t.id})" class="accent-primary w-5 h-5 mt-1">
                     <div class="task-content">
                         <div style="font-weight:600">${t.title}</div>
-                        <div class="task-desc-preview">${t.desc}</div>
+                        <div class="task-desc-preview">${t.desc || ""}</div>
                     </div>
-                    <div class="flex flex-col gap-1 mr-2">
-                        <button onclick="moveTask(${t.id}, -1)" class="text-muted hover:text-primary p-0.5" title="Move Up" ${idx===0 ? 'style="opacity:0.3;pointer-events:none"':''}><svg class="w-4 h-4" viewBox="0 0 24 24"><path d="M18 15l-6-6-6 6"/></svg></button>
-                        <button onclick="moveTask(${t.id}, 1)" class="text-muted hover:text-primary p-0.5" title="Move Down" ${idx===filtered.length-1 ? 'style="opacity:0.3;pointer-events:none"':''}><svg class="w-4 h-4" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button>
+                    <div class="flex flex-col gap-1 mr-2" onclick="event.stopPropagation()">
+                        <button onclick="moveTask(${t.id}, -1, event)" class="text-muted hover:text-primary p-0.5" title="Move Up" ${idx===0 ? 'style="opacity:0.3;pointer-events:none"':''}><svg class="w-4 h-4" viewBox="0 0 24 24"><path d="M18 15l-6-6-6 6"/></svg></button>
+                        <button onclick="moveTask(${t.id}, 1, event)" class="text-muted hover:text-primary p-0.5" title="Move Down" ${idx===filtered.length-1 ? 'style="opacity:0.3;pointer-events:none"':''}><svg class="w-4 h-4" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button>
                     </div>
-                    <div class="flex flex-col gap-2">
-                        <button onclick="edit(${t.id})" class="text-muted hover:text-primary p-1"><svg viewBox="0 0 24 24" style="width:18px;height:18px;"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></button>
-                        <button onclick="del(${t.id})" class="text-muted hover:text-status-unread p-1"><svg viewBox="0 0 24 24" style="width:18px;height:18px;"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
-                    </div>
+                    <!-- Inline Delete only, Edit is now via click -->
+                    <button onclick="event.stopPropagation(); del(${t.id})" class="text-muted hover:text-status-unread p-1"><svg viewBox="0 0 24 24" style="width:18px;height:18px;"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
                 </div>
             `).join('');
         }
 
-        window.edit = (id) => {
-            const t = state.todos.find(x => x.id === id); if(!t) return;
-            document.getElementById('task-title-in').value = t.title; document.getElementById('task-desc-in').value = t.desc;
-            state.editingId = id; document.querySelector('.task-input-area button').innerText = "Update"; document.getElementById('task-title-in').focus();
+        /* --- TASK MODAL LOGIC --- */
+        let editingTaskId = null;
+
+        function openTaskModal(id) {
+            const t = state.todos.find(x => x.id === id);
+            if (!t) return;
+            
+            editingTaskId = id;
+            document.getElementById('modal-task-title').value = t.title;
+            document.getElementById('modal-task-desc').value = t.desc;
+            
+            document.getElementById('task-modal-overlay').classList.add('open');
         }
+
+        function closeTaskModal() {
+            document.getElementById('task-modal-overlay').classList.remove('open');
+            editingTaskId = null;
+        }
+
+        function saveTaskFromModal() {
+            if (!editingTaskId) return;
+            const t = state.todos.find(x => x.id === editingTaskId);
+            if (t) {
+                t.title = document.getElementById('modal-task-title').value;
+                t.desc = document.getElementById('modal-task-desc').value;
+                renderTodos();
+                saveLocal();
+            }
+            closeTaskModal();
+        }
+
+        function deleteTaskFromModal() {
+            if (editingTaskId && confirm("Delete this task?")) {
+                del(editingTaskId);
+                closeTaskModal();
+            }
+        }
+
         window.toggle = (id) => { const i = state.todos.find(x=>x.id==id); if(i){ i.completed=!i.completed; renderTodos(); saveLocal(); } }
         window.del = (id) => { state.todos = state.todos.filter(x=>x.id!==id); renderTodos(); saveLocal(); }
         
