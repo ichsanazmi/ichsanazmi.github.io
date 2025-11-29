@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pre-Order Buku Riyadhotul Lisan - Cetakan Ke-5</title>
+    <meta name="description" content="Pre-Order Buku Riyadhotul Lisan Cetakan ke-5. Panduan praktis memperbaiki makhraj & sifat huruf. Bonus Dauroh bersama Ustadz Heri Suheri.">
+    
+    <!-- PENTING: Pastikan Laptop Terkoneksi Internet untuk Memuat Desain -->
+    
+    <!-- 1. Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- 2. Konfigurasi Tema (Warna Emas & Hitam) -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#B8860B', 
+                        secondary: '#1a1a1a',
+                        light: '#F9FAFB',
+                        accent: '#D4AF37', 
+                        graytext: '#4b5563',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif', 'Arial'],
+                        serif: ['Playfair Display', 'serif', 'Georgia'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- 3. Google Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* CSS CADANGAN (FALLBACK) 
+           Agar tampilan tetap rapi walau internet lambat/mati */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            color: #1a1a1a;
+        }
+        img { max-width: 100%; height: auto; }
+        
+        /* Custom Styles untuk Desain Utama */
+        .hero-gradient {
+            background: linear-gradient(135deg, #d9a355 0%, #e3ba83 100%);
+        }
+        
+        .mockup-shadow {
+            filter: drop-shadow(0 20px 20px rgba(0,0,0,0.25));
+        }
+
+        /* Animasi Tombol */
+        @keyframes subtle-pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+        .btn-pulse {
+            animation: subtle-pulse 2s infinite;
+        }
+
+        /* Perbaikan scrollbar agar halus */
+        html { scroll-behavior: smooth; }
+    </style>
+</head>
+<body class="font-sans text-secondary antialiased bg-gray-50">
+
+    <!-- Navbar -->
+    <nav class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center gap-2">
+                <i class="fa-solid fa-book-quran text-primary text-2xl"></i>
+                <span class="font-serif font-bold text-xl text-secondary">Riyadhotul Lisan</span>
+            </div>
+            <!-- Tombol Checkout Desktop -->
+            <a href="#order" class="hidden md:inline-flex items-center gap-2 bg-secondary text-white px-6 py-2 rounded-full font-medium hover:bg-primary transition duration-300">
+                <i class="fa-solid fa-cart-shopping text-sm"></i> Checkout
+            </a>
+        </div>
+    </nav>
+
+    <!-- HERO SECTION -->
+    <header class="hero-gradient pt-10 pb-16 md:pt-20 md:pb-24 relative overflow-hidden">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row items-center gap-12">
+                
+                <!-- Kiri: Teks -->
+                <div class="w-full md:w-1/2 text-center md:text-left z-10 relative">
+                    <!-- Label Terjual -->
+                    <div class="inline-block bg-white/30 backdrop-blur-sm text-secondary px-4 py-1 rounded-full text-sm font-bold mb-4 border border-white/40 shadow-sm">
+                        <i class="fa-solid fa-star mr-1 text-secondary"></i> Telah Terjual 5.000+ Eksemplar
+                    </div>
+                    
+                    <h1 class="font-serif text-4xl md:text-5xl lg:text-6xl font-bold text-secondary leading-tight mb-6 drop-shadow-sm">
+                        Kunci Lisan Fasih Membaca <span class="text-white italic">Al-Qur'an</span>
+                    </h1>
+                    
+                    <p class="text-lg text-secondary/90 font-medium mb-8 leading-relaxed">
+                        Buku Riyadhotul Lisan kembali dengan <strong>Cetakan Ke-5 (Versi Ringkas & Disempurnakan)</strong>. Solusi praktis memperbaiki makhraj & sifat huruf dari rumah.
+                    </p>
+                    
+                    <!-- Alert Stok -->
+                    <div class="bg-white border-l-4 border-red-600 p-4 mb-8 text-left rounded-r-lg shadow-md max-w-lg">
+                        <p class="text-red-700 font-bold text-sm uppercase tracking-wide mb-1">Peringatan Stok:</p>
+                        <p class="text-graytext text-sm">Cetakan sebelumnya <strong>SOLD OUT</strong> dalam waktu singkat. Amankan segera!</p>
+                    </div>
+
+                    <!-- Tombol Aksi -->
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
+                        <a href="#order" class="btn-pulse bg-secondary text-white text-lg font-bold py-4 px-8 rounded-lg shadow-xl hover:bg-white hover:text-secondary border-2 border-transparent hover:border-secondary transition transform hover:-translate-y-1 text-center flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-cart-shopping"></i> Checkout Sekarang
+                        </a>
+                        <a href="#features" class="flex items-center justify-center gap-2 text-secondary font-bold hover:text-white transition py-4 px-6 border-2 border-secondary rounded-lg bg-transparent hover:bg-secondary hover:border-secondary">
+                            <i class="fa-solid fa-info-circle text-xl"></i> Baca Detail
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Kanan: Gambar Buku -->
+                <div class="w-full md:w-1/2 relative z-10 flex justify-center mt-8 md:mt-0">
+                    <div class="relative w-full max-w-sm md:max-w-md transform rotate-2 hover:rotate-0 transition duration-500">
+                         <!-- Efek Cahaya Belakang -->
+                        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-white/30 rounded-full blur-3xl -z-10"></div>
+                        
+                        <!-- Gambar Utama -->
+                        <img src="https://store.qlc.id/wp-content/uploads/2025/11/Buku-4-2.png" alt="Cover Buku Riyadhotul Lisan" class="relative z-10 w-full mockup-shadow rounded-lg">
+                        
+                        <!-- Badge Edisi Baru -->
+                        <div class="absolute -top-6 -right-4 md:-right-8 bg-white text-primary font-bold rounded-full w-24 h-24 flex items-center justify-center text-center shadow-lg transform rotate-12 border-4 border-primary/20 z-20">
+                            <span class="text-sm leading-tight">Edisi<br>Terbaru<br>2025</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Gelombang Putih Bawah -->
+        <div class="absolute bottom-0 left-0 w-full overflow-hidden leading-none rotate-180">
+            <svg class="relative block w-[calc(100%+1.3px)] h-[40px] md:h-[60px]" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
+                <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z" class="fill-white"></path>
+            </svg>
+        </div>
+    </header>
+
+    <!-- MASALAH & SOLUSI -->
+    <section id="features" class="py-16 bg-white">
+        <div class="container mx-auto px-4 max-w-4xl text-center">
+            <h2 class="font-serif text-3xl md:text-4xl font-bold text-secondary mb-6">Mengapa Buku Ini Sangat Dinantikan?</h2>
+            <div class="w-20 h-1 bg-primary mx-auto mb-8"></div>
+            
+            <p class="text-graytext text-lg leading-relaxed mb-10">
+                Banyak dari kita yang semangat belajar tajwid, tapi <strong>kesulitan berlatih mandiri di rumah</strong>. Lidah terasa kaku, bingung posisi makhraj, dan tidak ada panduan visual yang jelas.
+            </p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-left">
+                <!-- Masalah -->
+                <div class="bg-gray-50 p-6 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition">
+                    <div class="flex items-start gap-4">
+                        <div class="bg-red-100 p-3 rounded-full text-red-600 shrink-0">
+                            <i class="fa-solid fa-triangle-exclamation text-xl"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-lg mb-2 text-secondary">Tantangan Belajar</h4>
+                            <p class="text-sm text-graytext">Sering lupa teori saat praktik sendiri dan tidak yakin apakah pelafalan sudah benar atau belum.</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Solusi -->
+                <div class="bg-green-50 p-6 rounded-xl border border-green-100 shadow-sm hover:shadow-md transition">
+                    <div class="flex items-start gap-4">
+                        <div class="bg-green-100 p-3 rounded-full text-green-600 shrink-0">
+                            <i class="fa-solid fa-check-double text-xl"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-lg mb-2 text-secondary">Solusi Tepat</h4>
+                            <p class="text-sm text-graytext">Riyadhotul Lisan hadir dengan ilustrasi makhraj Full HD & Video Praktik via QR Code yang siap membimbing Anda.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- APA YANG BARU (FITUR) -->
+    <section class="py-16 bg-secondary text-white relative">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-12">
+                <span class="text-accent font-bold tracking-wider uppercase text-xs md:text-sm bg-white/10 px-3 py-1 rounded-full">Versi Disempurnakan</span>
+                <h2 class="font-serif text-3xl md:text-4xl font-bold mt-4">Apa yang Baru di Cetakan Ke-5?</h2>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+                <!-- Fitur 1 -->
+                <div class="bg-white/5 p-8 rounded-2xl border border-white/10 hover:border-primary/50 transition duration-300">
+                    <i class="fa-solid fa-wand-magic-sparkles text-4xl text-primary mb-4"></i>
+                    <h3 class="text-xl font-bold mb-3 text-accent">Ilustrasi Eksklusif</h3>
+                    <p class="text-gray-300 text-sm leading-relaxed">
+                        Gambar organ pelafalan diperbarui agar lebih presisi. Sangat membantu memvisualisasikan letak huruf.
+                    </p>
+                </div>
+
+                <!-- Fitur 2 -->
+                <div class="bg-white/5 p-8 rounded-2xl border border-white/10 hover:border-primary/50 transition duration-300">
+                    <i class="fa-solid fa-list-check text-4xl text-primary mb-4"></i>
+                    <h3 class="text-xl font-bold mb-3 text-accent">Seleksi Lafaz Akurat</h3>
+                    <p class="text-gray-300 text-sm leading-relaxed">
+                        Contoh latihan disusun ulang untuk mencakup 12 kondisi huruf yang sering terjadi kesalahan.
+                    </p>
+                </div>
+
+                <!-- Fitur 3 -->
+                <div class="bg-white/5 p-8 rounded-2xl border border-white/10 hover:border-primary/50 transition duration-300">
+                    <i class="fa-solid fa-bullseye text-4xl text-primary mb-4"></i>
+                    <h3 class="text-xl font-bold mb-3 text-accent">Latihan Lebih Fokus</h3>
+                    <p class="text-gray-300 text-sm leading-relaxed">
+                        Tata letak halaman "olahraga lisan" didesain agar mata nyaman dan fokus terjaga.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Box Spesifikasi -->
+            <div class="mt-16 bg-white text-secondary rounded-2xl p-6 md:p-10 shadow-2xl flex flex-col md:flex-row gap-8 items-center">
+                <div class="w-full md:w-1/2">
+                     <h3 class="font-serif text-2xl font-bold mb-6 border-l-4 border-primary pl-4">Spesifikasi Premium</h3>
+                     <ul class="space-y-3 text-sm md:text-base">
+                        <li class="flex items-center gap-3">
+                            <i class="fa-solid fa-check text-green-600 bg-green-100 p-1 rounded-full text-xs"></i>
+                            <span><strong>Kertas:</strong> Art Paper 150gr (Licin & Mewah)</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <i class="fa-solid fa-check text-green-600 bg-green-100 p-1 rounded-full text-xs"></i>
+                            <span><strong>Visual:</strong> Full Color Eye-Catching</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <i class="fa-solid fa-check text-green-600 bg-green-100 p-1 rounded-full text-xs"></i>
+                            <span><strong>Jilid:</strong> Soft Cover Spiral (Nyaman dibuka 360°)</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <i class="fa-solid fa-check text-green-600 bg-green-100 p-1 rounded-full text-xs"></i>
+                            <span><strong>Digital:</strong> Scan QR Code Video Praktik</span>
+                        </li>
+                     </ul>
+                </div>
+                <div class="w-full md:w-1/2 bg-gray-100 rounded-xl p-6 text-center border-2 border-dashed border-gray-300">
+                    <p class="text-graytext mb-4 font-bold">Direkomendasikan Untuk:</p>
+                    <div class="flex flex-wrap gap-2 justify-center">
+                        <span class="bg-white px-3 py-1 rounded-full text-sm border">Pemula Tahsin</span>
+                        <span class="bg-white px-3 py-1 rounded-full text-sm border">Guru Ngaji</span>
+                        <span class="bg-white px-3 py-1 rounded-full text-sm border">Orang Tua</span>
+                        <span class="bg-white px-3 py-1 rounded-full text-sm border">Santri Pondok</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- BONUS SECTION -->
+    <section class="py-16 bg-gradient-to-br from-primary/10 to-white">
+        <div class="container mx-auto px-4">
+            <div class="max-w-3xl mx-auto border-2 border-dashed border-primary rounded-3xl p-8 md:p-12 text-center bg-white shadow-xl relative overflow-hidden">
+                <div class="absolute top-0 right-0 bg-primary text-white text-xs font-bold px-4 py-2 rounded-bl-xl shadow-md">SPECIAL OFFER</div>
+                
+                <h2 class="font-serif text-2xl md:text-3xl font-bold text-secondary mb-2">🎁 BONUS EKSKLUSIF PRE-ORDER</h2>
+                <p class="text-graytext mb-6">Pesan sekarang, dapatkan akses belajar langsung!</p>
+
+                <div class="bg-gradient-to-r from-secondary to-gray-800 text-white p-6 rounded-xl mb-6 shadow-lg transform hover:scale-[1.02] transition duration-300 cursor-pointer border border-gray-700">
+                    <div class="flex flex-col md:flex-row items-center gap-4 justify-center">
+                        <div class="bg-white/10 p-4 rounded-full">
+                            <i class="fa-solid fa-chalkboard-user text-3xl text-accent"></i>
+                        </div>
+                        <div class="text-center md:text-left">
+                            <h3 class="font-bold text-lg md:text-xl text-accent">GRATIS AKSES DAUROH ONLINE</h3>
+                            <p class="text-sm text-gray-300">Bedah Kitab Riyadhotul Lisan bersama Penulis</p>
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-4 border-t border-gray-600 flex flex-col md:flex-row justify-between items-center text-sm gap-2">
+                        <span class="flex items-center gap-2"><i class="fa-solid fa-user-tie"></i> Pemateri: <strong>Ustadz Heri Suheri</strong></span>
+                        <span class="bg-primary px-3 py-1 rounded text-xs text-white font-bold">Desember 2025</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- PRICING & CTA -->
+    <section id="order" class="py-20 bg-white">
+        <div class="container mx-auto px-4 max-w-xl text-center">
+            
+            <h2 class="text-3xl font-bold text-secondary mb-2">Amankan Kuota Anda</h2>
+            <p class="text-graytext mb-8 text-sm">Pre-Order ditutup otomatis saat hitungan mundur berakhir:</p>
+
+            <!-- Countdown -->
+            <div class="flex justify-center gap-3 mb-10 text-secondary">
+                <div class="bg-gray-100 border border-gray-200 p-2 rounded-lg w-16 md:w-20">
+                    <span id="days" class="block text-2xl md:text-3xl font-bold font-serif">07</span>
+                    <span class="text-[10px] uppercase text-graytext font-bold">Hari</span>
+                </div>
+                <div class="bg-gray-100 border border-gray-200 p-2 rounded-lg w-16 md:w-20">
+                    <span id="hours" class="block text-2xl md:text-3xl font-bold font-serif">00</span>
+                    <span class="text-[10px] uppercase text-graytext font-bold">Jam</span>
+                </div>
+                <div class="bg-gray-100 border border-gray-200 p-2 rounded-lg w-16 md:w-20">
+                    <span id="minutes" class="block text-2xl md:text-3xl font-bold font-serif">00</span>
+                    <span class="text-[10px] uppercase text-graytext font-bold">Menit</span>
+                </div>
+            </div>
+
+            <!-- Pricing Card -->
+            <div class="bg-white border-2 border-primary/20 shadow-2xl rounded-2xl overflow-hidden mb-8 relative transform hover:-translate-y-1 transition duration-300">
+                <div class="bg-primary text-white py-2 text-sm font-bold tracking-widest uppercase">
+                    Paket Hemat Pre-Order
+                </div>
+                <div class="p-8">
+                    <p class="text-gray-400 line-through text-lg">Rp 195.000</p>
+                    <div class="flex justify-center items-baseline gap-1 my-2">
+                        <span class="text-sm font-bold text-gray-500">Rp</span>
+                        <span class="text-5xl font-bold text-secondary">130.000</span>
+                    </div>
+                    <div class="inline-block bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold mb-6">
+                        Hemat Rp 65.000
+                    </div>
+                    
+                    <hr class="border-gray-100 mb-6">
+
+                    <ul class="text-left space-y-3 mb-8 text-graytext text-sm">
+                        <li class="flex items-center gap-3"><i class="fa-solid fa-check text-green-500"></i> Buku Riyadhotul Lisan (Cet. 5)</li>
+                        <li class="flex items-center gap-3"><i class="fa-solid fa-check text-green-500"></i> Akses Video Praktik (QR Code)</li>
+                        <li class="flex items-center gap-3"><i class="fa-solid fa-gift text-primary"></i> <strong>Bonus:</strong> Tiket Dauroh Online</li>
+                    </ul>
+
+                    <!-- CTA Button -->
+                    <a href="#" class="btn-pulse block w-full bg-green-600 hover:bg-green-700 text-white font-bold text-lg md:text-xl py-4 rounded-xl shadow-lg transition duration-300 flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-cart-shopping"></i> Checkout Sekarang
+                    </a>
+                    
+                    <div class="mt-4 flex justify-center gap-4 text-gray-400 text-xs">
+                        <span class="flex items-center gap-1"><i class="fa-solid fa-lock"></i> Bayar Aman</span>
+                        <span class="flex items-center gap-1"><i class="fa-solid fa-truck-fast"></i> Kirim Cepat</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-secondary text-white py-10 border-t-8 border-primary">
+        <div class="container mx-auto px-4 text-center">
+            <h3 class="font-serif text-2xl font-bold mb-4">Riyadhotul Lisan</h3>
+            <p class="text-gray-400 text-sm mb-6 max-w-md mx-auto leading-relaxed">
+                Media partner terbaik Anda dalam memperbaiki bacaan Al-Qur'an sesuai kaidah tajwid.
+            </p>
+            <p class="text-gray-600 text-xs">
+                &copy; 2025 Riyadhotul Lisan. All rights reserved.
+            </p>
+        </div>
+    </footer>
+
+    <!-- Sticky Bottom CTA for Mobile -->
+    <div class="fixed bottom-0 left-0 w-full bg-white border-t border-gray-200 p-4 md:hidden z-50 shadow-[0_-5px_15px_rgba(0,0,0,0.1)] flex items-center justify-between">
+        <div>
+            <p class="text-xs text-gray-500 line-through">Rp 195.000</p>
+            <p class="font-bold text-secondary text-lg">Rp 130.000</p>
+        </div>
+        <a href="#order" class="bg-primary text-white font-bold py-2 px-6 rounded-lg shadow-md hover:bg-accent transition flex items-center gap-2">
+            <i class="fa-solid fa-cart-shopping text-sm"></i> Beli
+        </a>
+    </div>
+
+    <!-- Script Countdown -->
+    <script>
+        (function() {
+            const countDownDate = new Date("Dec 7, 2025 23:59:59").getTime();
+            
+            // Update hitungan mundur setiap 1 detik
+            const timerInterval = setInterval(function() {
+                const now = new Date().getTime();
+                const distance = countDownDate - now;
+
+                const d = Math.floor(distance / (1000 * 60 * 60 * 24));
+                const h = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+
+                const elDay = document.getElementById("days");
+                const elHour = document.getElementById("hours");
+                const elMin = document.getElementById("minutes");
+
+                if(elDay) elDay.innerText = d < 10 ? "0" + d : d;
+                if(elHour) elHour.innerText = h < 10 ? "0" + h : h;
+                if(elMin) elMin.innerText = m < 10 ? "0" + m : m;
+
+                if (distance < 0) {
+                    clearInterval(timerInterval);
+                    if(elDay) elDay.innerText = "00";
+                    if(elHour) elHour.innerText = "00";
+                    if(elMin) elMin.innerText = "00";
+                }
+            }, 1000);
+        })();
+    </script>
+</body>
+</html>
