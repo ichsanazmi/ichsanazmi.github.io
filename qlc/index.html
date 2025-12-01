@@ -117,14 +117,13 @@
 
         <div class="flex flex-col lg:flex-row gap-6">
             
-            <!-- LEFT SIDEBAR: Progress & Calendar -->
+            <!-- LEFT SIDEBAR -->
             <div class="w-full lg:w-64 flex-shrink-0 space-y-4">
                 
                 <!-- Time Progress Bars -->
                 <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-4">
                     <h4 class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-3">Time Progress</h4>
                     
-                    <!-- Day Progress -->
                     <div class="mb-3">
                         <div class="flex justify-between items-center mb-1">
                             <span class="text-xs font-medium text-gray-600">Day</span>
@@ -135,7 +134,6 @@
                         </div>
                     </div>
 
-                    <!-- Year Progress -->
                     <div>
                         <div class="flex justify-between items-center mb-1">
                             <span class="text-xs font-medium text-gray-600">Year</span>
@@ -176,7 +174,7 @@
 
             </div>
 
-            <!-- RIGHT MAIN: Quick Add & Task Grid -->
+            <!-- RIGHT MAIN -->
             <div class="w-full lg:flex-1 flex flex-col xl:flex-row gap-6">
                 
                 <!-- Quick Add Form -->
@@ -187,7 +185,7 @@
                             Quick Add
                         </h2>
                         <form id="addTaskForm" class="space-y-3">
-                            <input type="hidden" id="newTaskDate"> <!-- Auto-set to selected date -->
+                            <input type="hidden" id="newTaskDate">
                             <div>
                                 <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Title</label>
                                 <input type="text" id="newTaskTitle" class="w-full p-2 border border-gray-200 rounded text-xs focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 outline-none" placeholder="Task Title" required>
@@ -237,7 +235,6 @@
                     
                     <!-- Dynamic Sections -->
                     <div id="taskList" class="space-y-8">
-                        <!-- Content injected by JS -->
                         <div class="text-center py-12 text-gray-400 bg-white rounded-lg border border-dashed border-gray-300">
                             <p class="text-sm">Select a date to view tasks</p>
                         </div>
@@ -260,10 +257,14 @@
             <div class="p-6 space-y-4">
                 <div class="bg-indigo-50 p-3 rounded-lg border border-indigo-100">
                     <p class="text-xs text-indigo-500 uppercase font-bold tracking-wide mb-2">Selected Task</p>
-                    <div class="space-y-2">
+                    <div class="space-y-3">
                         <div>
-                            <label class="block text-xs font-semibold text-gray-500 uppercase">Title</label>
+                            <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Title</label>
                             <input type="text" id="modalTitle" class="w-full p-2 border border-indigo-200 rounded text-sm font-bold text-gray-800 focus:ring-2 focus:ring-indigo-500 outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Description</label>
+                            <textarea id="modalDesc" rows="3" class="w-full p-2 border border-indigo-200 rounded text-sm text-gray-800 focus:ring-2 focus:ring-indigo-500 outline-none"></textarea>
                         </div>
                         <input type="hidden" id="modalRowIndex">
                     </div>
@@ -354,7 +355,6 @@
             fetchTasks();
             setInterval(updateProgress, 60000);
             
-            // Register SW logic
             if ('serviceWorker' in navigator) {
                 navigator.serviceWorker.register('./service_worker.js')
                 .then(() => console.log('Service Worker Registered'))
@@ -364,39 +364,26 @@
         
         // --- PWA LOGIC ---
         window.addEventListener('beforeinstallprompt', (e) => {
-            // Prevent the mini-infobar from appearing on mobile
             e.preventDefault();
-            // Stash the event so it can be triggered later.
             deferredPrompt = e;
-            // Update UI notify the user they can install the PWA
             const installBtn = document.getElementById('installPwaBtn');
             installBtn.classList.remove('hidden');
-            
             installBtn.addEventListener('click', async () => {
-                // Show the install prompt
                 deferredPrompt.prompt();
-                // Wait for the user to respond to the prompt
                 const { outcome } = await deferredPrompt.userChoice;
-                // We've used the prompt, and can't use it again, throw it away
                 deferredPrompt = null;
-                 // Hide the button if installed
-                if(outcome === 'accepted'){
-                     installBtn.classList.add('hidden');
-                }
+                if(outcome === 'accepted'){ installBtn.classList.add('hidden'); }
             });
         });
 
-         // Handle Install Button Click if manual (fallback)
         const installBtn = document.getElementById('installPwaBtn');
         if(installBtn) {
              installBtn.addEventListener('click', () => {
                 if (!deferredPrompt) {
-                     // Show manual instructions if automatic prompt isn't available
                     document.getElementById('installHelpModal').classList.remove('hidden');
                 }
             });
         }
-
 
         // --- PASTE HANDLER ---
         document.addEventListener('paste', (e) => {
@@ -439,7 +426,6 @@
 
         function assignFile(input, file) {
             const dt = new DataTransfer();
-            // Handle screenshots that might not have a name
             if (!file.name || file.name === 'image.png') {
                 const ext = file.type.split('/')[1] || 'png';
                 const ts = new Date().toISOString().replace(/[:.]/g, '-');
@@ -449,10 +435,8 @@
             } else {
                 dt.items.add(file);
             }
-            
             input.files = dt.files;
             
-            // Visual feedback
             const prevBg = input.style.backgroundColor;
             input.classList.add('bg-indigo-100');
             setTimeout(() => input.classList.remove('bg-indigo-100'), 400);
@@ -460,7 +444,7 @@
             showStatus('File pasted successfully!', 'success');
         }
 
-        // --- PROGRESS & CALENDAR LOGIC (Same as before) ---
+        // --- PROGRESS & CALENDAR LOGIC ---
         function updateProgress() {
             const now = new Date();
             const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -558,7 +542,27 @@
             }
         }
 
-        // --- FILTER & RENDER TASKS (UPDATED CATEGORIES) ---
+        // --- DELETE TASK (Added) ---
+        async function deleteTask(rowIndex) {
+            if(!confirm("Are you sure you want to delete this task?")) return;
+            const list = document.getElementById('taskList');
+            // Show simple loading state over the list or just continue
+            
+            try {
+                const response = await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: "delete_task", rowIndex: rowIndex }) });
+                const json = await response.json();
+                if(json.result === 'success') {
+                    showStatus('Task deleted successfully', 'success');
+                    fetchTasks();
+                } else {
+                    throw new Error(json.message);
+                }
+            } catch(e) {
+                showStatus(e.message, 'error');
+            }
+        }
+
+        // --- FILTER & RENDER TASKS ---
         function filterAndRenderTasks() {
             const list = document.getElementById('taskList');
             list.innerHTML = '';
@@ -581,7 +585,6 @@
             const pending = filteredTasks.filter(t => t.status !== 'Selesai' && t.status !== 'Complete');
             const completed = filteredTasks.filter(t => t.status === 'Selesai' || t.status === 'Complete');
 
-            // --- RENDER HELPER ---
             const renderGrid = (tasks) => {
                 let html = '<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4">';
                 tasks.forEach(task => {
@@ -597,8 +600,11 @@
 
                     html += `
                     <div class="${cardBgClass} p-4 rounded-lg shadow-sm border hover:shadow-md transition duration-200 flex flex-col h-full relative group">
-                        <div class="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                             <button onclick='openModal(${JSON.stringify(task).replace(/'/g, "&#39;")}, ${rowIndex})' class="text-gray-500 hover:text-indigo-600">
+                        <div class="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
+                             <button onclick='deleteTask(${rowIndex})' class="text-gray-400 hover:text-red-500 transition-colors" title="Delete Task">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                             </button>
+                             <button onclick='openModal(${JSON.stringify(task).replace(/'/g, "&#39;")}, ${rowIndex})' class="text-gray-400 hover:text-indigo-600 transition-colors" title="Edit Task">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
                             </button>
                         </div>
@@ -615,26 +621,11 @@
                 return html;
             };
 
-            // 1. Pending Section (Belum)
             if (pending.length > 0) {
-                list.innerHTML += `<div class="mb-2">
-                    <h3 class="text-amber-800 font-bold text-xs uppercase tracking-wider mb-3 border-b border-amber-100 pb-1 flex items-center gap-2">
-                        <span>Belum Selesai</span>
-                        <span class="bg-amber-100 text-amber-700 px-1.5 rounded-full text-[10px]">${pending.length}</span>
-                    </h3>
-                    ${renderGrid(pending)}
-                </div>`;
+                list.innerHTML += `<div class="mb-2"><h3 class="text-amber-800 font-bold text-xs uppercase tracking-wider mb-3 border-b border-amber-100 pb-1 flex items-center gap-2"><span>Belum Selesai</span><span class="bg-amber-100 text-amber-700 px-1.5 rounded-full text-[10px]">${pending.length}</span></h3>${renderGrid(pending)}</div>`;
             }
-
-            // 2. Completed Section (Selesai)
             if (completed.length > 0) {
-                list.innerHTML += `<div class="mt-6">
-                    <h3 class="text-emerald-800 font-bold text-xs uppercase tracking-wider mb-3 border-b border-emerald-100 pb-1 flex items-center gap-2">
-                        <span>Selesai</span>
-                        <span class="bg-emerald-100 text-emerald-700 px-1.5 rounded-full text-[10px]">${completed.length}</span>
-                    </h3>
-                    ${renderGrid(completed)}
-                </div>`;
+                list.innerHTML += `<div class="mt-6"><h3 class="text-emerald-800 font-bold text-xs uppercase tracking-wider mb-3 border-b border-emerald-100 pb-1 flex items-center gap-2"><span>Selesai</span><span class="bg-emerald-100 text-emerald-700 px-1.5 rounded-full text-[10px]">${completed.length}</span></h3>${renderGrid(completed)}</div>`;
             }
         }
 
@@ -650,7 +641,6 @@
                 const file1 = document.getElementById('newTaskFile1').files[0];
                 const file2 = document.getElementById('newTaskFile2').files[0];
                 const filesPayload = [];
-
                 if (file1) filesPayload.push(await toBase64(file1, 1));
                 if (file2) filesPayload.push(await toBase64(file2, 2));
 
@@ -661,12 +651,8 @@
                     date: document.getElementById('newTaskDate').value
                 };
 
-                const response = await fetch(GAS_URL, {
-                    method: 'POST',
-                    body: JSON.stringify({ action: "upsert_task", task: task, files: filesPayload })
-                });
+                const response = await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: "upsert_task", task: task, files: filesPayload }) });
                 const result = await response.json();
-                
                 if (result.result === 'success') {
                     showStatus('Task added successfully', 'success');
                     document.getElementById('newTaskTitle').value = "";
@@ -675,19 +661,16 @@
                     document.getElementById('newTaskFile2').value = "";
                     fetchTasks();
                 } else throw new Error(result.message);
-            } catch (error) {
-                showStatus(error.message, 'error');
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = originalText;
-            }
+            } catch (error) { showStatus(error.message, 'error'); } 
+            finally { btn.disabled = false; btn.innerHTML = originalText; }
         });
 
-        // --- MODAL & SUBMIT (Existing Logic) ---
+        // --- MODAL & SUBMIT ---
         function openModal(task, rowIndex) {
             document.getElementById('uploadModal').classList.remove('hidden');
             document.getElementById('modalRowIndex').value = rowIndex;
             document.getElementById('modalTitle').value = task.text || "";
+            document.getElementById('modalDesc').value = task.description || ""; // Updated: Populate Description
             document.getElementById('modalStatus').value = task.status;
 
             const f1 = document.getElementById('fileInput1');
@@ -725,7 +708,8 @@
                     rowIndex: parseInt(rowIndex),
                     task: {
                         status: document.getElementById('modalStatus').value,
-                        text: document.getElementById('modalTitle').value 
+                        text: document.getElementById('modalTitle').value,
+                        description: document.getElementById('modalDesc').value // Updated: Send Description
                     },
                     files: filesPayload
                 };
@@ -737,12 +721,8 @@
                     closeModal();
                     fetchTasks();
                 } else throw new Error(result.message);
-            } catch (error) {
-                showStatus('Error: ' + error.message, 'error');
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = originalText;
-            }
+            } catch (error) { showStatus('Error: ' + error.message, 'error'); } 
+            finally { btn.disabled = false; btn.innerHTML = originalText; }
         }
 
         function toBase64(file, slotNumber) {
@@ -763,7 +743,6 @@
             const icon = document.getElementById('statusIcon');
             el.classList.remove('hidden');
             text.textContent = msg;
-
             if (type === 'success') {
                 el.classList.add('border-green-500'); el.classList.remove('border-red-500');
                 icon.innerHTML = `<svg class="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>`;
