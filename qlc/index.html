@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task & File Manager</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom scrollbar for aesthetics */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #c7c7c7; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #a8a8a8; }
+        .loader {
+            border: 3px solid #f3f3f3; border-top: 3px solid #4f46e5; border-radius: 50%;
+            width: 20px; height: 20px; animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        /* Compact Calendar Styles */
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 2px; /* Tighter gap */
+        }
+        .calendar-day {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px; /* Slightly squarer for compact look */
+            cursor: pointer;
+            font-size: 0.75rem; /* Smaller text */
+            transition: all 0.2s;
+            height: 28px; /* Fixed small height */
+        }
+        .calendar-day:hover:not(.selected):not(.empty) {
+            background-color: #e0e7ff;
+            color: #4338ca;
+        }
+        .calendar-day.selected {
+            background-color: #4f46e5;
+            color: white;
+            font-weight: bold;
+        }
+        .calendar-day.today {
+            border: 1px solid #6366f1;
+            color: #4f46e5;
+            font-weight: 600;
+        }
+        .calendar-day.selected.today {
+            border: 1px solid white;
+            color: white;
+        }
+        .calendar-day.has-task {
+            position: relative;
+        }
+        .calendar-day.has-task::after {
+            content: '';
+            position: absolute;
+            bottom: 2px;
+            width: 3px;
+            height: 3px;
+            background-color: #ef4444; 
+            border-radius: 50%;
+        }
+        .calendar-day.selected.has-task::after {
+            background-color: white;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans min-h-screen p-4 md:p-6">
+
+    <div class="max-w-7xl mx-auto">
+        
+        <!-- Header -->
+        <header class="mb-6 border-b border-indigo-200 pb-4 flex flex-col md:flex-row md:items-center md:justify-between">
+            <div>
+                <h1 class="text-2xl font-bold text-indigo-700 tracking-tight">Task Manager</h1>
+                <p class="text-xs text-gray-500 mt-1">Manage tasks and upload attachments to Drive</p>
+            </div>
+            <div class="mt-4 md:mt-0 text-right">
+                <span id="currentDateDisplay" class="text-sm font-semibold text-gray-700 block"></span>
+                <span class="text-[10px] text-gray-400 uppercase tracking-wider">Current Selection</span>
+            </div>
+        </header>
+
+        <!-- Status Notification -->
+        <div id="statusMessage" class="hidden fixed top-4 right-4 max-w-sm w-full bg-white border-l-4 p-4 rounded shadow-lg z-50 transition-all duration-300">
+            <div class="flex items-center">
+                <div class="flex-shrink-0" id="statusIcon"></div>
+                <div class="ml-3">
+                    <p class="text-sm font-medium" id="statusText"></p>
+                </div>
+                <button onclick="hideStatus()" class="ml-auto text-gray-400 hover:text-gray-900">×</button>
+            </div>
+        </div>
+
+        <div class="flex flex-col lg:flex-row gap-6">
+            
+            <!-- LEFT SIDEBAR: Progress & Calendar -->
+            <div class="w-full lg:w-64 flex-shrink-0 space-y-4">
+                
+                <!-- Time Progress Bars (Moved Top) -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-4">
+                    <h4 class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-3">Time Progress</h4>
+                    
+                    <!-- Day Progress -->
+                    <div class="mb-3">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-xs font-medium text-gray-600">Day</span>
+                            <span id="dayProgressText" class="text-xs font-bold text-indigo-600">0%</span>
+                        </div>
+                        <div class="w-full bg-gray-100 rounded-full h-1.5 overflow-hidden">
+                            <div id="dayProgressBar" class="bg-indigo-500 h-1.5 rounded-full transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Year Progress -->
+                    <div>
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-xs font-medium text-gray-600">Year</span>
+                            <span id="yearProgressText" class="text-xs font-bold text-purple-600">0%</span>
+                        </div>
+                        <div class="w-full bg-gray-100 rounded-full h-1.5 overflow-hidden">
+                            <div id="yearProgressBar" class="bg-purple-500 h-1.5 rounded-full transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Compact Mini Calendar (Moved Below) -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-3">
+                    <div class="flex justify-between items-center mb-2">
+                        <button onclick="changeMonth(-1)" class="p-1 hover:bg-gray-50 rounded text-gray-500">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                        </button>
+                        <h3 id="calendarMonthYear" class="text-sm font-bold text-gray-800"></h3>
+                        <button onclick="changeMonth(1)" class="p-1 hover:bg-gray-50 rounded text-gray-500">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                        </button>
+                    </div>
+                    
+                    <div class="calendar-grid text-center mb-1">
+                        <span class="text-[10px] font-bold text-gray-400">S</span>
+                        <span class="text-[10px] font-bold text-gray-400">M</span>
+                        <span class="text-[10px] font-bold text-gray-400">T</span>
+                        <span class="text-[10px] font-bold text-gray-400">W</span>
+                        <span class="text-[10px] font-bold text-gray-400">T</span>
+                        <span class="text-[10px] font-bold text-gray-400">F</span>
+                        <span class="text-[10px] font-bold text-gray-400">S</span>
+                    </div>
+                    <div id="calendarDays" class="calendar-grid">
+                        <!-- Days injected by JS -->
+                    </div>
+                    <button onclick="selectToday()" class="w-full mt-2 text-[10px] font-semibold text-indigo-600 hover:bg-indigo-50 py-1.5 rounded transition">Jump to Today</button>
+                </div>
+
+            </div>
+
+            <!-- RIGHT MAIN: Quick Add & Task Grid -->
+            <div class="w-full lg:flex-1 flex flex-col xl:flex-row gap-6">
+                
+                <!-- Quick Add Form (Now Side-by-Side with Tasks on XL screens) -->
+                <div class="w-full xl:w-72 flex-shrink-0">
+                    <section class="bg-white rounded-lg shadow-sm border border-gray-100 p-4 sticky top-4">
+                        <h2 class="text-sm font-bold mb-3 text-gray-700 flex items-center">
+                            <svg class="w-3 h-3 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                            Quick Add
+                        </h2>
+                        <form id="addTaskForm" class="space-y-3">
+                            <input type="hidden" id="newTaskDate"> <!-- Auto-set to selected date -->
+                            <div>
+                                <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Title</label>
+                                <input type="text" id="newTaskTitle" class="w-full p-2 border border-gray-200 rounded text-xs focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 outline-none" placeholder="Task Title" required>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Details</label>
+                                <textarea id="newTaskDesc" rows="4" class="w-full p-2 border border-gray-200 rounded text-xs focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 outline-none" placeholder="Description..." required></textarea>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Status</label>
+                                <select id="newTaskStatus" class="w-full p-2 border border-gray-200 rounded text-xs focus:ring-1 focus:ring-indigo-500 outline-none bg-white">
+                                    <option value="Belum">Belum</option>
+                                    <option value="Selesai">Selesai</option>
+                                </select>
+                            </div>
+                            <button type="submit" id="addBtn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 rounded text-xs shadow-sm transition duration-200 mt-2">
+                                Add Task
+                            </button>
+                        </form>
+                    </section>
+                </div>
+
+                <!-- Task Grid -->
+                <div class="flex-1">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-lg font-bold text-gray-800 flex items-center gap-2">
+                            Tasks for <span id="selectedDateTitle" class="text-indigo-600"></span>
+                        </h2>
+                        <div class="flex gap-2">
+                            <button onclick="fetchTasks()" class="text-xs text-gray-500 hover:text-indigo-600 font-medium flex items-center gap-1 bg-white border border-gray-200 px-2 py-1 rounded shadow-sm">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                                Refresh
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Grid Layout for Tasks -->
+                    <div id="taskList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4">
+                        <!-- Tasks injected here -->
+                        <div class="col-span-full text-center py-12 text-gray-400 bg-white rounded-lg border border-dashed border-gray-300">
+                            <p class="text-sm">Select a date to view tasks</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Edit/Upload Modal -->
+    <div id="uploadModal" class="hidden fixed inset-0 bg-gray-900/75 flex items-center justify-center p-4 z-40 backdrop-blur-sm">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden transform transition-all">
+            <div class="bg-gray-50 px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                <h3 class="text-lg font-bold text-gray-800">Edit Task & Upload</h3>
+                <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+            </div>
+            
+            <div class="p-6 space-y-4">
+                <div class="bg-indigo-50 p-3 rounded-lg border border-indigo-100">
+                    <p class="text-xs text-indigo-500 uppercase font-bold tracking-wide mb-2">Selected Task</p>
+                    <div class="space-y-2">
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-500 uppercase">Title</label>
+                            <input type="text" id="modalTitle" class="w-full p-2 border border-indigo-200 rounded text-sm font-bold text-gray-800 focus:ring-2 focus:ring-indigo-500 outline-none">
+                        </div>
+                        <input type="hidden" id="modalRowIndex">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Update Status</label>
+                    <select id="modalStatus" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-indigo-500">
+                        <option value="Belum">Belum</option>
+                        <option value="Selesai">Selesai</option>
+                    </select>
+                </div>
+
+                <!-- File Inputs -->
+                <div class="space-y-3 pt-2">
+                    <p class="text-sm font-semibold text-gray-700">Attachments (Max 2)</p>
+                    
+                    <!-- File 1 -->
+                    <div class="border border-dashed border-gray-300 rounded-lg p-3 bg-gray-50 hover:bg-white transition">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-xs font-bold text-gray-500">Slot 1 (Link D)</span>
+                            <a id="link1Display" target="_blank" class="text-xs text-blue-600 hover:underline hidden flex items-center gap-1">
+                                View Existing <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                            </a>
+                        </div>
+                        <input type="file" id="fileInput1" class="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 transition disabled:opacity-50 disabled:cursor-not-allowed">
+                    </div>
+
+                    <!-- File 2 -->
+                    <div class="border border-dashed border-gray-300 rounded-lg p-3 bg-gray-50 hover:bg-white transition">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-xs font-bold text-gray-500">Slot 2 (Link E)</span>
+                            <a id="link2Display" target="_blank" class="text-xs text-blue-600 hover:underline hidden flex items-center gap-1">
+                                View Existing <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                            </a>
+                        </div>
+                        <input type="file" id="fileInput2" class="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 transition disabled:opacity-50 disabled:cursor-not-allowed">
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-gray-100 px-6 py-4 flex justify-end gap-3">
+                <button onclick="closeModal()" class="px-4 py-2 text-gray-600 font-medium hover:bg-gray-200 rounded-lg transition">Cancel</button>
+                <button onclick="submitModal()" id="modalSubmitBtn" class="px-6 py-2 bg-indigo-600 text-white font-bold rounded-lg shadow hover:bg-indigo-700 transition flex items-center gap-2">
+                    Save Changes
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- CONFIGURATION ---
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbz8y5ena3plYJoXwotwT-NakjvI23JB6y59Qo0R4jpV8JOj4tWEDIpKQJSvX1I2tII4/exec";
+
+        // --- STATE VARIABLES ---
+        let allTasks = [];
+        let selectedDate = new Date(); // Date object
+        let calendarViewDate = new Date(); // Date object for calendar navigation
+
+        // --- INIT ---
+        window.onload = function() {
+            selectToday();
+            updateProgress();
+            fetchTasks();
+            
+            // Update progress every minute
+            setInterval(updateProgress, 60000);
+        };
+
+        // --- PROGRESS BAR LOGIC ---
+        function updateProgress() {
+            const now = new Date();
+
+            // 1. Day Progress
+            const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            const msPassedToday = now - startOfDay;
+            const msInDay = 24 * 60 * 60 * 1000;
+            const dayPercent = Math.min(100, Math.max(0, (msPassedToday / msInDay) * 100)).toFixed(1);
+
+            document.getElementById('dayProgressBar').style.width = `${dayPercent}%`;
+            document.getElementById('dayProgressText').textContent = `${dayPercent}%`;
+
+            // 2. Year Progress
+            const startOfYear = new Date(now.getFullYear(), 0, 1);
+            // Check for leap year
+            const isLeap = (now.getFullYear() % 400 === 0) || (now.getFullYear() % 100 !== 0 && now.getFullYear() % 4 === 0);
+            const daysInYear = isLeap ? 366 : 365;
+            const oneDay = 1000 * 60 * 60 * 24;
+            
+            // Calculate day of year
+            const diff = now - startOfYear;
+            const dayOfYear = Math.floor(diff / oneDay);
+            const yearPercent = Math.min(100, Math.max(0, (dayOfYear / daysInYear) * 100)).toFixed(1);
+
+            document.getElementById('yearProgressBar').style.width = `${yearPercent}%`;
+            document.getElementById('yearProgressText').textContent = `${yearPercent}%`;
+        }
+
+        // --- CALENDAR LOGIC ---
+        function selectToday() {
+            selectedDate = new Date();
+            calendarViewDate = new Date();
+            updateDateDisplay();
+            renderCalendar();
+            filterAndRenderTasks();
+            updateProgress();
+        }
+
+        function changeMonth(delta) {
+            calendarViewDate.setMonth(calendarViewDate.getMonth() + delta);
+            renderCalendar();
+        }
+
+        function selectDate(year, month, day) {
+            selectedDate = new Date(year, month, day);
+            updateDateDisplay();
+            renderCalendar(); // Re-render to highlight selected
+            filterAndRenderTasks();
+        }
+
+        function updateDateDisplay() {
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('currentDateDisplay').textContent = selectedDate.toLocaleDateString('en-US', options);
+            document.getElementById('selectedDateTitle').textContent = selectedDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            
+            // Update hidden input for new task
+            const yyyy = selectedDate.getFullYear();
+            const mm = String(selectedDate.getMonth() + 1).padStart(2, '0');
+            const dd = String(selectedDate.getDate()).padStart(2, '0');
+            document.getElementById('newTaskDate').value = `${yyyy}-${mm}-${dd}`;
+        }
+
+        function renderCalendar() {
+            const year = calendarViewDate.getFullYear();
+            const month = calendarViewDate.getMonth();
+            const daysContainer = document.getElementById('calendarDays');
+            const monthYearTitle = document.getElementById('calendarMonthYear');
+            
+            monthYearTitle.textContent = calendarViewDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+            daysContainer.innerHTML = '';
+
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            const today = new Date();
+
+            // Format allTask dates for easy lookup
+            const taskDates = new Set(allTasks.map(t => t.date));
+
+            // Empty slots for prev month
+            for (let i = 0; i < firstDay; i++) {
+                const empty = document.createElement('div');
+                empty.className = 'calendar-day empty';
+                daysContainer.appendChild(empty);
+            }
+
+            // Days
+            for (let d = 1; d <= daysInMonth; d++) {
+                const dayEl = document.createElement('div');
+                dayEl.textContent = d;
+                dayEl.className = 'calendar-day';
+                
+                // Check string format YYYY-MM-DD
+                const currentStr = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+                
+                // Styling classes
+                if (d === today.getDate() && month === today.getMonth() && year === today.getFullYear()) {
+                    dayEl.classList.add('today');
+                }
+                if (d === selectedDate.getDate() && month === selectedDate.getMonth() && year === selectedDate.getFullYear()) {
+                    dayEl.classList.add('selected');
+                }
+                if (taskDates.has(currentStr)) {
+                    dayEl.classList.add('has-task');
+                }
+
+                dayEl.onclick = () => selectDate(year, month, d);
+                daysContainer.appendChild(dayEl);
+            }
+        }
+
+        // --- FETCH TASKS ---
+        async function fetchTasks() {
+            const list = document.getElementById('taskList');
+            list.innerHTML = `<div class="col-span-full flex justify-center py-12"><div class="loader"></div></div>`;
+            
+            try {
+                const response = await fetch(GAS_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ action: "fetch_tasks" })
+                });
+                const json = await response.json();
+                
+                if (json.result === 'success') {
+                    allTasks = json.data;
+                    renderCalendar(); // Refresh calendar to show dots
+                    filterAndRenderTasks();
+                } else {
+                    throw new Error(json.message || "Unknown error");
+                }
+            } catch (e) {
+                console.error(e);
+                list.innerHTML = `<div class="col-span-full bg-red-50 text-red-600 p-4 rounded-lg text-center">Error loading tasks: ${e.message}</div>`;
+            }
+        }
+
+        // --- FILTER & RENDER TASKS ---
+        function filterAndRenderTasks() {
+            const list = document.getElementById('taskList');
+            list.innerHTML = '';
+            
+            // Format selectedDate to YYYY-MM-DD for comparison
+            const yyyy = selectedDate.getFullYear();
+            const mm = String(selectedDate.getMonth() + 1).padStart(2, '0');
+            const dd = String(selectedDate.getDate()).padStart(2, '0');
+            const filterStr = `${yyyy}-${mm}-${dd}`;
+
+            const filteredTasks = allTasks.filter(t => t.date === filterStr);
+
+            if (filteredTasks.length === 0) {
+                list.innerHTML = `<div class="col-span-full text-center py-12 text-gray-400 bg-white rounded-lg border border-dashed border-gray-300">
+                    <p class="mb-2 text-sm">No tasks found for ${filterStr}</p>
+                    <p class="text-xs">Use the Quick Add form to create one.</p>
+                </div>`;
+                return;
+            }
+
+            filteredTasks.forEach((task) => {
+                const globalIndex = allTasks.indexOf(task);
+                const rowIndex = globalIndex + 2; 
+
+                const isDone = task.status === 'Selesai' || task.status === 'Complete';
+                
+                // Status Badge Color
+                const statusBadgeClass = isDone 
+                    ? 'bg-emerald-200 text-emerald-800' 
+                    : 'bg-amber-200 text-amber-800';
+                
+                // Card Background Color (Dynamic based on status)
+                const cardBgClass = isDone
+                    ? 'bg-emerald-50 border-emerald-100'
+                    : 'bg-amber-50 border-amber-100';
+
+                const link1Btn = task.link1 
+                    ? `<a href="${task.link1}" target="_blank" class="inline-flex items-center px-2 py-1 rounded bg-white/50 text-blue-600 text-[10px] font-semibold hover:bg-white border border-blue-200/50 transition" title="Open Link 1">Link 1</a>` 
+                    : ``;
+
+                const link2Btn = task.link2 
+                    ? `<a href="${task.link2}" target="_blank" class="inline-flex items-center px-2 py-1 rounded bg-white/50 text-blue-600 text-[10px] font-semibold hover:bg-white border border-blue-200/50 transition" title="Open Link 2">Link 2</a>` 
+                    : ``;
+                
+                const linksSection = (link1Btn || link2Btn) 
+                    ? `<div class="flex gap-2">${link1Btn}${link2Btn}</div>` 
+                    : `<span class="text-[10px] text-gray-400">No attachments</span>`;
+
+                const html = `
+                    <div class="${cardBgClass} p-4 rounded-lg shadow-sm border hover:shadow-md transition duration-200 flex flex-col h-full relative group">
+                        <div class="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                             <button onclick='openModal(${JSON.stringify(task).replace(/'/g, "&#39;")}, ${rowIndex})' 
+                                class="text-gray-500 hover:text-indigo-600">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                            </button>
+                        </div>
+
+                        <div class="mb-2">
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold ${statusBadgeClass}">${task.status}</span>
+                        </div>
+                        
+                        <h4 class="text-sm font-bold text-gray-800 mb-1 leading-tight break-words">${task.text || 'Untitled Task'}</h4>
+                        <p class="text-gray-600 text-xs mb-3 whitespace-pre-wrap flex-grow line-clamp-3">${task.description}</p>
+                        
+                        <div class="pt-2 mt-auto border-t border-black/5 flex items-center justify-between">
+                            ${linksSection}
+                            <button onclick='openModal(${JSON.stringify(task).replace(/'/g, "&#39;")}, ${rowIndex})' 
+                                class="text-[10px] font-semibold text-indigo-600 hover:text-indigo-800 lg:opacity-0 group-hover:opacity-100 transition-opacity">
+                                Edit
+                            </button>
+                        </div>
+                    </div>
+                `;
+                list.insertAdjacentHTML('beforeend', html);
+            });
+        }
+
+        // --- ADD NEW TASK ---
+        document.getElementById('addTaskForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('addBtn');
+            const originalText = btn.innerHTML;
+            
+            btn.disabled = true;
+            btn.innerHTML = `...`;
+
+            const task = {
+                text: document.getElementById('newTaskTitle').value,
+                description: document.getElementById('newTaskDesc').value,
+                status: document.getElementById('newTaskStatus').value,
+                date: document.getElementById('newTaskDate').value
+            };
+
+            try {
+                const response = await fetch(GAS_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ 
+                        action: "upsert_task", 
+                        task: task
+                    })
+                });
+                const result = await response.json();
+                
+                if (result.result === 'success') {
+                    showStatus('Task added successfully', 'success');
+                    document.getElementById('newTaskTitle').value = "";
+                    document.getElementById('newTaskDesc').value = "";
+                    fetchTasks(); // Refresh list
+                } else {
+                    throw new Error(result.message);
+                }
+            } catch (error) {
+                showStatus(error.message, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+            }
+        });
+
+        // --- MODAL LOGIC ---
+        function openModal(task, rowIndex) {
+            document.getElementById('uploadModal').classList.remove('hidden');
+            
+            document.getElementById('modalRowIndex').value = rowIndex;
+            document.getElementById('modalTitle').value = task.text || "";
+            document.getElementById('modalStatus').value = task.status;
+
+            const f1 = document.getElementById('fileInput1');
+            const l1 = document.getElementById('link1Display');
+            f1.value = ""; 
+            if (task.link1) {
+                f1.disabled = true;
+                l1.href = task.link1;
+                l1.classList.remove('hidden');
+            } else {
+                f1.disabled = false;
+                l1.classList.add('hidden');
+            }
+
+            const f2 = document.getElementById('fileInput2');
+            const l2 = document.getElementById('link2Display');
+            f2.value = ""; 
+            if (task.link2) {
+                f2.disabled = true;
+                l2.href = task.link2;
+                l2.classList.remove('hidden');
+            } else {
+                f2.disabled = false;
+                l2.classList.add('hidden');
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('uploadModal').classList.add('hidden');
+        }
+
+        // --- SUBMIT MODAL (EDIT/UPLOAD) ---
+        async function submitModal() {
+            const btn = document.getElementById('modalSubmitBtn');
+            const originalText = btn.innerHTML;
+            const rowIndex = document.getElementById('modalRowIndex').value;
+            
+            btn.disabled = true;
+            btn.innerHTML = `<div class="loader mr-2" style="width:16px;height:16px;border-width:2px;"></div> Uploading...`;
+
+            try {
+                const file1 = document.getElementById('fileInput1').files[0];
+                const file2 = document.getElementById('fileInput2').files[0];
+                const filesPayload = [];
+
+                if (file1) filesPayload.push(await toBase64(file1, 1));
+                if (file2) filesPayload.push(await toBase64(file2, 2));
+
+                const payload = {
+                    action: "upsert_task",
+                    rowIndex: parseInt(rowIndex),
+                    task: {
+                        status: document.getElementById('modalStatus').value,
+                        text: document.getElementById('modalTitle').value 
+                    },
+                    files: filesPayload
+                };
+
+                const response = await fetch(GAS_URL, {
+                    method: 'POST',
+                    body: JSON.stringify(payload)
+                });
+                const result = await response.json();
+
+                if (result.result === 'success') {
+                    showStatus('Task updated successfully!', 'success');
+                    closeModal();
+                    fetchTasks();
+                } else {
+                    throw new Error(result.message);
+                }
+
+            } catch (error) {
+                showStatus('Error: ' + error.message, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+            }
+        }
+
+        function toBase64(file, slotNumber) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => {
+                    const base64 = reader.result.split(',')[1]; 
+                    resolve({
+                        name: file.name,
+                        mimeType: file.type,
+                        base64: base64,
+                        slot: slotNumber 
+                    });
+                };
+                reader.onerror = error => reject(error);
+            });
+        }
+
+        function showStatus(msg, type) {
+            const el = document.getElementById('statusMessage');
+            const text = document.getElementById('statusText');
+            const icon = document.getElementById('statusIcon');
+            
+            el.classList.remove('hidden');
+            text.textContent = msg;
+
+            if (type === 'success') {
+                el.classList.add('border-green-500');
+                el.classList.remove('border-red-500');
+                icon.innerHTML = `<svg class="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>`;
+            } else {
+                el.classList.add('border-red-500');
+                el.classList.remove('border-green-500');
+                icon.innerHTML = `<svg class="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
+            }
+
+            setTimeout(hideStatus, 5000);
+        }
+
+        function hideStatus() {
+            document.getElementById('statusMessage').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
