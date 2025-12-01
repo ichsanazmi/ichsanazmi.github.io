@@ -22,18 +22,18 @@
         .calendar-grid {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
-            gap: 2px; /* Tighter gap */
+            gap: 2px;
         }
         .calendar-day {
             aspect-ratio: 1;
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 6px; /* Slightly squarer for compact look */
+            border-radius: 6px;
             cursor: pointer;
-            font-size: 0.75rem; /* Smaller text */
+            font-size: 0.75rem;
             transition: all 0.2s;
-            height: 28px; /* Fixed small height */
+            height: 28px;
         }
         .calendar-day:hover:not(.selected):not(.empty) {
             background-color: #e0e7ff;
@@ -102,7 +102,7 @@
             <!-- LEFT SIDEBAR: Progress & Calendar -->
             <div class="w-full lg:w-64 flex-shrink-0 space-y-4">
                 
-                <!-- Time Progress Bars (Moved Top) -->
+                <!-- Time Progress Bars -->
                 <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-4">
                     <h4 class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-3">Time Progress</h4>
                     
@@ -129,7 +129,7 @@
                     </div>
                 </div>
 
-                <!-- Compact Mini Calendar (Moved Below) -->
+                <!-- Compact Mini Calendar -->
                 <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-3">
                     <div class="flex justify-between items-center mb-2">
                         <button onclick="changeMonth(-1)" class="p-1 hover:bg-gray-50 rounded text-gray-500">
@@ -161,7 +161,7 @@
             <!-- RIGHT MAIN: Quick Add & Task Grid -->
             <div class="w-full lg:flex-1 flex flex-col xl:flex-row gap-6">
                 
-                <!-- Quick Add Form (Now Side-by-Side with Tasks on XL screens) -->
+                <!-- Quick Add Form -->
                 <div class="w-full xl:w-72 flex-shrink-0">
                     <section class="bg-white rounded-lg shadow-sm border border-gray-100 p-4 sticky top-4">
                         <h2 class="text-sm font-bold mb-3 text-gray-700 flex items-center">
@@ -185,6 +185,14 @@
                                     <option value="Selesai">Selesai</option>
                                 </select>
                             </div>
+                            
+                            <!-- Attachments -->
+                            <div>
+                                <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Attachments (Max 2)</label>
+                                <input type="file" id="newTaskFile1" class="block w-full text-[10px] text-slate-500 file:mr-2 file:py-1 file:px-2 file:rounded-full file:border-0 file:text-[10px] file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 mb-2">
+                                <input type="file" id="newTaskFile2" class="block w-full text-[10px] text-slate-500 file:mr-2 file:py-1 file:px-2 file:rounded-full file:border-0 file:text-[10px] file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+                            </div>
+
                             <button type="submit" id="addBtn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 rounded text-xs shadow-sm transition duration-200 mt-2">
                                 Add Task
                             </button>
@@ -192,8 +200,8 @@
                     </section>
                 </div>
 
-                <!-- Task Grid -->
-                <div class="flex-1">
+                <!-- Task Sections -->
+                <div class="flex-1 h-full">
                     <div class="flex justify-between items-center mb-4">
                         <h2 class="text-lg font-bold text-gray-800 flex items-center gap-2">
                             Tasks for <span id="selectedDateTitle" class="text-indigo-600"></span>
@@ -206,10 +214,10 @@
                         </div>
                     </div>
                     
-                    <!-- Grid Layout for Tasks -->
-                    <div id="taskList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4">
-                        <!-- Tasks injected here -->
-                        <div class="col-span-full text-center py-12 text-gray-400 bg-white rounded-lg border border-dashed border-gray-300">
+                    <!-- Dynamic Sections -->
+                    <div id="taskList" class="space-y-8">
+                        <!-- Content injected by JS -->
+                        <div class="text-center py-12 text-gray-400 bg-white rounded-lg border border-dashed border-gray-300">
                             <p class="text-sm">Select a date to view tasks</p>
                         </div>
                     </div>
@@ -251,8 +259,6 @@
                 <!-- File Inputs -->
                 <div class="space-y-3 pt-2">
                     <p class="text-sm font-semibold text-gray-700">Attachments (Max 2)</p>
-                    
-                    <!-- File 1 -->
                     <div class="border border-dashed border-gray-300 rounded-lg p-3 bg-gray-50 hover:bg-white transition">
                         <div class="flex justify-between items-center mb-2">
                             <span class="text-xs font-bold text-gray-500">Slot 1 (Link D)</span>
@@ -262,8 +268,6 @@
                         </div>
                         <input type="file" id="fileInput1" class="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 transition disabled:opacity-50 disabled:cursor-not-allowed">
                     </div>
-
-                    <!-- File 2 -->
                     <div class="border border-dashed border-gray-300 rounded-lg p-3 bg-gray-50 hover:bg-white transition">
                         <div class="flex justify-between items-center mb-2">
                             <span class="text-xs font-bold text-gray-500">Slot 2 (Link E)</span>
@@ -299,41 +303,24 @@
             selectToday();
             updateProgress();
             fetchTasks();
-            
-            // Update progress every minute
             setInterval(updateProgress, 60000);
         };
 
-        // --- PROGRESS BAR LOGIC ---
+        // --- PROGRESS & CALENDAR LOGIC (Same as before) ---
         function updateProgress() {
             const now = new Date();
-
-            // 1. Day Progress
             const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-            const msPassedToday = now - startOfDay;
-            const msInDay = 24 * 60 * 60 * 1000;
-            const dayPercent = Math.min(100, Math.max(0, (msPassedToday / msInDay) * 100)).toFixed(1);
-
+            const dayPercent = Math.min(100, Math.max(0, ((now - startOfDay) / (24 * 60 * 60 * 1000)) * 100)).toFixed(1);
             document.getElementById('dayProgressBar').style.width = `${dayPercent}%`;
             document.getElementById('dayProgressText').textContent = `${dayPercent}%`;
 
-            // 2. Year Progress
             const startOfYear = new Date(now.getFullYear(), 0, 1);
-            // Check for leap year
             const isLeap = (now.getFullYear() % 400 === 0) || (now.getFullYear() % 100 !== 0 && now.getFullYear() % 4 === 0);
-            const daysInYear = isLeap ? 366 : 365;
-            const oneDay = 1000 * 60 * 60 * 24;
-            
-            // Calculate day of year
-            const diff = now - startOfYear;
-            const dayOfYear = Math.floor(diff / oneDay);
-            const yearPercent = Math.min(100, Math.max(0, (dayOfYear / daysInYear) * 100)).toFixed(1);
-
+            const yearPercent = Math.min(100, Math.max(0, (Math.floor((now - startOfYear) / (1000 * 60 * 60 * 24)) / (isLeap ? 366 : 365)) * 100)).toFixed(1);
             document.getElementById('yearProgressBar').style.width = `${yearPercent}%`;
             document.getElementById('yearProgressText').textContent = `${yearPercent}%`;
         }
 
-        // --- CALENDAR LOGIC ---
         function selectToday() {
             selectedDate = new Date();
             calendarViewDate = new Date();
@@ -351,7 +338,7 @@
         function selectDate(year, month, day) {
             selectedDate = new Date(year, month, day);
             updateDateDisplay();
-            renderCalendar(); // Re-render to highlight selected
+            renderCalendar();
             filterAndRenderTasks();
         }
 
@@ -360,7 +347,6 @@
             document.getElementById('currentDateDisplay').textContent = selectedDate.toLocaleDateString('en-US', options);
             document.getElementById('selectedDateTitle').textContent = selectedDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
             
-            // Update hidden input for new task
             const yyyy = selectedDate.getFullYear();
             const mm = String(selectedDate.getMonth() + 1).padStart(2, '0');
             const dd = String(selectedDate.getDate()).padStart(2, '0');
@@ -371,44 +357,29 @@
             const year = calendarViewDate.getFullYear();
             const month = calendarViewDate.getMonth();
             const daysContainer = document.getElementById('calendarDays');
-            const monthYearTitle = document.getElementById('calendarMonthYear');
-            
-            monthYearTitle.textContent = calendarViewDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+            document.getElementById('calendarMonthYear').textContent = calendarViewDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
             daysContainer.innerHTML = '';
 
             const firstDay = new Date(year, month, 1).getDay();
             const daysInMonth = new Date(year, month + 1, 0).getDate();
             const today = new Date();
-
-            // Format allTask dates for easy lookup
             const taskDates = new Set(allTasks.map(t => t.date));
 
-            // Empty slots for prev month
             for (let i = 0; i < firstDay; i++) {
                 const empty = document.createElement('div');
                 empty.className = 'calendar-day empty';
                 daysContainer.appendChild(empty);
             }
 
-            // Days
             for (let d = 1; d <= daysInMonth; d++) {
                 const dayEl = document.createElement('div');
                 dayEl.textContent = d;
                 dayEl.className = 'calendar-day';
-                
-                // Check string format YYYY-MM-DD
                 const currentStr = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
                 
-                // Styling classes
-                if (d === today.getDate() && month === today.getMonth() && year === today.getFullYear()) {
-                    dayEl.classList.add('today');
-                }
-                if (d === selectedDate.getDate() && month === selectedDate.getMonth() && year === selectedDate.getFullYear()) {
-                    dayEl.classList.add('selected');
-                }
-                if (taskDates.has(currentStr)) {
-                    dayEl.classList.add('has-task');
-                }
+                if (d === today.getDate() && month === today.getMonth() && year === today.getFullYear()) dayEl.classList.add('today');
+                if (d === selectedDate.getDate() && month === selectedDate.getMonth() && year === selectedDate.getFullYear()) dayEl.classList.add('selected');
+                if (taskDates.has(currentStr)) dayEl.classList.add('has-task');
 
                 dayEl.onclick = () => selectDate(year, month, d);
                 daysContainer.appendChild(dayEl);
@@ -418,34 +389,26 @@
         // --- FETCH TASKS ---
         async function fetchTasks() {
             const list = document.getElementById('taskList');
-            list.innerHTML = `<div class="col-span-full flex justify-center py-12"><div class="loader"></div></div>`;
-            
+            list.innerHTML = `<div class="flex justify-center py-12"><div class="loader"></div></div>`;
             try {
-                const response = await fetch(GAS_URL, {
-                    method: 'POST',
-                    body: JSON.stringify({ action: "fetch_tasks" })
-                });
+                const response = await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: "fetch_tasks" }) });
                 const json = await response.json();
-                
                 if (json.result === 'success') {
                     allTasks = json.data;
-                    renderCalendar(); // Refresh calendar to show dots
+                    renderCalendar();
                     filterAndRenderTasks();
-                } else {
-                    throw new Error(json.message || "Unknown error");
-                }
+                } else throw new Error(json.message || "Unknown error");
             } catch (e) {
                 console.error(e);
-                list.innerHTML = `<div class="col-span-full bg-red-50 text-red-600 p-4 rounded-lg text-center">Error loading tasks: ${e.message}</div>`;
+                list.innerHTML = `<div class="bg-red-50 text-red-600 p-4 rounded-lg text-center">Error loading tasks: ${e.message}</div>`;
             }
         }
 
-        // --- FILTER & RENDER TASKS ---
+        // --- FILTER & RENDER TASKS (UPDATED CATEGORIES) ---
         function filterAndRenderTasks() {
             const list = document.getElementById('taskList');
             list.innerHTML = '';
             
-            // Format selectedDate to YYYY-MM-DD for comparison
             const yyyy = selectedDate.getFullYear();
             const mm = String(selectedDate.getMonth() + 1).padStart(2, '0');
             const dd = String(selectedDate.getDate()).padStart(2, '0');
@@ -454,68 +417,71 @@
             const filteredTasks = allTasks.filter(t => t.date === filterStr);
 
             if (filteredTasks.length === 0) {
-                list.innerHTML = `<div class="col-span-full text-center py-12 text-gray-400 bg-white rounded-lg border border-dashed border-gray-300">
+                list.innerHTML = `<div class="text-center py-12 text-gray-400 bg-white rounded-lg border border-dashed border-gray-300">
                     <p class="mb-2 text-sm">No tasks found for ${filterStr}</p>
                     <p class="text-xs">Use the Quick Add form to create one.</p>
                 </div>`;
                 return;
             }
 
-            filteredTasks.forEach((task) => {
-                const globalIndex = allTasks.indexOf(task);
-                const rowIndex = globalIndex + 2; 
+            const pending = filteredTasks.filter(t => t.status !== 'Selesai' && t.status !== 'Complete');
+            const completed = filteredTasks.filter(t => t.status === 'Selesai' || t.status === 'Complete');
 
-                const isDone = task.status === 'Selesai' || task.status === 'Complete';
-                
-                // Status Badge Color
-                const statusBadgeClass = isDone 
-                    ? 'bg-emerald-200 text-emerald-800' 
-                    : 'bg-amber-200 text-amber-800';
-                
-                // Card Background Color (Dynamic based on status)
-                const cardBgClass = isDone
-                    ? 'bg-emerald-50 border-emerald-100'
-                    : 'bg-amber-50 border-amber-100';
+            // --- RENDER HELPER ---
+            const renderGrid = (tasks) => {
+                let html = '<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4">';
+                tasks.forEach(task => {
+                    const globalIndex = allTasks.indexOf(task);
+                    const rowIndex = globalIndex + 2; 
+                    const isDone = task.status === 'Selesai' || task.status === 'Complete';
+                    const statusBadgeClass = isDone ? 'bg-emerald-200 text-emerald-800' : 'bg-amber-200 text-amber-800';
+                    const cardBgClass = isDone ? 'bg-emerald-50 border-emerald-100' : 'bg-amber-50 border-amber-100';
 
-                const link1Btn = task.link1 
-                    ? `<a href="${task.link1}" target="_blank" class="inline-flex items-center px-2 py-1 rounded bg-white/50 text-blue-600 text-[10px] font-semibold hover:bg-white border border-blue-200/50 transition" title="Open Link 1">Link 1</a>` 
-                    : ``;
+                    const link1Btn = task.link1 ? `<a href="${task.link1}" target="_blank" class="inline-flex items-center px-2 py-1 rounded bg-white/50 text-blue-600 text-[10px] font-semibold hover:bg-white border border-blue-200/50 transition" title="Open Link 1">Link 1</a>` : ``;
+                    const link2Btn = task.link2 ? `<a href="${task.link2}" target="_blank" class="inline-flex items-center px-2 py-1 rounded bg-white/50 text-blue-600 text-[10px] font-semibold hover:bg-white border border-blue-200/50 transition" title="Open Link 2">Link 2</a>` : ``;
+                    const linksSection = (link1Btn || link2Btn) ? `<div class="flex gap-2">${link1Btn}${link2Btn}</div>` : `<span class="text-[10px] text-gray-400">No attachments</span>`;
 
-                const link2Btn = task.link2 
-                    ? `<a href="${task.link2}" target="_blank" class="inline-flex items-center px-2 py-1 rounded bg-white/50 text-blue-600 text-[10px] font-semibold hover:bg-white border border-blue-200/50 transition" title="Open Link 2">Link 2</a>` 
-                    : ``;
-                
-                const linksSection = (link1Btn || link2Btn) 
-                    ? `<div class="flex gap-2">${link1Btn}${link2Btn}</div>` 
-                    : `<span class="text-[10px] text-gray-400">No attachments</span>`;
-
-                const html = `
+                    html += `
                     <div class="${cardBgClass} p-4 rounded-lg shadow-sm border hover:shadow-md transition duration-200 flex flex-col h-full relative group">
                         <div class="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                             <button onclick='openModal(${JSON.stringify(task).replace(/'/g, "&#39;")}, ${rowIndex})' 
-                                class="text-gray-500 hover:text-indigo-600">
+                             <button onclick='openModal(${JSON.stringify(task).replace(/'/g, "&#39;")}, ${rowIndex})' class="text-gray-500 hover:text-indigo-600">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
                             </button>
                         </div>
-
-                        <div class="mb-2">
-                            <span class="px-2 py-0.5 rounded text-[10px] font-bold ${statusBadgeClass}">${task.status}</span>
-                        </div>
-                        
+                        <div class="mb-2"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${statusBadgeClass}">${task.status}</span></div>
                         <h4 class="text-sm font-bold text-gray-800 mb-1 leading-tight break-words">${task.text || 'Untitled Task'}</h4>
                         <p class="text-gray-600 text-xs mb-3 whitespace-pre-wrap flex-grow line-clamp-3">${task.description}</p>
-                        
                         <div class="pt-2 mt-auto border-t border-black/5 flex items-center justify-between">
                             ${linksSection}
-                            <button onclick='openModal(${JSON.stringify(task).replace(/'/g, "&#39;")}, ${rowIndex})' 
-                                class="text-[10px] font-semibold text-indigo-600 hover:text-indigo-800 lg:opacity-0 group-hover:opacity-100 transition-opacity">
-                                Edit
-                            </button>
+                            <button onclick='openModal(${JSON.stringify(task).replace(/'/g, "&#39;")}, ${rowIndex})' class="text-[10px] font-semibold text-indigo-600 hover:text-indigo-800 lg:opacity-0 group-hover:opacity-100 transition-opacity">Edit</button>
                         </div>
-                    </div>
-                `;
-                list.insertAdjacentHTML('beforeend', html);
-            });
+                    </div>`;
+                });
+                html += '</div>';
+                return html;
+            };
+
+            // 1. Pending Section (Belum)
+            if (pending.length > 0) {
+                list.innerHTML += `<div class="mb-2">
+                    <h3 class="text-amber-800 font-bold text-xs uppercase tracking-wider mb-3 border-b border-amber-100 pb-1 flex items-center gap-2">
+                        <span>Belum Selesai</span>
+                        <span class="bg-amber-100 text-amber-700 px-1.5 rounded-full text-[10px]">${pending.length}</span>
+                    </h3>
+                    ${renderGrid(pending)}
+                </div>`;
+            }
+
+            // 2. Completed Section (Selesai)
+            if (completed.length > 0) {
+                list.innerHTML += `<div class="mt-6">
+                    <h3 class="text-emerald-800 font-bold text-xs uppercase tracking-wider mb-3 border-b border-emerald-100 pb-1 flex items-center gap-2">
+                        <span>Selesai</span>
+                        <span class="bg-emerald-100 text-emerald-700 px-1.5 rounded-full text-[10px]">${completed.length}</span>
+                    </h3>
+                    ${renderGrid(completed)}
+                </div>`;
+            }
         }
 
         // --- ADD NEW TASK ---
@@ -523,24 +489,27 @@
             e.preventDefault();
             const btn = document.getElementById('addBtn');
             const originalText = btn.innerHTML;
-            
             btn.disabled = true;
             btn.innerHTML = `...`;
 
-            const task = {
-                text: document.getElementById('newTaskTitle').value,
-                description: document.getElementById('newTaskDesc').value,
-                status: document.getElementById('newTaskStatus').value,
-                date: document.getElementById('newTaskDate').value
-            };
-
             try {
+                const file1 = document.getElementById('newTaskFile1').files[0];
+                const file2 = document.getElementById('newTaskFile2').files[0];
+                const filesPayload = [];
+
+                if (file1) filesPayload.push(await toBase64(file1, 1));
+                if (file2) filesPayload.push(await toBase64(file2, 2));
+
+                const task = {
+                    text: document.getElementById('newTaskTitle').value,
+                    description: document.getElementById('newTaskDesc').value,
+                    status: document.getElementById('newTaskStatus').value,
+                    date: document.getElementById('newTaskDate').value
+                };
+
                 const response = await fetch(GAS_URL, {
                     method: 'POST',
-                    body: JSON.stringify({ 
-                        action: "upsert_task", 
-                        task: task
-                    })
+                    body: JSON.stringify({ action: "upsert_task", task: task, files: filesPayload })
                 });
                 const result = await response.json();
                 
@@ -548,10 +517,10 @@
                     showStatus('Task added successfully', 'success');
                     document.getElementById('newTaskTitle').value = "";
                     document.getElementById('newTaskDesc').value = "";
-                    fetchTasks(); // Refresh list
-                } else {
-                    throw new Error(result.message);
-                }
+                    document.getElementById('newTaskFile1').value = "";
+                    document.getElementById('newTaskFile2').value = "";
+                    fetchTasks();
+                } else throw new Error(result.message);
             } catch (error) {
                 showStatus(error.message, 'error');
             } finally {
@@ -560,10 +529,9 @@
             }
         });
 
-        // --- MODAL LOGIC ---
+        // --- MODAL & SUBMIT (Existing Logic) ---
         function openModal(task, rowIndex) {
             document.getElementById('uploadModal').classList.remove('hidden');
-            
             document.getElementById('modalRowIndex').value = rowIndex;
             document.getElementById('modalTitle').value = task.text || "";
             document.getElementById('modalStatus').value = task.status;
@@ -571,38 +539,22 @@
             const f1 = document.getElementById('fileInput1');
             const l1 = document.getElementById('link1Display');
             f1.value = ""; 
-            if (task.link1) {
-                f1.disabled = true;
-                l1.href = task.link1;
-                l1.classList.remove('hidden');
-            } else {
-                f1.disabled = false;
-                l1.classList.add('hidden');
-            }
+            if (task.link1) { f1.disabled = true; l1.href = task.link1; l1.classList.remove('hidden'); } 
+            else { f1.disabled = false; l1.classList.add('hidden'); }
 
             const f2 = document.getElementById('fileInput2');
             const l2 = document.getElementById('link2Display');
             f2.value = ""; 
-            if (task.link2) {
-                f2.disabled = true;
-                l2.href = task.link2;
-                l2.classList.remove('hidden');
-            } else {
-                f2.disabled = false;
-                l2.classList.add('hidden');
-            }
+            if (task.link2) { f2.disabled = true; l2.href = task.link2; l2.classList.remove('hidden'); } 
+            else { f2.disabled = false; l2.classList.add('hidden'); }
         }
 
-        function closeModal() {
-            document.getElementById('uploadModal').classList.add('hidden');
-        }
+        function closeModal() { document.getElementById('uploadModal').classList.add('hidden'); }
 
-        // --- SUBMIT MODAL (EDIT/UPLOAD) ---
         async function submitModal() {
             const btn = document.getElementById('modalSubmitBtn');
             const originalText = btn.innerHTML;
             const rowIndex = document.getElementById('modalRowIndex').value;
-            
             btn.disabled = true;
             btn.innerHTML = `<div class="loader mr-2" style="width:16px;height:16px;border-width:2px;"></div> Uploading...`;
 
@@ -624,20 +576,13 @@
                     files: filesPayload
                 };
 
-                const response = await fetch(GAS_URL, {
-                    method: 'POST',
-                    body: JSON.stringify(payload)
-                });
+                const response = await fetch(GAS_URL, { method: 'POST', body: JSON.stringify(payload) });
                 const result = await response.json();
-
                 if (result.result === 'success') {
                     showStatus('Task updated successfully!', 'success');
                     closeModal();
                     fetchTasks();
-                } else {
-                    throw new Error(result.message);
-                }
-
+                } else throw new Error(result.message);
             } catch (error) {
                 showStatus('Error: ' + error.message, 'error');
             } finally {
@@ -652,12 +597,7 @@
                 reader.readAsDataURL(file);
                 reader.onload = () => {
                     const base64 = reader.result.split(',')[1]; 
-                    resolve({
-                        name: file.name,
-                        mimeType: file.type,
-                        base64: base64,
-                        slot: slotNumber 
-                    });
+                    resolve({ name: file.name, mimeType: file.type, base64: base64, slot: slotNumber });
                 };
                 reader.onerror = error => reject(error);
             });
@@ -667,26 +607,20 @@
             const el = document.getElementById('statusMessage');
             const text = document.getElementById('statusText');
             const icon = document.getElementById('statusIcon');
-            
             el.classList.remove('hidden');
             text.textContent = msg;
 
             if (type === 'success') {
-                el.classList.add('border-green-500');
-                el.classList.remove('border-red-500');
+                el.classList.add('border-green-500'); el.classList.remove('border-red-500');
                 icon.innerHTML = `<svg class="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>`;
             } else {
-                el.classList.add('border-red-500');
-                el.classList.remove('border-green-500');
+                el.classList.add('border-red-500'); el.classList.remove('border-green-500');
                 icon.innerHTML = `<svg class="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
             }
-
             setTimeout(hideStatus, 5000);
         }
 
-        function hideStatus() {
-            document.getElementById('statusMessage').classList.add('hidden');
-        }
+        function hideStatus() { document.getElementById('statusMessage').classList.add('hidden'); }
     </script>
 </body>
 </html>
