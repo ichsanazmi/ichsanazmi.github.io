@@ -560,7 +560,7 @@
                 const response = await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: "delete_task", rowIndex: rowIndex }) });
                 const json = await response.json();
                 if(json.result === 'success') {
-                    showStatus('Task deleted successfully', 'success');
+                    showStatus(json.message || 'Task deleted successfully', 'success');
                     fetchTasks();
                 } else {
                     throw new Error(json.message);
@@ -662,7 +662,10 @@
                 const response = await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: "upsert_task", task: task, files: filesPayload }) });
                 const result = await response.json();
                 if (result.result === 'success') {
-                    showStatus('Task added & synced to Google Tasks!', 'success'); // Updated message
+                    // MENGGUNAKAN PESAN DINAMIS DARI SERVER
+                    const statusText = result.message || 'Task added successfully';
+                    showStatus(statusText, 'success'); 
+                    
                     document.getElementById('newTaskTitle').value = "";
                     document.getElementById('newTaskDesc').value = "";
                     document.getElementById('newTaskFile1').value = "";
@@ -725,7 +728,7 @@
                 const response = await fetch(GAS_URL, { method: 'POST', body: JSON.stringify(payload) });
                 const result = await response.json();
                 if (result.result === 'success') {
-                    showStatus('Task updated successfully!', 'success');
+                    showStatus(result.message || 'Task updated successfully!', 'success'); // MENGGUNAKAN PESAN DINAMIS DARI SERVER
                     closeModal();
                     fetchTasks();
                 } else throw new Error(result.message);
