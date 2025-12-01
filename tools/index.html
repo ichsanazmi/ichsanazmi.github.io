@@ -31,6 +31,15 @@
                         input: 'var(--input-bg)',
                         'status-read': 'var(--status-read)',
                         'status-unread': 'var(--status-unread)',
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 1s ease-in-out',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0', transform: 'translateY(10px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        }
                     }
                 }
             }
@@ -57,6 +66,7 @@
             --modal-overlay: rgba(0, 0, 0, 0.8);
             --status-read: #4ade80;
             --status-unread: #f87171;
+            --wave-opacity: 0.05;
         }
 
         .theme-light {
@@ -71,6 +81,7 @@
             --modal-overlay: rgba(0, 0, 0, 0.5);
             --status-read: #22c55e;
             --status-unread: #ef4444;
+            --wave-opacity: 0.03;
         }
 
         .theme-ocean {
@@ -85,6 +96,7 @@
             --modal-overlay: rgba(15, 23, 42, 0.85);
             --status-read: #2dd4bf;
             --status-unread: #fb7185;
+            --wave-opacity: 0.08;
         }
 
         .theme-forest {
@@ -99,7 +111,55 @@
             --modal-overlay: rgba(26, 47, 26, 0.85);
             --status-read: #4ade80;
             --status-unread: #f87171;
+            --wave-opacity: 0.05;
         }
+
+        /* NEW THEMES */
+        .theme-crimson {
+            --bg-color: #000000;
+            --card-bg: #18181b;
+            --text-main: #f4f4f5;
+            --text-muted: #71717a;
+            --accent: #dc2626; /* Red-600 */
+            --accent-hover: #b91c1c;
+            --border: #27272a;
+            --input-bg: #27272a;
+            --modal-overlay: rgba(0, 0, 0, 0.9);
+            --status-read: #22c55e;
+            --status-unread: #ef4444;
+            --wave-opacity: 0.15;
+        }
+
+        .theme-midnight {
+            --bg-color: #1e1b4b; /* Indigo-950 */
+            --card-bg: #312e81; /* Indigo-900 */
+            --text-main: #e0e7ff;
+            --text-muted: #818cf8;
+            --accent: #c084fc; /* Purple-400 */
+            --accent-hover: #a855f7;
+            --border: #4338ca;
+            --input-bg: #4338ca;
+            --modal-overlay: rgba(30, 27, 75, 0.9);
+            --status-read: #4ade80;
+            --status-unread: #f87171;
+            --wave-opacity: 0.1;
+        }
+
+        .theme-coffee {
+            --bg-color: #292524; /* Stone-800 */
+            --card-bg: #44403c; /* Stone-700 */
+            --text-main: #f5f5f4;
+            --text-muted: #a8a29e;
+            --accent: #d6d3d1; /* Stone-200 */
+            --accent-hover: #e7e5e4;
+            --border: #57534e;
+            --input-bg: #57534e;
+            --modal-overlay: rgba(41, 37, 36, 0.9);
+            --status-read: #86efac;
+            --status-unread: #fca5a5;
+            --wave-opacity: 0.05;
+        }
+
 
         /* --- 2. GLOBAL STYLES --- */
         body {
@@ -112,6 +172,51 @@
             transition: background-color var(--transition-speed), color var(--transition-speed);
             -webkit-tap-highlight-color: transparent;
         }
+        
+        /* Adjust opacity of the wave based on theme using blend mode or pseudo element would be complex, 
+           so we use a mask/opacity trick on a pseudo element instead for cleaner theme handling */
+        body::before {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 35vh;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320'%3E%3Cpath fill='white' d='M0,192L48,197.3C96,203,192,213,288,229.3C384,245,480,267,576,250.7C672,235,768,181,864,181.3C960,181,1056,235,1152,234.7C1248,235,1344,181,1392,154.7L1440,128V320H0Z'%3E%3C/path%3E%3C/svg%3E");
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center bottom;
+            opacity: var(--wave-opacity);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* NEW: Colored main wave using mask to match theme accent */
+        body::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 35vh; /* Match height of body::before for consistency */
+            background-color: var(--accent); /* Use the theme's accent color */
+            
+            /* Use the SVG as a mask for the background color */
+            -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320'%3E%3Cpath d='M0,224L48,213.3C96,203,192,181,288,181.3C384,181,480,203,576,224C672,245,768,267,864,261.3C960,256,1056,224,1152,197.3C1248,171,1344,149,1392,138.7L1440,128V320H0Z'%3E%3C/path%3E%3C/svg%3E");
+            mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320'%3E%3Cpath d='M0,224L48,213.3C96,203,192,181,288,181.3C384,181,480,203,576,224C672,245,768,267,864,261.3C960,256,1056,224,1152,197.3C1248,171,1344,149,1392,138.7L1440,128V320H0Z'%3E%3C/path%3E%3C/svg%3E");
+            
+            -webkit-mask-size: cover;
+            mask-size: cover;
+            -webkit-mask-position: center bottom;
+            mask-position: center bottom;
+            -webkit-mask-repeat: no-repeat;
+            mask-repeat: no-repeat;
+            
+            opacity: 0.15; /* Subtle opacity */
+            pointer-events: none;
+            z-index: 0;
+            transition: background-color var(--transition-speed);
+        }
 
         button { cursor: pointer; font-family: inherit; }
         h2 { font-size: 1.5rem; font-weight: 700; margin-bottom: 0.5rem; }
@@ -123,6 +228,7 @@
             display: flex;
             flex-direction: column;
             position: relative;
+            z-index: 1;
         }
 
         .slider-track {
@@ -134,7 +240,6 @@
 
         .slide {
             width: 100vw;
-            /* CRITICAL FIX: flex: 0 0 100vw prevents shrinking */
             flex: 0 0 100vw; 
             height: 100vh;
             overflow-y: auto;
@@ -206,10 +311,41 @@
         .bento-card { background: var(--card-bg); border-radius: 20px; padding: 1.5rem; border: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; }
         input[type="text"], textarea, input[type="url"], input[type="number"], input[type="date"] { background: var(--input-bg); border: 1px solid var(--border); color: var(--text-main); padding: 10px; border-radius: 10px; font-family: inherit; }
         
+        /* New Quote Styles */
         .clock-container { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 2rem; }
         .digital-clock { font-size: clamp(4rem, 15vw, 10rem); font-weight: 200; line-height: 1; letter-spacing: -2px; }
         .date-display { font-size: clamp(1rem, 3vw, 1.5rem); color: var(--accent); text-transform: uppercase; letter-spacing: 2px; }
-        .quote-box { max-width: 600px; margin-top: 2rem; padding: 2rem; border-left: 4px solid var(--accent); background: rgba(125, 125, 125, 0.05); text-align: left; }
+        
+        .elegant-quote {
+            max-width: 650px;
+            margin-top: 3rem;
+            position: relative;
+            padding: 20px;
+        }
+        
+        .elegant-quote p {
+            font-family: 'Georgia', serif;
+            font-size: 1.5rem;
+            line-height: 1.6;
+            font-style: italic;
+            color: var(--text-main);
+            position: relative;
+            z-index: 10;
+        }
+        
+        .elegant-quote::before {
+            content: '“';
+            position: absolute;
+            top: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 8rem;
+            font-family: serif;
+            color: var(--accent);
+            opacity: 0.15;
+            z-index: 0;
+            line-height: 1;
+        }
 
         .task-card { grid-row: span 2; }
         .task-input-area { display: flex; gap: 10px; margin-bottom: 1rem; flex-wrap: wrap; align-items: flex-start; }
@@ -221,7 +357,7 @@
         }
         .task-item:hover { border-color: var(--accent); }
         .task-item.completed .task-content { text-decoration: line-through; opacity: 0.6; }
-        .task-content { flex: 1; min-width: 0; } /* min-width 0 needed for ellipsis */
+        .task-content { flex: 1; min-width: 0; }
         .task-desc-preview {
             white-space: nowrap; 
             overflow: hidden; 
@@ -266,6 +402,11 @@
             .bento-wrapper { padding-top: 40px; padding-bottom: 150px; }
             .fab-container { bottom: 90px; right: 20px; }
             .task-card { grid-row: auto; }
+            
+            /* Prevent breaking when tasks are many */
+            .task-list {
+                max-height: 50vh; 
+            }
             .slider-track { height: auto; min-height: 100vh; }
         }
     </style>
@@ -299,10 +440,25 @@
                     <div class="theme-option" onclick="setTheme('theme-light')" data-theme="theme-light"><div class="theme-dot" style="background:#f4f6f8;"></div> Light</div>
                     <div class="theme-option" onclick="setTheme('theme-ocean')" data-theme="theme-ocean"><div class="theme-dot" style="background:#0f172a;"></div> Ocean</div>
                     <div class="theme-option" onclick="setTheme('theme-forest')" data-theme="theme-forest"><div class="theme-dot" style="background:#1a2f1a;"></div> Forest</div>
+                    
+                    <!-- New Themes -->
+                    <div class="theme-option" onclick="setTheme('theme-crimson')" data-theme="theme-crimson"><div class="theme-dot" style="background:#000000; border-color: #dc2626;"></div> Crimson</div>
+                    <div class="theme-option" onclick="setTheme('theme-midnight')" data-theme="theme-midnight"><div class="theme-dot" style="background:#1e1b4b; border-color: #c084fc;"></div> Midnight</div>
+                    <div class="theme-option" onclick="setTheme('theme-coffee')" data-theme="theme-coffee"><div class="theme-dot" style="background:#292524; border-color: #d6d3d1;"></div> Coffee</div>
+                </div>
+
+                <!-- STORAGE SECTION -->
+                <div class="mt-8 pt-6 border-t border-border">
+                    <h3 class="text-main font-semibold text-sm uppercase tracking-wider mb-2">Data Management</h3>
+                    <button onclick="fetchCloud()" class="w-full py-2 mb-2 rounded-xl border border-border text-muted text-sm hover:text-main transition-colors flex justify-center items-center gap-2">
+                        <svg style="width:16px;height:16px;" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                        Force Load from Cloud
+                    </button>
+                    <p class="text-[10px] text-muted text-center mb-4">Warning: Overwrites local data</p>
                 </div>
 
                 <!-- INSTALL APP SECTION -->
-                <div class="mt-8 pt-6 border-t border-border">
+                <div class="mt-4 pt-6 border-t border-border">
                      <h3 class="text-main font-semibold text-sm uppercase tracking-wider mb-2">App Install</h3>
                      
                      <!-- Generate Icons Button -->
@@ -432,9 +588,10 @@
                 <div class="clock-container">
                     <div class="digital-clock text-main animate-pulse" id="clock">00:00:00</div>
                     <div class="date-display text-primary tracking-[0.2em]" id="date">Loading...</div>
-                    <div class="quote-box border-l-4 border-primary bg-main/5">
-                        <div class="quote-text italic text-lg" id="quote-text">"Loading inspiration..."</div>
-                        <span class="quote-author block text-right font-bold text-muted mt-2" id="quote-author"></span>
+                    
+                    <div class="elegant-quote animate-fade-in">
+                        <p id="quote-text">Loading inspiration...</p>
+                        <span class="block text-right text-sm font-bold text-muted mt-4 uppercase tracking-widest" id="quote-author"></span>
                     </div>
                 </div>
             </div>
@@ -460,20 +617,14 @@
                             </div>
                             <!-- INPUT (Only for Adding) -->
                             <div class="task-input-area">
-                                <input type="text" id="task-title-in" placeholder="New Task..." class="flex-[2]">
+                                <input type="text" id="task-title-in" placeholder="New Task..." class="flex-[2]" onkeypress="handleTaskInput(event)">
                                 <button class="bg-primary text-white px-4 py-2 rounded-lg font-bold shadow-lg shadow-primary/30 hover:opacity-90" onclick="addTask()">Add</button>
                             </div>
                             <!-- LIST -->
                             <div class="task-list" id="task-list"></div>
                         </div>
-                        <!-- Notes -->
-                        <div class="bento-card relative">
-                            <textarea id="quick-notes" class="notes-area w-full h-full bg-transparent border-none outline-none resize-none p-2" placeholder="Quick notes..."></textarea>
-                            <div class="absolute bottom-2 right-2 opacity-50 pointer-events-none">
-                                <svg class="w-4 h-4" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
-                            </div>
-                        </div>
-                        <!-- Calendar -->
+
+                        <!-- Calendar (Right Column Top) -->
                         <div class="bento-card">
                             <div class="calendar-header flex justify-between mb-4 font-bold text-primary">
                                 <span onclick="changeMonth(-1)" class="cursor-pointer hover:scale-125 transition-transform">&lt;</span>
@@ -481,6 +632,14 @@
                                 <span onclick="changeMonth(1)" class="cursor-pointer hover:scale-125 transition-transform">&gt;</span>
                             </div>
                             <div class="calendar-grid text-sm" id="calendar-days"></div>
+                        </div>
+
+                        <!-- Notes (Right Column Bottom) -->
+                        <div class="bento-card relative">
+                            <textarea id="quick-notes" class="notes-area w-full h-full bg-transparent border-none outline-none resize-none p-2" placeholder="Quick notes..."></textarea>
+                            <div class="absolute bottom-2 right-2 opacity-50 pointer-events-none">
+                                <svg class="w-4 h-4" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -497,7 +656,7 @@
                              <div class="flex items-center justify-between mb-4 pb-2 border-b border-border">
                                 <span id="diary-date-label" class="font-bold text-main text-lg">Today</span>
                             </div>
-                            <textarea id="diary-content" class="diary-textarea" placeholder="Dear diary..."></textarea>
+                            <textarea id="diary-content" class="diary-textarea" placeholder=""></textarea>
                         </div>
                         <div class="diary-calendar-container">
                              <div class="calendar-header flex justify-between mb-4 font-bold text-primary">
@@ -819,6 +978,9 @@
             renderDiaryCalendar();
             fetchQuote();
 
+            // RE-ENABLED: Sync on load (Stale-While-Revalidate)
+            // 1. Loads local data instantly (above).
+            // 2. Then fetches updates from cloud and updates storage.
             if(navigator.onLine) {
                 fetchCloud();
             }
@@ -886,6 +1048,12 @@
 
             state.todos.unshift({ id: Date.now(), title: t.value, desc: "", completed: false, date: state.selectedDateString });
             t.value = ''; renderTodos(); saveLocal();
+        }
+
+        function handleTaskInput(e) {
+            if(e.key === 'Enter') {
+                addTask();
+            }
         }
 
         /* --- TASK REORDERING LOGIC --- */
