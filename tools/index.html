@@ -522,6 +522,15 @@
                     <label class="text-xs text-muted font-bold uppercase">Description</label>
                     <textarea id="modal-task-desc" class="w-full mt-1 bg-input border border-border text-main rounded-lg p-3 h-32 resize-none" placeholder="Add description..."></textarea>
                 </div>
+                <!-- NEW LINKS -->
+                <div>
+                    <label class="text-xs text-muted font-bold uppercase">Link 1 (URL)</label>
+                    <input type="url" id="modal-task-link1" class="w-full mt-1 bg-input border border-border text-main rounded-lg p-3" placeholder="https://">
+                </div>
+                <div>
+                    <label class="text-xs text-muted font-bold uppercase">Link 2 (URL)</label>
+                    <input type="url" id="modal-task-link2" class="w-full mt-1 bg-input border border-border text-main rounded-lg p-3" placeholder="https://">
+                </div>
                 <div class="flex gap-2 mt-2">
                     <button onclick="saveTaskFromModal()" class="flex-1 bg-primary text-white py-3 rounded-xl font-bold hover:opacity-90">Save Changes</button>
                     <button onclick="deleteTaskFromModal()" class="bg-input text-status-unread border border-border px-4 py-3 rounded-xl hover:bg-status-unread hover:text-white transition-colors">
@@ -795,12 +804,7 @@
         }
 
         async function syncCloud() {
-            const cloudTasks = state.todos.map(t => ({
-                date: t.date,
-                status: t.completed ? "Selesai" : "Belum",
-                text: t.title,
-                description: t.desc
-            }));
+            // NOTE: Task push is now handled by single-item upsert/delete, so we only sync Notes, Bookmarks, and Diary here.
 
             const cloudBookmarks = state.bookmarks.map(b => ({
                 title: b.title,
@@ -816,7 +820,6 @@
             document.getElementById('sync-status').style.opacity = '1';
 
             await Promise.all([
-                callApi('push_tasks', { tasks: cloudTasks }),
                 callApi('sync_notes', { noteContent: state.notes }),
                 callApi('push_bookmarks', { bookmarks: cloudBookmarks }),
                 callApi('push_daily_notes', { notes: cloudDiary })
@@ -839,12 +842,16 @@
             ]);
 
             if(taskRes && taskRes.result === 'success') {
-                state.todos = taskRes.data.map((t, idx) => ({
-                    id: Date.now() + idx,
+                // Task data starts at row 2 (i=0) in the GAS output
+                state.todos = taskRes.data.map((t, i) => ({
+                    id: Date.now() + i + Math.random(),
                     title: t.text,
                     desc: t.description,
                     completed: (t.status === "Selesai" || t.status === true || t.status === "TRUE"),
-                    date: t.date
+                    date: t.date,
+                    rowIndex: i + 2, // Sheet row number (2, 3, 4...)
+                    link1: t.link1 || "",
+                    link2: t.link2 || ""
                 }));
             }
 
@@ -1041,13 +1048,39 @@
             if(val) { state.selectedDateString = val; updateDateLabel(); renderTodos(); }
         }
 
-        // Add task simply creates a new one, editing handles details
-        function addTask() {
+        // Add task now uses upsert_task
+        async function addTask() {
             const t = document.getElementById('task-title-in'); 
-            if(!t.value) return;
+            const title = t.value.trim();
+            if(!title) return;
 
-            state.todos.unshift({ id: Date.now(), title: t.value, desc: "", completed: false, date: state.selectedDateString });
-            t.value = ''; renderTodos(); saveLocal();
+            const newTaskData = {
+                status: "Belum",
+                text: title,
+                description: "",
+                date: state.selectedDateString
+            };
+
+            const res = await callApi('upsert_task', { task: newTaskData });
+            
+            if (res && res.result === 'success' && res.row) {
+                state.todos.unshift({ 
+                    id: Date.now(), 
+                    title: title, 
+                    desc: "", 
+                    completed: false, 
+                    date: state.selectedDateString, 
+                    rowIndex: res.row, // Store the new Sheet row index
+                    link1: "",
+                    link2: ""
+                });
+                t.value = ''; 
+                renderTodos(); 
+                saveLocal(false); // Do not trigger another sync as it just happened
+            } else {
+                console.error("Failed to add task via upsert:", res);
+                alert("Failed to add task. Check console for details.");
+            }
         }
 
         function handleTaskInput(e) {
@@ -1084,8 +1117,9 @@
             state.todos[allIndex] = state.todos[neighborAllIndex];
             state.todos[neighborAllIndex] = temp;
             
+            // NOTE: Reordering locally is immediate. Cloud sync happens on next autosave or item update.
             renderTodos();
-            saveLocal();
+            saveLocal(); 
         }
 
         function renderTodos() {
@@ -1102,7 +1136,7 @@
                         <button onclick="moveTask(${t.id}, -1, event)" class="text-muted hover:text-primary p-0.5" title="Move Up" ${idx===0 ? 'style="opacity:0.3;pointer-events:none"':''}><svg class="w-4 h-4" viewBox="0 0 24 24"><path d="M18 15l-6-6-6 6"/></svg></button>
                         <button onclick="moveTask(${t.id}, 1, event)" class="text-muted hover:text-primary p-0.5" title="Move Down" ${idx===filtered.length-1 ? 'style="opacity:0.3;pointer-events:none"':''}><svg class="w-4 h-4" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button>
                     </div>
-                    <!-- Inline Delete only, Edit is now via click -->
+                    <!-- Inline Delete uses new async logic -->
                     <button onclick="event.stopPropagation(); del(${t.id})" class="text-muted hover:text-status-unread p-1"><svg viewBox="0 0 24 24" style="width:18px;height:18px;"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
                 </div>
             `).join('');
@@ -1118,6 +1152,8 @@
             editingTaskId = id;
             document.getElementById('modal-task-title').value = t.title;
             document.getElementById('modal-task-desc').value = t.desc;
+            document.getElementById('modal-task-link1').value = t.link1;
+            document.getElementById('modal-task-link2').value = t.link2;
             
             document.getElementById('task-modal-overlay').classList.add('open');
         }
@@ -1127,27 +1163,96 @@
             editingTaskId = null;
         }
 
-        function saveTaskFromModal() {
+        async function saveTaskFromModal() {
             if (!editingTaskId) return;
             const t = state.todos.find(x => x.id === editingTaskId);
-            if (t) {
-                t.title = document.getElementById('modal-task-title').value;
-                t.desc = document.getElementById('modal-task-desc').value;
+            if (!t) return;
+
+            // 1. Update local state
+            t.title = document.getElementById('modal-task-title').value;
+            t.desc = document.getElementById('modal-task-desc').value;
+            t.link1 = document.getElementById('modal-task-link1').value;
+            t.link2 = document.getElementById('modal-task-link2').value;
+
+            // 2. Prepare data for GAS update (upsert)
+            const updateData = {
+                rowIndex: t.rowIndex, // Send the row index for update
+                task: {
+                    status: t.completed ? "Selesai" : "Belum",
+                    text: t.title,
+                    description: t.desc,
+                    link1: t.link1,
+                    link2: t.link2
+                }
+            };
+            
+            const res = await callApi('upsert_task', updateData); // Send update to GAS
+            
+            if (res && res.result === 'success') {
                 renderTodos();
-                saveLocal();
+                saveLocal(false); // Save local copy, no need to trigger full sync
+            } else {
+                console.error("Failed to update task via upsert:", res);
+                alert("Update failed. Check console.");
             }
+
             closeTaskModal();
+        }
+        
+        // Core delete function using the new GAS API
+        async function deleteTask(id) {
+            const t = state.todos.find(x=>x.id==id);
+            if (!t || !t.rowIndex) return;
+
+            const res = await callApi('delete_task', { rowIndex: t.rowIndex });
+            
+            if (res && res.result === 'success') {
+                state.todos = state.todos.filter(x=>x.id!==id);
+                renderTodos();
+                saveLocal(false); // Save local copy, no need to trigger full sync
+            } else {
+                console.error("Failed to delete task:", res);
+                alert("Delete failed. Check console.");
+            }
         }
 
         function deleteTaskFromModal() {
             if (editingTaskId && confirm("Delete this task?")) {
-                del(editingTaskId);
+                deleteTask(editingTaskId); 
                 closeTaskModal();
             }
         }
 
-        window.toggle = (id) => { const i = state.todos.find(x=>x.id==id); if(i){ i.completed=!i.completed; renderTodos(); saveLocal(); } }
-        window.del = (id) => { state.todos = state.todos.filter(x=>x.id!==id); renderTodos(); saveLocal(); }
+        // Toggle uses upsert to push status change immediately
+        window.toggle = async (id) => { 
+            const t = state.todos.find(x=>x.id==id); 
+            if(t){ 
+                t.completed=!t.completed; 
+                
+                // Immediate push of status change
+                const updateData = {
+                    rowIndex: t.rowIndex,
+                    task: {
+                        status: t.completed ? "Selesai" : "Belum",
+                        text: t.title,
+                        description: t.desc,
+                        link1: t.link1,
+                        link2: t.link2
+                    }
+                };
+                
+                await callApi('upsert_task', updateData);
+                
+                renderTodos(); 
+                saveLocal(false); 
+            } 
+        }
+        
+        window.del = (id) => { 
+            if (confirm("Delete task?")) {
+                deleteTask(id);
+            }
+        }
         
         document.getElementById('quick-notes').addEventListener('input', (e) => { 
             state.notes = e.target.value; localStorage.setItem('myNotes', state.notes); triggerSync();
