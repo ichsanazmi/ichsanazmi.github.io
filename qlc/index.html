@@ -4,6 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Task & File Manager</title>
+    
+    <!-- PWA Manifest & Meta Tags -->
+    <meta name="theme-color" content="#4f46e5">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Task Manager">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/906/906334.png">
+    
+    <!-- Inline Manifest for Single File PWA -->
+    <link rel="manifest" href='data:application/manifest+json;base64,eyJuYW1lIjoiVGFzayBNYW5hZ2VyIiwic2hvcnRfbmFtZSI6IlRhc2tzIiwic3RhcnRfdXJsIjoiLiIsImRpc3BsYXkiOiJzdGFuZGFsb25lIiwiYmFja2dyb3VuZF9jb2xvciI6IiNmZmZmZmYiLCJ0aGVtZV9jb2xvciI6IiM0ZjQ2ZTUiLCJpY29ucyI6W3sic3JjIjoiaHR0cHM6Ly9jZG4taWNvbnXMcG5nLmZsYXRpY29uLmNvbS81MTIvOTA2LzkwNjMzNC5wbmciLCJzaXplcyI6IjE5MngxOTIiLCJ0eXBlIjoiaW1hZ2UvcG5nIn0seyJzcmMiOiJodHRwczovL2Nkbi1pY29ucy1wbmcuZmxhdGljb24uY29tLzUxMi85MDYvOTA2MzM0LnBuZyIsInNpemVzIjoiNTEyeDUxMiIsInR5cGUiOiJpbWFnZS9wbmcifV19'>
+
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -76,9 +87,16 @@
         
         <!-- Header -->
         <header class="mb-6 border-b border-indigo-200 pb-4 flex flex-col md:flex-row md:items-center md:justify-between">
-            <div>
-                <h1 class="text-2xl font-bold text-indigo-700 tracking-tight">Task Manager</h1>
-                <p class="text-xs text-gray-500 mt-1">Manage tasks and upload attachments to Drive</p>
+            <div class="flex items-center gap-3">
+                <div>
+                    <h1 class="text-2xl font-bold text-indigo-700 tracking-tight">Task Manager</h1>
+                    <p class="text-xs text-gray-500 mt-1">Manage tasks and upload attachments to Drive</p>
+                </div>
+                <!-- PWA Install Button (Hidden by default) -->
+                <button id="installPwaBtn" class="hidden flex items-center gap-1 bg-indigo-100 text-indigo-700 hover:bg-indigo-200 px-3 py-1.5 rounded-full text-xs font-bold transition">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                    Install App
+                </button>
             </div>
             <div class="mt-4 md:mt-0 text-right">
                 <span id="currentDateDisplay" class="text-sm font-semibold text-gray-700 block"></span>
@@ -297,6 +315,7 @@
         let allTasks = [];
         let selectedDate = new Date(); // Date object
         let calendarViewDate = new Date(); // Date object for calendar navigation
+        let deferredPrompt; // PWA Install Prompt
 
         // --- INIT ---
         window.onload = function() {
@@ -305,6 +324,28 @@
             fetchTasks();
             setInterval(updateProgress, 60000);
         };
+        
+        // --- PWA INSTALL LOGIC ---
+        window.addEventListener('beforeinstallprompt', (e) => {
+            // Prevent the mini-infobar from appearing on mobile
+            e.preventDefault();
+            // Stash the event so it can be triggered later.
+            deferredPrompt = e;
+            // Update UI notify the user they can install the PWA
+            const installBtn = document.getElementById('installPwaBtn');
+            installBtn.classList.remove('hidden');
+            
+            installBtn.addEventListener('click', async () => {
+                // Hide the app provided install promotion
+                installBtn.classList.add('hidden');
+                // Show the install prompt
+                deferredPrompt.prompt();
+                // Wait for the user to respond to the prompt
+                const { outcome } = await deferredPrompt.userChoice;
+                // We've used the prompt, and can't use it again, throw it away
+                deferredPrompt = null;
+            });
+        });
 
         // --- PROGRESS & CALENDAR LOGIC (Same as before) ---
         function updateProgress() {
