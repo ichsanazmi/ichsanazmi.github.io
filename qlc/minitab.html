@@ -106,13 +106,6 @@
             min-height: 600px; /* Minimum height for desktop usability */
         }
 
-        /* Icons for Prayer Times */
-        .icon {
-            fill: var(--color-text);
-            width: 20px;
-            height: 20px;
-        }
-
         /* Floating Settings Button */
         #settings-button {
             position: fixed;
@@ -161,6 +154,24 @@
             pointer-events: none;
         }
 
+        /* Offline Badge Animation */
+        @keyframes pulse-orange {
+            0%, 100% { opacity: 1; }
+            50% { opacity: .7; }
+        }
+        .animate-pulse-slow {
+            animation: pulse-orange 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        
+        /* Horizontal Scroll Hide */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
     </style>
     <script>
         tailwind.config = {
@@ -185,12 +196,17 @@
     <button id="settings-button" onclick="toggleSettingsModal(true)" 
             class="p-3 rounded-full bg-custom-primary text-white shadow-xl hover:scale-105 transition-transform duration-200 focus:ring-custom-primary ring-4 ring-opacity-50">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M12 2c-.55 0-1 .45-1 1v2c0 .55.45 1 1 1s1-.45 1-1V3c0-.55-.45-1-1-1zm0 18c-.55 0-1 .45-1 1v2c0 .55.45 1 1 1s1-.45 1-1v-2c0-.55-.45-1-1-1zm6-10c-.55 0-1 .45-1 1s.45 1 1 1h2c.55 0 1-.45 1-1s-.45-1-1-1h-2zM4 12c-.55 0-1 .45-1 1s.45 1 1 1h2c.55 0 1-.45 1-1s-.45-1-1-1h2c.55 0 1-.45 1-1s-.45-1-1-1h2c.55 0 1-.45 1-1s-.45-1-1-1H4zM16.12 6.13c-.39-.39-1.02-.39-1.41 0-.39.39-.39 1.02 0 1.41l1.41 1.41c.39.39 1.02.39 1.41 0 .39-.39.39-1.02 0-1.41L16.12 6.13zM6.46 17.54c.39.39.39 1.02 0 1.41-.39.39-1.02.39-1.41 0l-1.41-1.41c-.39-.39-.39-1.02 0-1.41.39-.39 1.02-.39 1.41 0l1.41 1.41zM17.54 16.12c.39-.39.39-1.02 0-1.41-.39-.39-1.02-.39-1.41 0l-1.41 1.41c-.39.39-.39 1.02 0 1.41.39.39 1.02.39 1.41 0l1.41-1.41zM6.13 6.13c-.39-.39-1.02-.39-1.41 0L3.31 7.54c-.39.39-.39 1.02 0 1.41.39.39 1.02.39 1.41 0l1.41-1.41c.39-.39.39-1.02 0-1.41z"/>
+            <path d="M12 2c-.55 0-1 .45-1 1v2c0 .55.45 1 1 1s1-.45 1-1V3c0-.55-.45-1-1-1zm0 18c-.55 0-1 .45-1 1v2c0 .55.45 1 1 1s1-.45 1-1v-2c0-.55-.45-1-1-1zm6-10c-.55 0-1 .45-1 1s.45 1 1 1h2c.55 0 1-.45 1-1s-.45-1-1-1h-2zM4 12c-.55 0-1 .45-1 1s.45 1 1 1h2c.55 0 1-.45 1-1s-.45-1-1-1h2c.55 0 1-.45 1-1s-.45-1-1-1h2c.55 0 1-.45 1-1s-.45-1-1-1h2c.55 0 1-.45 1-1s-.45-1-1-1h2c.55 0 1-.45 1-1s-.45-1-1-1h2c.55 0 1-.45 1-1s-.45-1-1-1H4zM16.12 6.13c-.39-.39-1.02-.39-1.41 0-.39.39-.39 1.02 0 1.41l1.41 1.41c.39.39 1.02.39 1.41 0 .39-.39.39-1.02 0-1.41L16.12 6.13zM6.46 17.54c.39.39.39 1.02 0 1.41-.39.39-1.02.39-1.41 0l-1.41-1.41c-.39-.39-.39-1.02 0-1.41.39-.39 1.02-.39 1.41 0l1.41 1.41zM17.54 16.12c.39-.39.39-1.02 0-1.41-.39-.39-1.02-.39-1.41 0l-1.41 1.41c-.39.39-.39 1.02 0 1.41.39.39 1.02.39 1.41 0l1.41-1.41c.39-.39.39-1.02 0-1.41z"/>
         </svg>
     </button>
     
-    <!-- Header -->
-    <header class="mb-6 h-8"></header> 
+    <!-- Header with status badge -->
+    <header class="mb-6 h-8 flex items-center justify-between">
+        <div id="offline-badge" class="hidden flex items-center bg-orange-100 text-orange-800 text-xs px-2 py-1 rounded-full animate-pulse-slow border border-orange-200">
+            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+            Using Demo Data (API Failed)
+        </div>
+    </header> 
 
     <!-- Main Grid Layout -->
     <main class="grid lg:grid-cols-4 gap-4 main-grid-container">
@@ -227,15 +243,25 @@
                 </div>
             </div>
 
-            <!-- 2. Prayer Times -->
-            <div id="prayer-card" class="bento-card bg-custom-card p-6 rounded-xl shadow-lg transition-all duration-300 w-full">
-                <h2 class="text-xl font-semibold mb-3">Prayer Times (<span id="prayer-city-display">London</span>)</h2>
-                <div id="prayer-times-list" class="space-y-2">
-                    <div class="flex items-center justify-between opacity-50">
+            <!-- 2. Prayer Times (Horizontal UI) -->
+            <div id="prayer-card" class="bento-card bg-custom-card p-4 rounded-xl shadow-lg transition-all duration-300 w-full">
+                <div class="flex justify-between items-center mb-3">
+                    <h2 class="text-lg font-semibold flex items-center gap-2">
+                        Prayer Times 
+                        <span class="text-xs font-normal opacity-70 bg-custom-surface px-2 py-0.5 rounded-full border border-custom-border" id="prayer-location-badge">
+                            <svg class="w-3 h-3 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                            <span id="prayer-city-display">Locating...</span>
+                        </span>
+                    </h2>
+                </div>
+                
+                <!-- Updated Container for Colorful Cards -->
+                <div id="prayer-times-list" class="flex gap-3 overflow-x-auto no-scrollbar pb-1 snap-x snap-mandatory">
+                    <div class="flex items-center justify-center opacity-50 w-full py-4 text-sm">
                         <span>Fetching Data...</span>
                     </div>
                 </div>
-                <p class="text-xs mt-4 opacity-60">Data from Aladhan API.</p>
+                <p class="text-xs mt-2 opacity-50 text-right">Source: Aladhan (Kemenag)</p>
             </div>
 
         </div>
@@ -243,7 +269,7 @@
         <!-- Right Column -->
         <div class="lg:col-span-3 flex flex-col gap-4 h-full overflow-hidden">
             
-            <!-- Standard Dropdown Calendar (Replaces Weekly Scroll) -->
+            <!-- Standard Dropdown Calendar -->
             <div class="bento-card bg-custom-card p-4 rounded-xl shadow-lg transition-all duration-300">
                 <div class="flex justify-between items-center cursor-pointer select-none" onclick="toggleCalendarDropdown()">
                     <div class="flex items-center space-x-2">
@@ -324,13 +350,14 @@
                 </div>
             </div>
 
-            <!-- City Selector -->
+            <!-- Manual City Override -->
             <div class="mb-6">
-                <h4 class="text-lg font-semibold mb-3">Prayer Time City</h4>
-                <select id="city-selector" onchange="handleCityChange(this.value)"
+                <h4 class="text-lg font-semibold mb-3">Prayer Time City (Override)</h4>
+                <select id="city-selector" onchange="handleManualCityChange(this.value)"
                         class="w-full p-2 rounded-lg border border-custom-border bg-custom-bg text-custom-text focus:ring-custom-primary">
+                    <option value="" disabled selected>Select a city to override auto-detect</option>
                 </select>
-                <p class="text-xs opacity-70 mt-2">Updates prayer times immediately.</p>
+                <p class="text-xs opacity-70 mt-2">Currently using: <span id="setting-current-city">Auto</span></p>
             </div>
 
             <!-- PWA Install -->
@@ -394,13 +421,11 @@
 
     <script>
         // --- Configuration ---
-        // REPLACE with your Google Apps Script URL if deploying
-        const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/YOUR_APPS_SCRIPT_ID/exec'; 
-        const PRAYER_API_BASE = 'https://api.aladhan.com/v1/timingsByCity';
-        const CITIES = ['London', 'New York', 'Kuala Lumpur', 'Jakarta', 'Dubai', 'Makkah', 'Istanbul'];
+        const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzEGCi6QYafHHgMJ8A31QzLX8PY5JfZhueceVrhg4Qq0egUDDaUQl6Ly4aO4cwsBLJQAA/exec'; 
+        const PRAYER_API_BASE = 'https://api.aladhan.com/v1'; // Base Endpoint
+        const MANUAL_CITIES = ['Bekasi', 'Jakarta', 'Bandung', 'Surabaya', 'Yogyakarta', 'London', 'New York'];
         
         let deferredPrompt;
-        let selectedCity = localStorage.getItem('prayer-city') || CITIES[0];
         let allEvents = [];
         let selectedFilterDate = null; 
         
@@ -408,10 +433,14 @@
         let currentCalendarDate = new Date();
         let isCalendarOpen = false;
 
-        // --- Utils ---
+        // --- Utils: Correct Local Date Formatting for Filtering ---
         const formatDateForComparison = (date) => {
             if (!(date instanceof Date)) date = new Date(date);
-            return date.toISOString().split('T')[0];
+            // Use local date parts to avoid timezone shifting
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
         };
 
         // --- Settings Modal ---
@@ -523,28 +552,74 @@
         updateClock();
 
         // --- Prayer Times ---
-        const prayerIcons = {
-            Fajr: `<svg class="icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8 0-3.32 2.15-6.14 5.12-7.23L12 11l-3-3 4-4 2 2 2-2 2 2-4 4 3 3-5.12 4.41z"/></svg>`,
-            Dhuhr: `<svg class="icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8h2.09c.47 1.7 1.4 3.19 2.66 4.39L6.5 17.5l1.41 1.41 1.46-1.46c1.17.84 2.58 1.34 4.09 1.34V20zm-8-8c0-1.78.69-3.4 1.81-4.66L7 8l-1.41-1.41L5 6.5C3.89 7.76 3.1 9.38 3.1 11h2.09zm18 0c0-4.41-3.59-8-8-8v2h.16c1.51 0 2.92.5 4.09 1.34l-1.46 1.46L17 8l1.41 1.41c1.12 1.26 1.81 2.88 1.81 4.59h-2.09zm0-8c0 4.41-3.59 8-8 8v-2h-.16c-1.51 0-2.92-.5-4.09-1.34l1.46-1.46L7 16l-1.41-1.41C3.89 13.4 3.1 11.78 3.1 10H5.16c.47 1.7 1.4 3.19 2.66 4.39L7.96 15.5l1.41 1.41 1.46-1.46c1.17.84 2.58 1.34 4.09 1.34V20c4.41 0 8-3.59 8-8z"/></svg>`,
-            Asr: `<svg class="icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8 0-2.4 1.05-4.57 2.73-6.07L12 12l2.36 2.36L12 17.58l-5.64-5.64C7.43 8.05 9.6 7 12 7v5l5.64 5.64L12 19.58zM12 4c-4.41 0-8 3.59-8 8s3.59 8 8 8 8-3.59 8-8-3.59-8-8-8zM12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4z"/></svg>`,
-            Maghrib: `<svg class="icon" viewBox="0 0 24 24"><path d="M12 10c-3.7 0-6.68 3-5.74 6.68L12 12l-3-3 4-4 2 2 2-2 2 2-4 4 3 3c.94-3.68-2.04-6.68-5.74-6.68zm0 10c4.41 0 8-3.59 8-8s-3.59-8-8-8-8 3.59-8 8 3.59 8 8 8z"/></svg>`,
-            Isha: `<svg class="icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8 0-3.32 2.15-6.14 5.12-7.23L12 11l-3-3 4-4 2 2 2-2 2 2-4 4 3 3-5.12 4.41z"/></svg>`,
-        };
+        // Icons removed in favor of color cards
         
-        function handleCityChange(city) {
-            selectedCity = city;
-            localStorage.setItem('prayer-city', city);
-            document.getElementById('prayer-city-display').textContent = city;
-            fetchPrayerTimes();
+        function handleManualCityChange(city) {
+            localStorage.setItem('prayer-city-override', city);
+            fetchPrayerTimesByCity(city);
         }
 
-        async function fetchPrayerTimes() {
+        async function initPrayerTimes() {
+            // Check for manual override first
+            const overrideCity = localStorage.getItem('prayer-city-override');
+            if (overrideCity) {
+                fetchPrayerTimesByCity(overrideCity);
+                return;
+            }
+
+            // Default: Try Geolocation
+            if (navigator.geolocation) {
+                document.getElementById('prayer-city-display').textContent = 'Locating...';
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        fetchPrayerTimesByCoords(position.coords.latitude, position.coords.longitude);
+                    },
+                    (error) => {
+                        console.warn("Geolocation denied/failed. Falling back to Bekasi.");
+                        fetchPrayerTimesByCity('Bekasi');
+                    }
+                );
+            } else {
+                // Browser doesn't support geolocation
+                fetchPrayerTimesByCity('Bekasi');
+            }
+        }
+
+        async function fetchPrayerTimesByCoords(lat, lng) {
             try {
-                const response = await fetch(`${PRAYER_API_BASE}?city=${encodeURIComponent(selectedCity)}&country=XX&method=2`);
-                if (!response.ok) throw new Error('Network error');
+                // Aladhan Timings endpoint for coords. Method 20 = Kemenag
+                const date = new Date();
+                const dStr = `${date.getDate()}-${date.getMonth()+1}-${date.getFullYear()}`;
+                const url = `${PRAYER_API_BASE}/timings/${dStr}?latitude=${lat}&longitude=${lng}&method=20`;
+
+                document.getElementById('prayer-city-display').textContent = 'Detected Location';
+                document.getElementById('setting-current-city').textContent = 'Detected Location';
+                await executePrayerFetch(url);
+            } catch (e) {
+                fetchPrayerTimesByCity('Bekasi');
+            }
+        }
+
+        async function fetchPrayerTimesByCity(city) {
+            try {
+                document.getElementById('prayer-city-display').textContent = city;
+                document.getElementById('setting-current-city').textContent = city;
+                // Method 20 = Kemenag
+                const url = `${PRAYER_API_BASE}/timingsByCity?city=${encodeURIComponent(city)}&country=Indonesia&method=20`;
+                await executePrayerFetch(url);
+            } catch (e) {
+                console.error(e);
+                renderPrayerError();
+            }
+        }
+
+        async function executePrayerFetch(url) {
+            const list = document.getElementById('prayer-times-list');
+            try {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error('Prayer API error');
                 const data = await response.json();
-                
-                const list = document.getElementById('prayer-times-list');
+
                 if (data.data && data.data.timings) {
                     list.innerHTML = '';
                     const t = data.data.timings;
@@ -555,33 +630,72 @@
                         { name: 'Maghrib', time: t.Maghrib },
                         { name: 'Isha', time: t.Isha }
                     ];
+
+                    // Colorful Gradients mapping
+                    const prayerColors = {
+                        Fajr: 'bg-gradient-to-br from-indigo-400 to-cyan-400',
+                        Dhuhr: 'bg-gradient-to-br from-amber-200 to-yellow-400',
+                        Asr: 'bg-gradient-to-br from-orange-300 to-rose-300',
+                        Maghrib: 'bg-gradient-to-br from-pink-400 to-rose-500',
+                        Isha: 'bg-gradient-to-br from-slate-600 to-slate-800'
+                    };
+                    
                     prayers.forEach(p => {
+                        // Create Horizontal Colorful Card with NO ICON
                         const div = document.createElement('div');
-                        div.className = 'flex items-center justify-between text-lg font-medium border-b border-custom-border/50 pb-1 last:border-b-0 last:pb-0';
-                        div.innerHTML = `<div class="flex items-center space-x-2">${prayerIcons[p.name]}<span>${p.name}</span></div><span class="font-bold">${p.time}</span>`;
+                        div.className = `flex flex-col items-center justify-center p-3 rounded-xl min-w-[85px] flex-shrink-0 shadow-md transition-transform hover:scale-105 cursor-default snap-center ${prayerColors[p.name]} text-white`;
+                        div.innerHTML = `
+                            <span class="text-xs font-medium uppercase tracking-wider opacity-90">${p.name}</span>
+                            <span class="text-lg font-bold mt-1 tracking-tight">${p.time}</span>
+                        `;
                         list.appendChild(div);
                     });
                 } else {
-                    list.innerHTML = `<p class="text-sm text-red-500">No data for ${selectedCity}.</p>`;
+                    renderPrayerError();
                 }
             } catch (error) {
-                console.error(error);
-                document.getElementById('prayer-times-list').innerHTML = `<p class="text-sm text-red-500">Failed to load data.</p>`;
+                renderPrayerError();
             }
+        }
+
+        function renderPrayerError() {
+             document.getElementById('prayer-times-list').innerHTML = `<p class="text-sm text-red-500 w-full text-center">Failed to load data.</p>`;
         }
 
         // --- Data Logic ---
         async function fetchAllData() {
             try {
-                // Mock Data
+                // Fetch from the real API
+                const response = await fetch(`${GOOGLE_APPS_SCRIPT_URL}?t=${new Date().getTime()}`, {
+                    method: 'GET',
+                    mode: 'cors',
+                    redirect: 'follow', 
+                });
+                
+                if (!response.ok) throw new Error('API response failed');
+                const data = await response.json();
+                
+                // Hide offline indicator if it exists
+                const offlineBadge = document.getElementById('offline-badge');
+                if (offlineBadge) offlineBadge.classList.add('hidden');
+                
+                return data;
+            } catch (error) {
+                console.warn('API fetch failed, switching to mock data:', error);
+                
+                // Show offline indicator
+                const offlineBadge = document.getElementById('offline-badge');
+                if (offlineBadge) offlineBadge.classList.remove('hidden');
+                
+                // --- MOCK DATA FALLBACK ---
                 const today = new Date().toLocaleDateString('en-US', { weekday: 'long' });
-                const mockData = {
+                return {
                     events: [
-                        { date_time: new Date(Date.now() + 3600000 * 2).toISOString(), event_name: "UX Feedback Session (Notify)", pic_url: "https://placehold.co/100x100/F0A3A3/6E1B1B?text=UX", category: "Work", description: "Review wireframes with design team.", poc_name: "Jessica" },
-                        { date_time: new Date(Date.now() + 3600000 * 5).toISOString(), event_name: "Weekly Standup", pic_url: "https://placehold.co/100x100/A3F0C2/1B6E3F?text=Standup", category: "Work", description: "Standard weekly sync.", poc_name: "Sarah" },
-                        { date_time: new Date(Date.now() + 86400000 * 1).toISOString(), event_name: "Team Lunch", pic_url: "https://placehold.co/100x100/A3C2F0/1B3F6E?text=Lunch", category: "Social", description: "Celebration lunch.", poc_name: "Michael" },
-                        { date_time: new Date(Date.now() + 86400000 * 4).toISOString(), event_name: "Code Review", pic_url: "https://placehold.co/100x100/A3C2F0/1B3F6E?text=Code", category: "Work", description: "Reviewing beta feature.", poc_name: "David" },
-                        { date_time: new Date(Date.now() + 86400000 * 5).toISOString(), event_name: "Monthly Report", pic_url: "https://placehold.co/100x100/F0DFA3/6E551B?text=Report", category: "Admin", description: "Submitting report.", poc_name: "Charlie" },
+                        { date_time: new Date(Date.now() + 3600000 * 2).toISOString(), event_name: "UX Feedback Session (Notify)", pic_url: "https://placehold.co/100x100/F0A3A3/6E1B1B?text=UX", category: "Work", description: "Reviewing the wireframes and user flows for the new dashboard feature with the design team. Ensure all critical paths are covered.", poc_name: "Jessica" },
+                        { date_time: new Date(Date.now() + 3600000 * 5).toISOString(), event_name: "Weekly Standup", pic_url: "https://placehold.co/100x100/A3F0C2/1B6E3F?text=Standup", category: "Work", description: "Standard weekly team synchronization meeting. Focus on roadblocks and plan for the next 48 hours.", poc_name: "Sarah" },
+                        { date_time: new Date(Date.now() + 86400000 * 1).toISOString(), event_name: "Team Lunch - Project Alpha", pic_url: "https://placehold.co/100x100/A3C2F0/1B3F6E?text=Lunch", category: "Social", description: "Casual lunch to celebrate the successful deployment of Project Alpha's core module.", poc_name: "Michael" },
+                        { date_time: new Date(Date.now() + 86400000 * 4).toISOString(), event_name: "Code Review: Beta Feature", pic_url: "https://placehold.co/100x100/A3C2F0/1B3F6E?text=Code", category: "Work", description: "Deep dive code review session for the new beta feature branch. Requires full attention.", poc_name: "David" },
+                        { date_time: new Date(Date.now() + 86400000 * 5).toISOString(), event_name: "Monthly Report Finalization", pic_url: "https://placehold.co/100x100/F0DFA3/6E551B?text=Report", category: "Admin", description: "Finalizing and submitting the monthly performance report to management.", poc_name: "Charlie" },
                     ],
                     duty_schedule: {
                         'Sunday': ['No Duty'],
@@ -590,14 +704,10 @@
                         'Wednesday': ['Alice', 'Bob'],
                         'Thursday': ['Charlie', 'Eve'],
                         'Friday': ['Frank', 'Grace'],
-                        'Saturday': ['Self Duty']
+                        'Saturday': ['Self Duty'],
+                         [today]: ['Demo Mode - No API Connection'] 
                     }
-                };
-                mockData.duty_schedule[today] = mockData.duty_schedule[today] || ['No schedule.'];
-                return mockData;
-            } catch (error) {
-                console.error(error);
-                return { events: [], duty_schedule: {} };
+                }; 
             }
         }
 
@@ -649,7 +759,8 @@
             // Days
             for (let day = 1; day <= daysInMonth; day++) {
                 const d = new Date(year, month, day);
-                const dStr = formatDateForComparison(d);
+                // IMPORTANT: Create local date object explicitly to avoid UTC shift
+                const dStr = `${year}-${String(month+1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
                 
                 const div = document.createElement('div');
                 div.className = 'calendar-day-item';
@@ -676,8 +787,10 @@
                 // Set filter
                 selectedFilterDate = dateString;
                 const d = new Date(dateString);
-                document.getElementById('event-list-title').textContent = `Events on ${d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
-                document.getElementById('calendar-header-text').textContent = `Filtered: ${d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
+                // Note: displaying title might still use UTC if not careful, but filtering is safe now
+                document.getElementById('event-list-title').textContent = `Events on ${d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' })}`; 
+                // Hack: we interpret dateString as UTC for display purposes to avoid shifting back 
+                document.getElementById('calendar-header-text').textContent = `Filtered: ${d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' })}`;
             }
             
             renderMonthCalendar(); // Re-render to update selected style
@@ -715,26 +828,37 @@
             const container = document.getElementById('event-cards-container');
             container.innerHTML = '';
             if (!events || events.length === 0) {
-                container.innerHTML = `<p class="text-center opacity-60">No events.</p>`;
+                container.innerHTML = `<p class="text-center opacity-60">No events found.</p>`;
                 return;
             }
             
             const filtered = events.filter(e => {
+                // Check if date_time exists
+                if (!e.date_time) return false;
+
                 const eDate = new Date(e.date_time);
-                if (eDate < new Date(Date.now() - 3600000)) return false;
-                if (selectedFilterDate) return formatDateForComparison(eDate) === selectedFilterDate;
+                
+                // --- FIXED FILTERING LOGIC ---
+                // Show events from yesterday onwards (last 24 hours)
+                // This ensures "today's" events that have passed still show up
+                if (eDate < new Date(Date.now() - 86400000)) return false; 
+                
+                if (selectedFilterDate) {
+                    const eDateStr = formatDateForComparison(eDate);
+                    return eDateStr === selectedFilterDate;
+                }
                 return true;
             }).sort((a,b) => new Date(a.date_time) - new Date(b.date_time));
 
             if (filtered.length === 0) {
-                container.innerHTML = `<p class="text-center opacity-60">No events for this date.</p>`;
+                container.innerHTML = `<p class="text-center opacity-60">No upcoming events found.</p>`;
                 return;
             }
 
             filtered.forEach(ev => {
                 const d = new Date(ev.date_time);
                 let colorClass = 'bg-gray-200 text-gray-700';
-                const cat = ev.category.toLowerCase();
+                const cat = ev.category ? ev.category.toLowerCase() : 'work';
                 if (cat === 'work') colorClass = 'bg-blue-200 text-blue-800';
                 else if (cat === 'personal') colorClass = 'bg-pink-200 text-pink-800';
                 else if (cat === 'social') colorClass = 'bg-yellow-200 text-yellow-800';
@@ -744,12 +868,12 @@
                 div.className = 'flex items-center bento-card bg-custom-surface p-4 rounded-xl shadow-md border-custom-border/70 transition-shadow interactive-card';
                 div.onclick = () => showEventDetailModal(ev);
                 div.innerHTML = `
-                    <img src="${ev.pic_url}" onerror="this.src='https://placehold.co/100x100/cccccc/000000?text=IMG'" class="w-16 h-16 object-cover rounded-lg mr-4 flex-shrink-0">
+                    <img src="${ev.pic_url || ''}" onerror="this.src='https://placehold.co/100x100/cccccc/000000?text=IMG'" class="w-16 h-16 object-cover rounded-lg mr-4 flex-shrink-0">
                     <div class="flex-grow">
-                        <h3 class="text-lg font-semibold text-custom-text leading-tight">${ev.event_name}</h3>
+                        <h3 class="text-lg font-semibold text-custom-text leading-tight">${ev.event_name || 'Untitled Event'}</h3>
                         <p class="text-sm opacity-80 mt-1">${d.toLocaleDateString([], {month:'short', day:'numeric'})} at <span class="font-semibold">${d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</span></p>
                     </div>
-                    <span class="ml-4 px-3 py-1 text-xs font-medium rounded-full ${colorClass} flex-shrink-0">${ev.category}</span>
+                    <span class="ml-4 px-3 py-1 text-xs font-medium rounded-full ${colorClass} flex-shrink-0">${ev.category || 'Event'}</span>
                 `;
                 container.appendChild(div);
             });
@@ -776,25 +900,27 @@
         // --- Init ---
         function populateCitySelector() {
             const sel = document.getElementById('city-selector');
-            sel.innerHTML = '';
-            CITIES.forEach(c => {
+            sel.innerHTML = '<option value="" disabled selected>Select a city to override auto-detect</option>';
+            MANUAL_CITIES.forEach(c => {
                 const opt = document.createElement('option');
                 opt.value = c; opt.textContent = c;
-                if (c === selectedCity) opt.selected = true;
+                if (c === localStorage.getItem('prayer-city-override')) opt.selected = true;
                 sel.appendChild(opt);
             });
-            document.getElementById('prayer-city-display').textContent = selectedCity;
         }
 
         async function init() {
             setTheme(localStorage.getItem('bento-theme') || 'default');
             populateCitySelector();
-            await fetchPrayerTimes();
+            await initPrayerTimes(); 
             const data = await fetchAllData();
-            allEvents = data.events;
-            // Removed renderWeeklyCalendar, relying on dropdown calendar interaction only
-            renderEventCards(allEvents);
-            renderDutyList(data.duty_schedule);
+            if(data && data.events) {
+                allEvents = data.events;
+                renderEventCards(allEvents);
+            }
+            if(data && data.duty_schedule) {
+                renderDutyList(data.duty_schedule);
+            }
             document.getElementById('notification-status').textContent = `Status: ${Notification.permission}.`;
         }
         
