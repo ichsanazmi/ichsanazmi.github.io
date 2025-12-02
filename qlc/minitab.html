@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aesthetic Bento Dashboard</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Use Inter font family -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght=300;400;500;600;700&display=swap">
+    <style>
+        /* Custom Tailwind Configuration for Pale Colors */
+        :root {
+            /* Default Pale Theme (Minty Green) */
+            --color-bg: #f3fcf9;
+            --color-card: #e6f6ee;
+            --color-text: #2c5244;
+            --color-primary: #5cb85c; /* A slightly darker accent */
+            --color-border: #d4e8dd;
+        }
+
+        /* Pale Blue Theme */
+        [data-theme="blue"] {
+            --color-bg: #f0f7fc;
+            --color-card: #e3f2fd;
+            --color-text: #2c4452;
+            --color-primary: #428bca;
+            --color-border: #d0e0ed;
+        }
+
+        /* Pale Pink Theme */
+        [data-theme="pink"] {
+            --color-bg: #fcf3f6;
+            --color-card: #fdecf2;
+            --color-text: #522c3c;
+            --color-primary: #d9537d;
+            --color-border: #ead7df;
+        }
+        
+        /* Pale Purple Theme */
+        [data-theme="purple"] {
+            --color-bg: #f8f6fc;
+            --color-card: #f2edf9;
+            --color-text: #413554;
+            --color-primary: #8e7cc3;
+            --color-border: #e0d9f0;
+        }
+        
+        /* Pale Yellow Theme */
+        [data-theme="yellow"] {
+            --color-bg: #fcfbf3;
+            --color-card: #faf7e0;
+            --color-text: #545235;
+            --color-primary: #c3b248;
+            --color-border: #f0ebd9;
+        }
+
+        /* Dark Mode Theme */
+        [data-theme="dark"] {
+            --color-bg: #1c1c1e;
+            --color-card: #2c2c2e;
+            --color-text: #e0e0e0;
+            --color-primary: #94d82d; /* Neon Green/Lime accent */
+            --color-border: #444446;
+        }
+
+
+        /* Apply custom properties to Tailwind classes */
+        .bg-custom-bg { background-color: var(--color-bg); }
+        .bg-custom-card { background-color: var(--color-card); }
+        .text-custom-text { color: var(--color-text); }
+        .text-custom-primary { color: var(--color-primary); }
+        .border-custom-border { border-color: var(--color-border); }
+        .ring-custom-primary:focus {
+             outline: none;
+             box-shadow: 0 0 0 4px var(--color-primary);
+        }
+
+        /* General styles */
+        body { 
+            font-family: 'Inter', sans-serif; 
+            transition: background-color 0.3s; 
+            min-height: 100vh;
+        }
+        .bento-card {
+            border: 1px solid var(--color-border);
+            transition: all 0.3s ease-in-out;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+        /* Hover effect only for interactive cards (like event cards) */
+        .interactive-card:hover {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            transform: translateY(-2px);
+            cursor: pointer;
+        }
+        /* Ensure the main grid container fills the remaining space */
+        .main-grid-container {
+            height: calc(100vh - 4rem - 24px); /* Full viewport height minus header and top/bottom padding */
+            min-height: 600px; /* Minimum height for desktop usability */
+        }
+
+        /* Icons for Prayer Times (using inline SVG for simplicity and color control) */
+        .icon {
+            fill: var(--color-text);
+            width: 20px;
+            height: 20px;
+        }
+
+        /* Floating Settings Button */
+        #settings-button {
+            position: fixed;
+            bottom: 1.5rem;
+            right: 1.5rem;
+            z-index: 50;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+        .modal-content {
+            max-width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        /* Weekly Calendar Item */
+        .calendar-item {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 70px;
+            min-width: 70px; /* Prevent shrinking */
+            height: 70px;
+            border-radius: 0.75rem;
+            margin-right: 0.5rem;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+            border: 1px solid transparent;
+            font-weight: 500;
+        }
+        .calendar-item.selected {
+            background-color: var(--color-primary);
+            color: white;
+            transform: scale(1.05);
+            border-color: var(--color-text);
+        }
+        .calendar-item:not(.selected):hover {
+            background-color: var(--color-primary) !important;
+            color: white !important;
+        }
+        
+        /* Hide scrollbar for clean look but keep functionality */
+        #weekly-calendar-container::-webkit-scrollbar {
+            height: 6px;
+        }
+        #weekly-calendar-container::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        #weekly-calendar-container::-webkit-scrollbar-thumb {
+            background-color: var(--color-border);
+            border-radius: 20px;
+        }
+
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'custom-bg': 'var(--color-bg)',
+                        'custom-card': 'var(--color-card)',
+                        'custom-text': 'var(--color-text)',
+                        'custom-primary': 'var(--color-primary)',
+                        'custom-border': 'var(--color-border)',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-custom-bg text-custom-text p-4">
+
+    <!-- Floating Settings Button -->
+    <button id="settings-button" onclick="toggleSettingsModal(true)" 
+            class="p-3 rounded-full bg-custom-primary text-white shadow-xl hover:scale-105 transition-transform duration-200 focus:ring-custom-primary ring-4 ring-opacity-50">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2c-.55 0-1 .45-1 1v2c0 .55.45 1 1 1s1-.45 1-1V3c0-.55-.45-1-1-1zm0 18c-.55 0-1 .45-1 1v2c0 .55.45 1 1 1s1-.45 1-1v-2c0-.55-.45-1-1-1zm6-10c-.55 0-1 .45-1 1s.45 1 1 1h2c.55 0 1-.45 1-1s-.45-1-1-1h-2zM4 12c-.55 0-1 .45-1 1s.45 1 1 1h2c.55 0 1-.45 1-1s-.45-1-1-1h2c.55 0 1-.45 1-1s-.45-1-1-1H4zM16.12 6.13c-.39-.39-1.02-.39-1.41 0-.39.39-.39 1.02 0 1.41l1.41 1.41c.39.39 1.02.39 1.41 0 .39-.39.39-1.02 0-1.41L16.12 6.13zM6.46 17.54c.39.39.39 1.02 0 1.41-.39.39-1.02.39-1.41 0l-1.41-1.41c-.39-.39-.39-1.02 0-1.41.39-.39 1.02-.39 1.41 0l1.41 1.41zM17.54 16.12c.39-.39.39-1.02 0-1.41-.39-.39-1.02-.39-1.41 0l-1.41 1.41c-.39.39-.39 1.02 0 1.41.39.39 1.02.39 1.41 0l1.41-1.41zM6.13 6.13c-.39-.39-1.02-.39-1.41 0L3.31 7.54c-.39.39-.39 1.02 0 1.41.39.39 1.02.39 1.41 0l1.41-1.41c.39-.39.39-1.02 0-1.41z"/>
+        </svg>
+    </button>
+    
+    <!-- Header (Title removed as requested, keeping basic margin) -->
+    <header class="mb-6 h-8"></header> 
+
+    <!-- Main Grid Layout (Desktop: 25%/75% split) -->
+    <main class="grid lg:grid-cols-4 gap-4 main-grid-container">
+        
+        <!-- Left Column (25% on desktop, stacks on mobile) -->
+        <div class="lg:col-span-1 space-y-4 h-full flex flex-col">
+            
+            <!-- 1. Mini Clock (No Card Style) -->
+            <div id="clock-card" class="p-2 transition-all duration-300 w-full">
+                <p class="text-sm font-medium opacity-75">Local Time</p>
+                <div id="digital-clock" class="text-6xl font-extrabold mt-2 text-custom-primary">00:00</div>
+                <div id="clock-date" class="text-lg opacity-80 mt-1">Mon, Jan 1</div>
+
+                <!-- Progress Bars -->
+                <div id="progress-bars" class="mt-4 space-y-3 w-full">
+                    <div class="w-full">
+                        <p class="text-sm font-medium opacity-75">Day Progress</p>
+                        <div class="h-2 w-full bg-custom-border rounded-full overflow-hidden">
+                            <div id="day-progress-bar" class="h-full bg-custom-primary transition-all duration-500" style="width: 0%;"></div>
+                        </div>
+                    </div>
+                    <div class="w-full">
+                        <p class="text-sm font-medium opacity-75">Year Progress</p>
+                        <div class="h-2 w-full bg-custom-border rounded-full overflow-hidden">
+                            <div id="year-progress-bar" class="h-full bg-custom-primary transition-all duration-500" style="width: 0%;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. Islamic Prayer Time Bento Card -->
+            <div id="prayer-card" class="bento-card bg-custom-card p-6 rounded-xl shadow-lg transition-all duration-300 w-full">
+                <h2 class="text-xl font-semibold mb-3">Prayer Times (<span id="prayer-city-display">London</span>)</h2>
+                <div id="prayer-times-list" class="space-y-2">
+                    <!-- Prayer times will be injected here -->
+                    <div class="flex items-center justify-between opacity-50">
+                        <span>Fetching Data...</span>
+                    </div>
+                </div>
+                <p class="text-xs mt-4 opacity-60">Data from Aladhan API.</p>
+            </div>
+
+        </div>
+
+        <!-- Right Column (75% on desktop, vertical flex container) -->
+        <div class="lg:col-span-3 flex flex-col gap-4 h-full overflow-hidden">
+            
+            <!-- Weekly Calendar (Dynamic & Slidable) -->
+            <div class="bento-card bg-custom-card p-4 rounded-xl shadow-lg transition-all duration-300">
+                <p class="text-sm font-semibold mb-3">Filter by Day</p>
+                <div id="weekly-calendar-container" class="flex overflow-x-auto pb-2 space-x-2 scroll-smooth">
+                    <!-- Dates will be injected here by JS -->
+                </div>
+            </div>
+            
+            <!-- 3. Scrollable Event Cards Area (Takes remaining height using flex-grow) -->
+            <div class="flex-grow bento-card bg-custom-card p-6 rounded-xl shadow-lg transition-all duration-300 overflow-y-auto" style="min-height: 50%;">
+                <h2 class="text-xl font-semibold mb-5 border-b pb-2 border-custom-border"><span id="event-list-title">Upcoming Events & Tasks</span></h2>
+                <div id="event-cards-container" class="space-y-4">
+                    <!-- Event cards will be injected here -->
+                    <div class="text-center py-10 opacity-60">
+                        <p id="loading-message-events">Loading events from Google Sheet...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. On Duty Today Section (Fixed Height) -->
+            <div class="bento-card bg-custom-card p-6 rounded-xl shadow-lg transition-all duration-300">
+                <h2 class="text-xl font-semibold mb-3 border-b pb-2 border-custom-border">Who is On Duty Today?</h2>
+                <div id="duty-list-container" class="flex flex-wrap gap-2">
+                    <!-- Duty names will be injected here -->
+                    <span class="text-sm opacity-60" id="loading-message-duty">Checking schedule...</span>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+    
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="hidden fixed inset-0 z-40 flex items-center justify-center transition-opacity duration-300">
+        <!-- Overlay -->
+        <div class="modal-overlay absolute inset-0 transition-opacity" onclick="toggleSettingsModal(false)"></div>
+        
+        <!-- Modal Content -->
+        <div class="modal-content bg-custom-card rounded-xl p-6 shadow-2xl z-50 transform transition-all duration-300 scale-95 opacity-0">
+            <div class="flex justify-between items-center border-b pb-3 mb-4 border-custom-border">
+                <h3 class="text-2xl font-bold text-custom-primary">Settings</h3>
+                <button onclick="toggleSettingsModal(false)" class="text-custom-text hover:text-custom-primary transition">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Theme Selector -->
+            <div class="mb-6">
+                <h4 class="text-lg font-semibold mb-3">Color Theme</h4>
+                <div class="flex flex-wrap gap-3">
+                    <button onclick="setTheme('default')" title="Mint" class="w-8 h-8 rounded-full bg-green-200 border border-gray-300 hover:scale-110 transition"></button>
+                    <button onclick="setTheme('blue')" title="Blue" class="w-8 h-8 rounded-full bg-blue-200 border border-gray-300 hover:scale-110 transition"></button>
+                    <button onclick="setTheme('pink')" title="Pink" class="w-8 h-8 rounded-full bg-pink-200 border border-gray-300 hover:scale-110 transition"></button>
+                    <button onclick="setTheme('purple')" title="Purple" class="w-8 h-8 rounded-full bg-purple-200 border border-gray-300 hover:scale-110 transition"></button>
+                    <button onclick="setTheme('yellow')" title="Yellow" class="w-8 h-8 rounded-full bg-yellow-200 border border-gray-300 hover:scale-110 transition"></button>
+                    <button onclick="setTheme('dark')" title="Dark Mode" class="w-8 h-8 rounded-full bg-gray-800 border border-gray-500 hover:scale-110 transition"></button>
+                </div>
+            </div>
+
+            <!-- City Selector for Prayer Times -->
+            <div class="mb-6">
+                <h4 class="text-lg font-semibold mb-3">Prayer Time City</h4>
+                <select id="city-selector" onchange="handleCityChange(this.value)"
+                        class="w-full p-2 rounded-lg border border-custom-border bg-custom-bg text-custom-text focus:ring-custom-primary">
+                    <!-- Options populated by JS on load -->
+                </select>
+                <p class="text-xs opacity-70 mt-2">The prayer times will update after selecting a new city.</p>
+            </div>
+
+            <!-- PWA Install Button -->
+            <div class="mb-4">
+                <h4 class="text-lg font-semibold mb-3">Application</h4>
+                <button id="install-pwa-button" onclick="installPWA()"
+                        class="w-full py-2 px-4 rounded-lg bg-custom-primary text-white font-medium shadow-md hover:opacity-90 transition disabled:opacity-50" disabled>
+                    Install as Desktop App (PWA)
+                </button>
+                <p id="install-status" class="text-sm mt-2 opacity-70">Feature unavailable or already installed.</p>
+            </div>
+            
+            <!-- Notification Permission -->
+             <div>
+                <h4 class="text-lg font-semibold mb-3">Notifications</h4>
+                <button onclick="requestNotificationPermission()"
+                        class="w-full py-2 px-4 rounded-lg bg-yellow-500 text-white font-medium shadow-md hover:opacity-90 transition disabled:opacity-50">
+                    Enable Task Notifications
+                </button>
+                <p id="notification-status" class="text-sm mt-2 opacity-70">
+                    Status: Not requested.
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Event Detail Modal -->
+    <div id="event-detail-modal" class="hidden fixed inset-0 z-40 flex items-center justify-center transition-opacity duration-300">
+        <!-- Overlay -->
+        <div class="modal-overlay absolute inset-0 transition-opacity" onclick="toggleEventDetailModal(false)"></div>
+        
+        <!-- Modal Content -->
+        <div class="modal-content bg-custom-card rounded-xl p-6 shadow-2xl z-50 transform transition-all duration-300 scale-95 opacity-0 w-full lg:w-1/3">
+            <div class="flex justify-between items-center border-b pb-3 mb-4 border-custom-border">
+                <h3 id="detail-title" class="text-2xl font-bold text-custom-primary truncate">Event Detail</h3>
+                <button onclick="toggleEventDetailModal(false)" class="text-custom-text hover:text-custom-primary transition">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <div id="detail-image-container" class="mb-4">
+                <img id="detail-image" class="w-full h-40 object-cover rounded-lg" alt="Event Image">
+            </div>
+
+            <div class="space-y-4">
+                <div class="flex justify-between items-center text-lg">
+                    <span class="font-semibold text-custom-text">Date & Time:</span>
+                    <span id="detail-datetime" class="opacity-80"></span>
+                </div>
+                <div class="flex justify-between items-center text-lg">
+                    <span class="font-semibold text-custom-text">Category:</span>
+                    <span id="detail-category" class="opacity-80"></span>
+                </div>
+                <div class="flex justify-between items-center text-lg">
+                    <span class="font-semibold text-custom-text">Person In Charge:</span>
+                    <span id="detail-poc" class="opacity-80 font-bold text-custom-primary"></span>
+                </div>
+                
+                <div>
+                    <span class="font-semibold text-custom-text block mb-1">Description:</span>
+                    <p id="detail-description" class="opacity-90 leading-relaxed bg-custom-bg p-3 rounded-lg"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        // --- Configuration & Global State ---
+        // REPLACE THIS URL with your actual Google Apps Script Web App URL
+        const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/YOUR_APPS_SCRIPT_ID/exec'; 
+        const PRAYER_API_BASE = 'https://api.aladhan.com/v1/timingsByCity';
+        
+        const CITIES = ['London', 'New York', 'Kuala Lumpur', 'Jakarta', 'Dubai', 'Makkah', 'Istanbul'];
+        
+        let deferredPrompt;
+        let selectedCity = localStorage.getItem('prayer-city') || CITIES[0];
+        let allEvents = [];
+        let selectedFilterDate = null; // null means show all upcoming events
+
+        // --- Utility Functions ---
+
+        /** Formats a date string to YYYY-MM-DD */
+        const formatDateForComparison = (date) => {
+            if (!(date instanceof Date)) date = new Date(date);
+            return date.toISOString().split('T')[0];
+        };
+
+        // --- Settings Modal Logic (Unchanged) ---
+        function toggleSettingsModal(show) {
+            const modal = document.getElementById('settings-modal');
+            const content = modal.querySelector('.modal-content');
+            
+            if (show) {
+                modal.classList.remove('hidden');
+                setTimeout(() => {
+                    modal.classList.add('opacity-100');
+                    content.classList.remove('opacity-0', 'scale-95');
+                }, 10);
+            } else {
+                modal.classList.remove('opacity-100');
+                content.classList.add('opacity-0', 'scale-95');
+                setTimeout(() => {
+                    modal.classList.add('hidden');
+                }, 300);
+            }
+        }
+
+        // --- Theme Switching Logic (Unchanged) ---
+        function setTheme(themeName) {
+            const body = document.body;
+            body.removeAttribute('data-theme');
+            if (themeName !== 'default') {
+                body.setAttribute('data-theme', themeName);
+            }
+            localStorage.setItem('bento-theme', themeName);
+        }
+
+        // --- PWA Installation Logic (Unchanged) ---
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            document.getElementById('install-pwa-button').disabled = false;
+            document.getElementById('install-status').textContent = 'Ready to install the app.';
+        });
+
+        function installPWA() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        document.getElementById('install-status').textContent = 'App installed successfully!';
+                    } else {
+                        document.getElementById('install-status').textContent = 'Installation cancelled.';
+                    }
+                    deferredPrompt = null;
+                    document.getElementById('install-pwa-button').disabled = true;
+                });
+            }
+        }
+        
+        // --- Notification Logic (Unchanged) ---
+        function requestNotificationPermission() {
+            if (!("Notification" in window)) {
+                document.getElementById('notification-status').textContent = "Status: Notifications not supported by your browser.";
+                return;
+            }
+            
+            Notification.requestPermission().then(permission => {
+                const statusElement = document.getElementById('notification-status');
+                statusElement.textContent = `Status: ${permission}.`;
+            }).catch(error => {
+                console.error("Error requesting notification permission:", error);
+            });
+        }
+
+        function triggerTaskNotification(taskName, timeDiffMinutes) {
+            if (Notification.permission === 'granted') {
+                new Notification("Upcoming Event Reminder", {
+                    body: `${taskName} is starting in ${timeDiffMinutes} minutes!`,
+                    icon: 'https://placehold.co/100x100/5cb85c/ffffff?text=Task'
+                });
+            }
+        }
+
+        function checkUpcomingTasks(events) {
+            const now = new Date().getTime();
+            const checkThresholdMinutes = 30; 
+
+            events.forEach(event => {
+                const eventTime = new Date(event.date_time).getTime();
+                const timeDifference = eventTime - now;
+
+                if (timeDifference > 0 && timeDifference <= checkThresholdMinutes * 60 * 1000) {
+                    const minutesLeft = Math.ceil(timeDifference / (60 * 1000));
+                    triggerTaskNotification(event.event_name, minutesLeft);
+                }
+            });
+        }
+
+        // --- 1. Clock Logic & Progress Bars (Updated) ---
+        function updateProgressBars() {
+            const now = new Date();
+            
+            // 1. Day Progress (Since Midnight)
+            const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+            const endOfDay = startOfDay + 24 * 60 * 60 * 1000;
+            const dayElapsed = now.getTime() - startOfDay;
+            const dayTotal = endOfDay - startOfDay;
+            const dayProgress = Math.min(100, (dayElapsed / dayTotal) * 100);
+            
+            document.getElementById('day-progress-bar').style.width = `${dayProgress.toFixed(2)}%`;
+
+            // 2. Year Progress
+            const year = now.getFullYear();
+            const startOfYear = new Date(year, 0, 1).getTime();
+            const endOfYear = new Date(year + 1, 0, 1).getTime();
+            const yearElapsed = now.getTime() - startOfYear;
+            const yearTotal = endOfYear - startOfYear;
+            const yearProgress = Math.min(100, (yearElapsed / yearTotal) * 100);
+
+            document.getElementById('year-progress-bar').style.width = `${yearProgress.toFixed(2)}%`;
+        }
+
+        function updateClock() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
+            const dateString = now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+            
+            const clockElement = document.getElementById('digital-clock');
+            const dateElement = document.getElementById('clock-date');
+            
+            if (clockElement) clockElement.textContent = timeString;
+            if (dateElement) dateElement.textContent = dateString;
+
+            updateProgressBars();
+        }
+        
+        setInterval(updateClock, 1000);
+        updateClock(); // Initial call
+
+        // --- 2. Prayer Time Logic (Unchanged) ---
+
+        const prayerIcons = {
+            Fajr: `<svg class="icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8 0-3.32 2.15-6.14 5.12-7.23L12 11l-3-3 4-4 2 2 2-2 2 2-4 4 3 3-5.12 4.41z"/></svg>`,
+            Dhuhr: `<svg class="icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8h2.09c.47 1.7 1.4 3.19 2.66 4.39L6.5 17.5l1.41 1.41 1.46-1.46c1.17.84 2.58 1.34 4.09 1.34V20zm-8-8c0-1.78.69-3.4 1.81-4.66L7 8l-1.41-1.41L5 6.5C3.89 7.76 3.1 9.38 3.1 11h2.09zm18 0c0-4.41-3.59-8-8-8v2h.16c1.51 0 2.92.5 4.09 1.34l-1.46 1.46L17 8l1.41 1.41c1.12 1.26 1.81 2.88 1.81 4.59h-2.09zm0-8c0 4.41-3.59 8-8 8v-2h-.16c-1.51 0-2.92-.5-4.09-1.34l1.46-1.46L7 16l-1.41-1.41C3.89 13.4 3.1 11.78 3.1 10H5.16c.47 1.7 1.4 3.19 2.66 4.39L7.96 15.5l1.41 1.41 1.46-1.46c1.17.84 2.58 1.34 4.09 1.34V20c4.41 0 8-3.59 8-8z"/></svg>`,
+            Asr: `<svg class="icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8 0-2.4 1.05-4.57 2.73-6.07L12 12l2.36 2.36L12 17.58l-5.64-5.64C7.43 8.05 9.6 7 12 7v5l5.64 5.64L12 19.58zM12 4c-4.41 0-8 3.59-8 8s3.59 8 8 8 8-3.59 8-8-3.59-8-8-8zM12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4z"/></svg>`,
+            Maghrib: `<svg class="icon" viewBox="0 0 24 24"><path d="M12 10c-3.7 0-6.68 3-5.74 6.68L12 12l-3-3 4-4 2 2 2-2 2 2-4 4 3 3c.94-3.68-2.04-6.68-5.74-6.68zm0 10c4.41 0 8-3.59 8-8s-3.59-8-8-8-8 3.59-8 8 3.59 8 8 8z"/></svg>`,
+            Isha: `<svg class="icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8 0-3.32 2.15-6.14 5.12-7.23L12 11l-3-3 4-4 2 2 2-2 2 2-4 4 3 3-5.12 4.41z"/></svg>`,
+        };
+        
+        function handleCityChange(city) {
+            selectedCity = city;
+            localStorage.setItem('prayer-city', city);
+            document.getElementById('prayer-city-display').textContent = city;
+            fetchPrayerTimes();
+        }
+
+        async function fetchPrayerTimes() {
+            try {
+                const PRAYER_API_URL = `${PRAYER_API_BASE}?city=${encodeURIComponent(selectedCity)}&country=XX&method=2`; 
+                
+                const response = await fetch(PRAYER_API_URL);
+                if (!response.ok) throw new Error('Network response was not ok');
+                const data = await response.json();
+                
+                if (data.data && data.data.timings) {
+                    const timings = data.data.timings;
+                    const prayerTimesElement = document.getElementById('prayer-times-list');
+                    prayerTimesElement.innerHTML = ''; 
+
+                    const prayers = [
+                        { name: 'Fajr', time: timings.Fajr },
+                        { name: 'Dhuhr', time: timings.Dhuhr },
+                        { name: 'Asr', time: timings.Asr },
+                        { name: 'Maghrib', time: timings.Maghrib },
+                        { name: 'Isha', time: timings.Isha }
+                    ];
+
+                    prayers.forEach(prayer => {
+                        const listItem = document.createElement('div');
+                        listItem.className = 'flex items-center justify-between text-lg font-medium border-b border-custom-border/50 pb-1 last:border-b-0 last:pb-0';
+                        listItem.innerHTML = `
+                            <div class="flex items-center space-x-2">
+                                ${prayerIcons[prayer.name] || ''}
+                                <span>${prayer.name}</span>
+                            </div>
+                            <span class="font-bold">${prayer.time}</span>
+                        `;
+                        prayerTimesElement.appendChild(listItem);
+                    });
+                } else {
+                    document.getElementById('prayer-times-list').innerHTML = `<p class="text-sm text-red-500">No prayer times found for ${selectedCity}.</p>`;
+                }
+            } catch (error) {
+                console.error('Error fetching prayer times:', error);
+                document.getElementById('prayer-times-list').innerHTML = `<p class="text-sm text-red-500">Failed to load prayer times for ${selectedCity}.</p>`;
+            }
+        }
+
+        // --- 3. Google Sheet Event & Duty Data Logic (Updated Mock) ---
+        
+        async function fetchAllData() {
+            try {
+                // --- REAL CODE (uncomment and replace URL) ---
+                // const response = await fetch(GOOGLE_APPS_SCRIPT_URL);
+                // if (!response.ok) throw new Error('API response failed');
+                // const data = await response.json();
+                // return data;
+
+                // --- MOCK DATA FOR DEMONSTRATION ---
+                const today = new Date().toLocaleDateString('en-US', { weekday: 'long' });
+
+                const mockData = {
+                    events: [
+                        // Added description and poc_name
+                        { date_time: new Date(Date.now() + 3600000 * 2).toISOString(), event_name: "UX Feedback Session (Notify)", pic_url: "https://placehold.co/100x100/F0A3A3/6E1B1B?text=UX", category: "Work", description: "Reviewing the wireframes and user flows for the new dashboard feature with the design team. Ensure all critical paths are covered.", poc_name: "Jessica" },
+                        { date_time: new Date(Date.now() + 3600000 * 5).toISOString(), event_name: "Weekly Standup", pic_url: "https://placehold.co/100x100/A3F0C2/1B6E3F?text=Standup", category: "Work", description: "Standard weekly team synchronization meeting. Focus on roadblocks and plan for the next 48 hours.", poc_name: "Sarah" },
+                        { date_time: new Date(Date.now() + 86400000 * 1).toISOString(), event_name: "Team Lunch - Project Alpha", pic_url: "https://placehold.co/100x100/A3C2F0/1B3F6E?text=Lunch", category: "Social", description: "Casual lunch to celebrate the successful deployment of Project Alpha's core module.", poc_name: "Michael" },
+                        { date_time: new Date(Date.now() + 86400000 * 4).toISOString(), event_name: "Code Review: Beta Feature", pic_url: "https://placehold.co/100x100/A3C2F0/1B3F6E?text=Code", category: "Work", description: "Deep dive code review session for the new beta feature branch. Requires full attention.", poc_name: "David" },
+                        // Event for a different day to test filtering
+                        { date_time: new Date(Date.now() + 86400000 * 5).toISOString(), event_name: "Monthly Report Finalization", pic_url: "https://placehold.co/100x100/F0DFA3/6E551B?text=Report", category: "Admin", description: "Finalizing and submitting the monthly performance report to management.", poc_name: "Charlie" },
+                    ],
+                    duty_schedule: {
+                        'Sunday': ['No Duty'],
+                        'Monday': ['Sarah', 'John'],
+                        'Tuesday': ['Michael', 'Jessica', 'David'],
+                        'Wednesday': ['Alice', 'Bob'],
+                        'Thursday': ['Charlie', 'Eve'],
+                        'Friday': ['Frank', 'Grace'],
+                        'Saturday': ['Self Duty']
+                    }
+                };
+                
+                mockData.duty_schedule[today] = mockData.duty_schedule[today] || ['No schedule found for today.'];
+                
+                return mockData;
+            } catch (error) {
+                console.error('Error fetching combined data:', error);
+                document.getElementById('loading-message-events').textContent = 'Failed to load events. Check API URL.';
+                document.getElementById('loading-message-duty').textContent = 'Failed to load duty schedule.';
+                return { events: [], duty_schedule: {} };
+            }
+        }
+
+        // --- Weekly Calendar & Filtering Logic (New) ---
+
+        /** Sets the filter date and triggers re-render of event cards */
+        function selectDate(dateString) {
+            const calendarItems = document.querySelectorAll('.calendar-item');
+            calendarItems.forEach(item => {
+                item.classList.remove('selected');
+                item.style.backgroundColor = ''; // Remove inline style for theme compatibility
+                item.style.color = '';
+            });
+
+            if (dateString) {
+                const selectedItem = document.getElementById(`cal-item-${dateString}`);
+                if (selectedItem) {
+                    selectedItem.classList.add('selected');
+                }
+                selectedFilterDate = dateString;
+                document.getElementById('event-list-title').textContent = `Events on ${new Date(dateString).toLocaleDateString('en-US', { month: 'short', day: 'numeric', weekday: 'short' })}`;
+            } else {
+                selectedFilterDate = null;
+                document.getElementById('event-list-title').textContent = 'Upcoming Events & Tasks';
+            }
+
+            renderEventCards(allEvents);
+        }
+
+        /** Generates the 21-day calendar view (dynamic sliding) */
+        function renderWeeklyCalendar(initialEvents) {
+            const container = document.getElementById('weekly-calendar-container');
+            container.innerHTML = '';
+            
+            const now = new Date();
+            const todayDateString = formatDateForComparison(now);
+            
+            // Start from 7 days before today to allow scrolling back
+            const startDate = new Date(now);
+            startDate.setDate(now.getDate() - 7);
+
+            // Generate 3 weeks (21 days)
+            for (let i = 0; i < 21; i++) {
+                const currentDate = new Date(startDate);
+                currentDate.setDate(startDate.getDate() + i);
+                
+                const dateString = formatDateForComparison(currentDate);
+                const day = currentDate.toLocaleDateString('en-US', { weekday: 'short' });
+                const dateNum = currentDate.getDate();
+                
+                const isToday = dateString === todayDateString;
+                
+                const item = document.createElement('div');
+                item.id = `cal-item-${dateString}`;
+                item.className = `calendar-item bg-custom-bg text-custom-text border-custom-border/50 hover:bg-custom-card flex-shrink-0`; // Added flex-shrink-0
+                item.innerHTML = `
+                    <span class="text-xs opacity-70">${day}</span>
+                    <span class="text-xl font-bold">${dateNum}</span>
+                `;
+                item.onclick = () => selectDate(dateString);
+
+                if (isToday && selectedFilterDate === null) {
+                    item.classList.add('selected');
+                    selectedFilterDate = dateString;
+                }
+
+                container.appendChild(item);
+            }
+            
+            // Auto-scroll to today after a short delay to ensure rendering
+            setTimeout(centerCalendarOnToday, 100);
+            
+            renderEventCards(initialEvents);
+        }
+
+        /** Scrolls the calendar container to center today's date */
+        function centerCalendarOnToday() {
+            const container = document.getElementById('weekly-calendar-container');
+            const now = new Date();
+            const todayDateString = formatDateForComparison(now);
+            const todayItem = document.getElementById(`cal-item-${todayDateString}`);
+            
+            if (container && todayItem) {
+                // Calculate position to center the item
+                const scrollLeft = todayItem.offsetLeft - (container.clientWidth / 2) + (todayItem.clientWidth / 2);
+                container.scrollTo({
+                    left: scrollLeft,
+                    behavior: 'smooth'
+                });
+            }
+        }
+
+
+        // --- Event Detail Modal Logic (New) ---
+
+        function toggleEventDetailModal(show) {
+            const modal = document.getElementById('event-detail-modal');
+            const content = modal.querySelector('.modal-content');
+
+            if (show) {
+                modal.classList.remove('hidden');
+                setTimeout(() => {
+                    modal.classList.add('opacity-100');
+                    content.classList.remove('opacity-0', 'scale-95');
+                }, 10);
+            } else {
+                modal.classList.remove('opacity-100');
+                content.classList.add('opacity-0', 'scale-95');
+                setTimeout(() => {
+                    modal.classList.add('hidden');
+                }, 300);
+            }
+        }
+
+        function showEventDetailModal(eventData) {
+            document.getElementById('detail-title').textContent = eventData.event_name;
+            
+            const dateObj = new Date(eventData.date_time);
+            const date = dateObj.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric', weekday: 'long' });
+            const time = dateObj.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+
+            document.getElementById('detail-datetime').textContent = `${date} at ${time}`;
+            document.getElementById('detail-category').textContent = eventData.category;
+            document.getElementById('detail-poc').textContent = eventData.poc_name || 'N/A';
+            document.getElementById('detail-description').textContent = eventData.description || 'No detailed description provided.';
+            
+            const imgElement = document.getElementById('detail-image');
+            imgElement.src = eventData.pic_url;
+            imgElement.onerror = function() { this.src = 'https://placehold.co/400x160/cccccc/000000?text=Placeholder+Image'; };
+
+
+            toggleEventDetailModal(true);
+        }
+
+
+        /**
+         * Renders the event cards from the fetched data, applying the date filter.
+         */
+        function renderEventCards(events) {
+            const container = document.getElementById('event-cards-container');
+            const loadingMessage = document.getElementById('loading-message-events');
+            
+            if (loadingMessage) loadingMessage.style.display = 'block';
+            container.innerHTML = ''; 
+
+            if (!events || events.length === 0) {
+                 if (loadingMessage) loadingMessage.textContent = 'No upcoming events found.';
+                 return;
+            }
+
+            // 1. Filter out past events AND apply date filter
+            const filteredEvents = events.filter(event => {
+                const eventDate = new Date(event.date_time);
+                const isUpcoming = eventDate > new Date(Date.now() - 3600000); // Allow events that started in the last hour
+                
+                if (!isUpcoming) return false;
+
+                if (selectedFilterDate) {
+                    const eventDateString = formatDateForComparison(eventDate);
+                    return eventDateString === selectedFilterDate;
+                }
+                // If no date filter is selected, show all upcoming events
+                return true;
+            });
+
+            // 2. Sort by date
+            filteredEvents.sort((a, b) => new Date(a.date_time) - new Date(b.date_time));
+
+            if (loadingMessage) loadingMessage.style.display = 'none';
+
+            if (filteredEvents.length === 0) {
+                container.innerHTML = `<div class="text-center py-10 opacity-60"><p>No events found for the selected day/filter.</p></div>`;
+                return;
+            }
+
+            filteredEvents.forEach(event => {
+                const dateObj = new Date(event.date_time);
+                
+                const date = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                const time = dateObj.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+
+                let categoryColor = 'bg-gray-200 text-gray-700';
+                switch (event.category.toLowerCase()) {
+                    case 'work':
+                        categoryColor = 'bg-blue-200 text-blue-800';
+                        break;
+                    case 'personal':
+                        categoryColor = 'bg-pink-200 text-pink-800';
+                        break;
+                    case 'social':
+                        categoryColor = 'bg-yellow-200 text-yellow-800';
+                        break;
+                    case 'admin':
+                        categoryColor = 'bg-purple-200 text-purple-800';
+                        break;
+                    default:
+                        categoryColor = 'bg-gray-200 text-gray-700';
+                }
+
+                const card = document.createElement('div');
+                card.className = 'flex items-center bento-card bg-white p-4 rounded-xl shadow-md border-custom-border/70 transition-shadow interactive-card';
+                
+                // Attach click listener with event data
+                card.onclick = () => showEventDetailModal(event);
+
+                card.innerHTML = `
+                    <!-- Picture (Column C) -->
+                    <img 
+                        src="${event.pic_url}" 
+                        onerror="this.onerror=null;this.src='https://placehold.co/100x100/cccccc/000000?text=${event.category.slice(0, 4)}';"
+                        alt="${event.event_name}" 
+                        class="w-16 h-16 object-cover rounded-lg mr-4 flex-shrink-0"
+                    >
+                    
+                    <div class="flex-grow">
+                        <!-- Event Name (Column B) -->
+                        <h3 class="text-lg font-semibold text-custom-text leading-tight">${event.event_name}</h3>
+                        
+                        <!-- Date & Time (Column A) -->
+                        <p class="text-sm opacity-80 mt-1">${date} at <span class="font-semibold">${time}</span></p>
+                    </div>
+                    
+                    <!-- Category (Column D) -->
+                    <span class="ml-4 px-3 py-1 text-xs font-medium rounded-full ${categoryColor} flex-shrink-0">
+                        ${event.category}
+                    </span>
+                `;
+                container.appendChild(card);
+            });
+
+            // Check for notifications after rendering events
+            checkUpcomingTasks(filteredEvents);
+        }
+
+        /**
+         * Renders the list of people on duty for the current day.
+         */
+        function renderDutyList(schedule) {
+            const container = document.getElementById('duty-list-container');
+            const loadingMessage = document.getElementById('loading-message-duty');
+
+            if (loadingMessage) loadingMessage.style.display = 'none';
+            container.innerHTML = '';
+
+            const today = new Date().toLocaleDateString('en-US', { weekday: 'long' });
+            const dutyNames = schedule[today] || [];
+
+            if (dutyNames.length === 0 || dutyNames[0] === 'No schedule found for today.') {
+                container.innerHTML = `<span class="text-sm text-red-500 font-medium">No duty schedule available for ${today}.</span>`;
+                return;
+            }
+
+            dutyNames.forEach(name => {
+                const badge = document.createElement('span');
+                badge.className = 'px-3 py-1 text-sm font-semibold rounded-full bg-custom-primary/20 text-custom-text shadow-sm hover:scale-[1.02] transition';
+                badge.textContent = name;
+                container.appendChild(badge);
+            });
+        }
+        
+        // --- Initialization ---
+        
+        function populateCitySelector() {
+            const selector = document.getElementById('city-selector');
+            selector.innerHTML = '';
+            CITIES.forEach(city => {
+                const option = document.createElement('option');
+                option.value = city;
+                option.textContent = city;
+                if (city === selectedCity) {
+                    option.selected = true;
+                }
+                selector.appendChild(option);
+            });
+            document.getElementById('prayer-city-display').textContent = selectedCity;
+        }
+
+
+        async function initializeDashboard() {
+            // Apply saved theme
+            const savedTheme = localStorage.getItem('bento-theme') || 'default';
+            setTheme(savedTheme);
+            
+            // Populate city selector and fetch prayer times
+            populateCitySelector();
+            await fetchPrayerTimes();
+
+            // Fetch and render dashboard data
+            const data = await fetchAllData();
+            allEvents = data.events; // Store all events globally
+            
+            renderWeeklyCalendar(allEvents); // Renders calendar and calls renderEventCards(allEvents)
+            renderDutyList(data.duty_schedule);
+            
+            // Set initial notification status
+            document.getElementById('notification-status').textContent = `Status: ${Notification.permission}.`;
+        }
+
+        document.addEventListener('DOMContentLoaded', initializeDashboard);
+
+    </script>
+</body>
+</html>
