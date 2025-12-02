@@ -14,6 +14,7 @@
             /* Default Pale Theme (Minty Green) */
             --color-bg: #f3fcf9;
             --color-card: #e6f6ee;
+            --color-surface: #ffffff; /* New: For inner cards */
             --color-text: #2c5244;
             --color-primary: #5cb85c;
             --color-border: #d4e8dd;
@@ -23,6 +24,7 @@
         [data-theme="blue"] {
             --color-bg: #f0f7fc;
             --color-card: #e3f2fd;
+            --color-surface: #ffffff;
             --color-text: #2c4452;
             --color-primary: #428bca;
             --color-border: #d0e0ed;
@@ -32,6 +34,7 @@
         [data-theme="pink"] {
             --color-bg: #fcf3f6;
             --color-card: #fdecf2;
+            --color-surface: #ffffff;
             --color-text: #522c3c;
             --color-primary: #d9537d;
             --color-border: #ead7df;
@@ -41,6 +44,7 @@
         [data-theme="purple"] {
             --color-bg: #f8f6fc;
             --color-card: #f2edf9;
+            --color-surface: #ffffff;
             --color-text: #413554;
             --color-primary: #8e7cc3;
             --color-border: #e0d9f0;
@@ -50,6 +54,7 @@
         [data-theme="yellow"] {
             --color-bg: #fcfbf3;
             --color-card: #faf7e0;
+            --color-surface: #ffffff;
             --color-text: #545235;
             --color-primary: #c3b248;
             --color-border: #f0ebd9;
@@ -59,6 +64,7 @@
         [data-theme="dark"] {
             --color-bg: #1c1c1e;
             --color-card: #2c2c2e;
+            --color-surface: #3a3a3c; /* Dark surface for event cards */
             --color-text: #e0e0e0;
             --color-primary: #94d82d;
             --color-border: #444446;
@@ -68,6 +74,7 @@
         /* Apply custom properties to Tailwind classes */
         .bg-custom-bg { background-color: var(--color-bg); }
         .bg-custom-card { background-color: var(--color-card); }
+        .bg-custom-surface { background-color: var(--color-surface); }
         .text-custom-text { color: var(--color-text); }
         .text-custom-primary { color: var(--color-primary); }
         .border-custom-border { border-color: var(--color-border); }
@@ -124,41 +131,34 @@
             overflow-y: auto;
         }
         
-        /* Weekly Calendar Item */
-        .calendar-item {
-            display: inline-flex;
-            flex-direction: column;
+        /* Calendar Grid Item */
+        .calendar-day-item {
+            display: flex;
             align-items: center;
             justify-content: center;
-            width: 70px;
-            min-width: 70px; /* Prevent shrinking */
-            height: 70px;
-            border-radius: 0.75rem;
-            margin-right: 0.5rem;
+            height: 2.5rem;
+            width: 2.5rem;
+            margin: 0 auto;
+            border-radius: 9999px;
             cursor: pointer;
-            transition: background-color 0.2s, transform 0.1s;
-            border: 1px solid transparent;
-            font-weight: 500;
+            font-size: 0.875rem;
+            transition: all 0.2s;
         }
-        .calendar-item.selected {
+        .calendar-day-item:hover {
+            background-color: var(--color-card);
+            filter: brightness(0.95);
+        }
+        .calendar-day-item.selected {
             background-color: var(--color-primary);
             color: white;
-            transform: scale(1.05);
-            border-color: var(--color-text);
+            font-weight: bold;
         }
-        .calendar-item:not(.selected):hover {
-            background-color: var(--color-primary) !important;
-            color: white !important;
+        .calendar-day-item.today {
+            border: 2px solid var(--color-primary);
         }
-        
-        /* Hide scrollbar for clean look but keep functionality */
-        #weekly-calendar-container::-webkit-scrollbar {
-            height: 0px;
-            width: 0px;
-        }
-        #weekly-calendar-container {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
+        .calendar-day-item.empty {
+            cursor: default;
+            pointer-events: none;
         }
 
     </style>
@@ -169,6 +169,7 @@
                     colors: {
                         'custom-bg': 'var(--color-bg)',
                         'custom-card': 'var(--color-card)',
+                        'custom-surface': 'var(--color-surface)',
                         'custom-text': 'var(--color-text)',
                         'custom-primary': 'var(--color-primary)',
                         'custom-border': 'var(--color-border)',
@@ -242,11 +243,36 @@
         <!-- Right Column -->
         <div class="lg:col-span-3 flex flex-col gap-4 h-full overflow-hidden">
             
-            <!-- Weekly Calendar -->
+            <!-- Standard Dropdown Calendar (Replaces Weekly Scroll) -->
             <div class="bento-card bg-custom-card p-4 rounded-xl shadow-lg transition-all duration-300">
-                <p class="text-sm font-semibold mb-3">Filter by Day</p>
-                <div id="weekly-calendar-container" class="flex overflow-x-auto pb-2 space-x-2 scroll-smooth snap-x snap-mandatory">
-                    <!-- Dates injected via JS -->
+                <div class="flex justify-between items-center cursor-pointer select-none" onclick="toggleCalendarDropdown()">
+                    <div class="flex items-center space-x-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-custom-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        <span id="calendar-header-text" class="text-sm font-semibold">Filter by Date</span>
+                    </div>
+                    <svg id="calendar-chevron" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 opacity-60 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                </div>
+                
+                <!-- Collapsible Grid Container -->
+                <div id="calendar-grid-container" class="hidden mt-4 pt-4 border-t border-custom-border/50">
+                    <div class="flex justify-between items-center mb-4">
+                        <button onclick="changeMonth(-1, event)" class="p-1 hover:bg-custom-bg rounded-full transition"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></button>
+                        <span id="current-month-label" class="font-bold text-lg">Month Year</span>
+                        <button onclick="changeMonth(1, event)" class="p-1 hover:bg-custom-bg rounded-full transition"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg></button>
+                    </div>
+                    <div class="grid grid-cols-7 gap-1 text-center mb-2 text-xs font-semibold opacity-60">
+                        <div>Su</div><div>Mo</div><div>Tu</div><div>We</div><div>Th</div><div>Fr</div><div>Sa</div>
+                    </div>
+                    <div id="month-grid" class="grid grid-cols-7 gap-1">
+                        <!-- Days injected by JS -->
+                    </div>
+                    <div class="mt-4 flex justify-center">
+                        <button onclick="selectDate(null, event)" class="text-xs text-custom-primary hover:underline">Clear Filter (Show All Upcoming)</button>
+                    </div>
                 </div>
             </div>
             
@@ -377,6 +403,10 @@
         let selectedCity = localStorage.getItem('prayer-city') || CITIES[0];
         let allEvents = [];
         let selectedFilterDate = null; 
+        
+        // Calendar State
+        let currentCalendarDate = new Date();
+        let isCalendarOpen = false;
 
         // --- Utils ---
         const formatDateForComparison = (date) => {
@@ -571,62 +601,89 @@
             }
         }
 
-        // --- Calendar & Events ---
-        function selectDate(dateString) {
-            document.querySelectorAll('.calendar-item').forEach(item => {
-                item.classList.remove('selected');
-                item.style.backgroundColor = ''; 
-                item.style.color = '';
-            });
-            if (dateString) {
-                const item = document.getElementById(`cal-item-${dateString}`);
-                if (item) item.classList.add('selected');
+        // --- NEW Dropdown Calendar Logic ---
+
+        function toggleCalendarDropdown() {
+            const container = document.getElementById('calendar-grid-container');
+            const chevron = document.getElementById('calendar-chevron');
+            isCalendarOpen = !isCalendarOpen;
+            
+            if (isCalendarOpen) {
+                container.classList.remove('hidden');
+                chevron.classList.add('rotate-180');
+                renderMonthCalendar();
+            } else {
+                container.classList.add('hidden');
+                chevron.classList.remove('rotate-180');
+            }
+        }
+
+        function changeMonth(delta, event) {
+            if (event) event.stopPropagation(); // Prevent toggling the dropdown
+            currentCalendarDate.setMonth(currentCalendarDate.getMonth() + delta);
+            renderMonthCalendar();
+        }
+
+        function renderMonthCalendar() {
+            const grid = document.getElementById('month-grid');
+            grid.innerHTML = '';
+            
+            const year = currentCalendarDate.getFullYear();
+            const month = currentCalendarDate.getMonth();
+            
+            // Update Label
+            document.getElementById('current-month-label').textContent = currentCalendarDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+            
+            // Get first day and total days
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            const todayStr = formatDateForComparison(new Date());
+
+            // Padding for first row
+            for (let i = 0; i < firstDay; i++) {
+                const empty = document.createElement('div');
+                empty.className = 'calendar-day-item empty';
+                grid.appendChild(empty);
+            }
+
+            // Days
+            for (let day = 1; day <= daysInMonth; day++) {
+                const d = new Date(year, month, day);
+                const dStr = formatDateForComparison(d);
+                
+                const div = document.createElement('div');
+                div.className = 'calendar-day-item';
+                div.textContent = day;
+                
+                if (dStr === todayStr) div.classList.add('today');
+                if (dStr === selectedFilterDate) div.classList.add('selected');
+
+                div.onclick = (e) => selectDate(dStr, e);
+                grid.appendChild(div);
+            }
+        }
+
+        function selectDate(dateString, event) {
+            if (event) event.stopPropagation();
+            
+            // Update UI
+            if (!dateString) {
+                // Clear filter
+                selectedFilterDate = null;
+                document.getElementById('event-list-title').textContent = 'Upcoming Events & Tasks';
+                document.getElementById('calendar-header-text').textContent = 'Filter by Date';
+            } else {
+                // Set filter
                 selectedFilterDate = dateString;
                 const d = new Date(dateString);
                 document.getElementById('event-list-title').textContent = `Events on ${d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
-            } else {
-                selectedFilterDate = null;
-                document.getElementById('event-list-title').textContent = 'Upcoming Events & Tasks';
+                document.getElementById('calendar-header-text').textContent = `Filtered: ${d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
             }
+            
+            renderMonthCalendar(); // Re-render to update selected style
             renderEventCards(allEvents);
         }
 
-        function renderWeeklyCalendar(initialEvents) {
-            const container = document.getElementById('weekly-calendar-container');
-            container.innerHTML = '';
-            const now = new Date();
-            const todayStr = formatDateForComparison(now);
-            const startDate = new Date(now);
-            startDate.setDate(now.getDate() - 7);
-
-            for (let i = 0; i < 30; i++) {
-                const d = new Date(startDate);
-                d.setDate(startDate.getDate() + i);
-                const dStr = formatDateForComparison(d);
-                const day = d.toLocaleDateString('en-US', { weekday: 'short' });
-                const num = d.getDate();
-                
-                const div = document.createElement('div');
-                div.id = `cal-item-${dStr}`;
-                div.className = `calendar-item bg-custom-bg text-custom-text border-custom-border/50 hover:bg-custom-card flex-shrink-0 snap-center`;
-                div.innerHTML = `<span class="text-xs opacity-70">${day}</span><span class="text-xl font-bold">${num}</span>`;
-                div.onclick = () => selectDate(dStr);
-
-                if (dStr === todayStr && selectedFilterDate === null) {
-                    div.classList.add('selected');
-                    selectedFilterDate = dStr;
-                }
-                container.appendChild(div);
-            }
-            setTimeout(() => {
-                const todayItem = document.getElementById(`cal-item-${todayStr}`);
-                if (container && todayItem) {
-                    const left = todayItem.offsetLeft - (container.clientWidth / 2) + (todayItem.clientWidth / 2);
-                    container.scrollTo({ left: left, behavior: 'smooth' });
-                }
-            }, 100);
-            renderEventCards(initialEvents);
-        }
 
         // --- Event Modals ---
         function toggleEventDetailModal(show) {
@@ -684,7 +741,7 @@
                 else if (cat === 'admin') colorClass = 'bg-purple-200 text-purple-800';
 
                 const div = document.createElement('div');
-                div.className = 'flex items-center bento-card bg-white p-4 rounded-xl shadow-md border-custom-border/70 transition-shadow interactive-card';
+                div.className = 'flex items-center bento-card bg-custom-surface p-4 rounded-xl shadow-md border-custom-border/70 transition-shadow interactive-card';
                 div.onclick = () => showEventDetailModal(ev);
                 div.innerHTML = `
                     <img src="${ev.pic_url}" onerror="this.src='https://placehold.co/100x100/cccccc/000000?text=IMG'" class="w-16 h-16 object-cover rounded-lg mr-4 flex-shrink-0">
@@ -735,7 +792,8 @@
             await fetchPrayerTimes();
             const data = await fetchAllData();
             allEvents = data.events;
-            renderWeeklyCalendar(allEvents);
+            // Removed renderWeeklyCalendar, relying on dropdown calendar interaction only
+            renderEventCards(allEvents);
             renderDutyList(data.duty_schedule);
             document.getElementById('notification-status').textContent = `Status: ${Notification.permission}.`;
         }
