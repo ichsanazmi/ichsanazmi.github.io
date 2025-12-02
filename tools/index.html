@@ -173,8 +173,6 @@
             -webkit-tap-highlight-color: transparent;
         }
         
-        /* Adjust opacity of the wave based on theme using blend mode or pseudo element would be complex, 
-           so we use a mask/opacity trick on a pseudo element instead for cleaner theme handling */
         body::before {
             content: "";
             position: absolute;
@@ -191,28 +189,23 @@
             z-index: 0;
         }
 
-        /* NEW: Colored main wave using mask to match theme accent */
         body::after {
             content: "";
             position: absolute;
             bottom: 0;
             left: 0;
             right: 0;
-            height: 35vh; /* Match height of body::before for consistency */
-            background-color: var(--accent); /* Use the theme's accent color */
-            
-            /* Use the SVG as a mask for the background color */
+            height: 35vh;
+            background-color: var(--accent);
             -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320'%3E%3Cpath d='M0,224L48,213.3C96,203,192,181,288,181.3C384,181,480,203,576,224C672,245,768,267,864,261.3C960,256,1056,224,1152,197.3C1248,171,1344,149,1392,138.7L1440,128V320H0Z'%3E%3C/path%3E%3C/svg%3E");
             mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320'%3E%3Cpath d='M0,224L48,213.3C96,203,192,181,288,181.3C384,181,480,203,576,224C672,245,768,267,864,261.3C960,256,1056,224,1152,197.3C1248,171,1344,149,1392,138.7L1440,128V320H0Z'%3E%3C/path%3E%3C/svg%3E");
-            
             -webkit-mask-size: cover;
             mask-size: cover;
             -webkit-mask-position: center bottom;
             mask-position: center bottom;
             -webkit-mask-repeat: no-repeat;
             mask-repeat: no-repeat;
-            
-            opacity: 0.15; /* Subtle opacity */
+            opacity: 0.15;
             pointer-events: none;
             z-index: 0;
             transition: background-color var(--transition-speed);
@@ -249,6 +242,8 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            /* Smooth scrolling for mobile */
+            -webkit-overflow-scrolling: touch;
         }
 
         /* --- 4. FABS --- */
@@ -307,9 +302,10 @@
 
         /* --- 6. CONTENT STYLES --- */
         .bento-wrapper { width: 100%; max-width: 1200px; height: 100%; display: flex; flex-direction: column; justify-content: center; }
+        .bento-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
         .bento-grid { display: grid; grid-template-columns: 2fr 1fr; grid-template-rows: 1fr 1fr; gap: 1.5rem; height: 70vh; }
         .bento-card { background: var(--card-bg); border-radius: 20px; padding: 1.5rem; border: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; }
-        input[type="text"], textarea, input[type="url"], input[type="number"], input[type="date"] { background: var(--input-bg); border: 1px solid var(--border); color: var(--text-main); padding: 10px; border-radius: 10px; font-family: inherit; }
+        input[type="text"], textarea, input[type="url"], input[type="number"], input[type="date"], select { background: var(--input-bg); border: 1px solid var(--border); color: var(--text-main); padding: 10px; border-radius: 10px; font-family: inherit; }
         
         /* New Quote Styles */
         .clock-container { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 2rem; }
@@ -387,8 +383,19 @@
         #sync-status.visible { opacity: 1; }
         
         .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; text-align: center; font-size: 0.85rem; }
-        .cal-day { padding: 8px 0; border-radius: 6px; }
+        .cal-day { padding: 8px 0; border-radius: 6px; position: relative; }
         .cal-day.today { background: var(--accent); color: white; font-weight: bold; }
+        .task-dot {
+            width: 4px; height: 4px; background-color: var(--status-unread);
+            border-radius: 50%; position: absolute; bottom: 4px; left: 50%; transform: translateX(-50%);
+        }
+        
+        .cat-badge {
+            font-size: 0.65rem; padding: 2px 6px; border-radius: 4px; 
+            text-transform: uppercase; font-weight: bold; letter-spacing: 0.05em;
+            margin-bottom: 2px; display: inline-block;
+            background: var(--input-bg); color: var(--text-muted);
+        }
 
         /* Diary Styles */
         .diary-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; height: 70vh; }
@@ -403,9 +410,9 @@
             .fab-container { bottom: 90px; right: 20px; }
             .task-card { grid-row: auto; }
             
-            /* Prevent breaking when tasks are many */
+            /* ALLOW TASK LIST TO GROW ON MOBILE TO FIX SCROLLING */
             .task-list {
-                max-height: 50vh; 
+                max-height: none; 
             }
             .slider-track { height: auto; min-height: 100vh; }
         }
@@ -514,6 +521,16 @@
             </div>
             
             <div class="flex flex-col gap-4">
+                <!-- NEW CATEGORY SELECTOR -->
+                <div>
+                    <label class="text-xs text-muted font-bold uppercase">Category</label>
+                    <select id="modal-task-cat" class="w-full mt-1 bg-input border border-border text-main rounded-lg p-3">
+                        <option value="Personal">Personal</option>
+                        <option value="QLC">QLC</option>
+                        <option value="Work">Work</option>
+                        <option value="Health">Health</option>
+                    </select>
+                </div>
                 <div>
                     <label class="text-xs text-muted font-bold uppercase">Title</label>
                     <input type="text" id="modal-task-title" class="w-full mt-1 bg-input border border-border text-main rounded-lg p-3 font-bold">
@@ -573,6 +590,10 @@
                 <div class="bento-wrapper">
                     <div class="bento-header text-primary">
                         <h2>Bookmark Manager</h2>
+                        <!-- Manual Refresh -->
+                        <button onclick="fetchCloud()" class="text-muted hover:text-primary transition-colors p-2 rounded-full hover:bg-primary/10" title="Refresh Data">
+                            <svg viewBox="0 0 24 24"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>
+                        </button>
                     </div>
                     <div class="mb-6 flex gap-3 flex-wrap">
                         <input type="text" id="bm-title-in" placeholder="Page Title" class="flex-1 bg-input border-border text-main rounded-lg p-2">
@@ -594,7 +615,12 @@
 
             <!-- SLIDE 1: Clock -->
             <div class="slide" id="slide-1">
-                <div class="clock-container">
+                <div class="clock-container relative">
+                    <!-- Manual Refresh (Subtle) -->
+                    <button onclick="fetchCloud()" class="absolute -top-10 right-0 text-muted hover:text-primary transition-colors p-2 opacity-50 hover:opacity-100" title="Refresh Data">
+                         <svg viewBox="0 0 24 24"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>
+                    </button>
+
                     <div class="digital-clock text-main animate-pulse" id="clock">00:00:00</div>
                     <div class="date-display text-primary tracking-[0.2em]" id="date">Loading...</div>
                     
@@ -610,6 +636,10 @@
                 <div class="bento-wrapper">
                     <div class="bento-header flex justify-between items-center mb-4">
                         <h2 class="text-primary">Dashboard <span id="sync-status" class="text-muted text-sm opacity-0">Synced</span></h2>
+                        <!-- Manual Refresh -->
+                        <button onclick="fetchCloud()" class="text-muted hover:text-primary transition-colors p-2 rounded-full hover:bg-primary/10" title="Refresh Data">
+                            <svg viewBox="0 0 24 24"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>
+                        </button>
                     </div>
                     <div class="bento-grid">
                         <!-- Tasks -->
@@ -626,6 +656,14 @@
                             </div>
                             <!-- INPUT (Only for Adding) -->
                             <div class="task-input-area">
+                                <!-- New Category Dropdown -->
+                                <select id="quick-task-cat" class="w-24 bg-input border border-border text-main rounded-lg p-3 text-sm focus:outline-none focus:border-primary transition-colors">
+                                    <option value="Personal">Personal</option>
+                                    <option value="QLC">QLC</option>
+                                    <option value="Work">Work</option>
+                                    <option value="Health">Health</option>
+                                </select>
+                                
                                 <input type="text" id="task-title-in" placeholder="New Task..." class="flex-[2]" onkeypress="handleTaskInput(event)">
                                 <button class="bg-primary text-white px-4 py-2 rounded-lg font-bold shadow-lg shadow-primary/30 hover:opacity-90" onclick="addTask()">Add</button>
                             </div>
@@ -659,6 +697,10 @@
                 <div class="bento-wrapper">
                     <div class="bento-header flex justify-between items-center mb-4">
                         <h2 class="text-primary">My Diary</h2>
+                         <!-- Manual Refresh -->
+                        <button onclick="fetchCloud()" class="text-muted hover:text-primary transition-colors p-2 rounded-full hover:bg-primary/10" title="Refresh Data">
+                            <svg viewBox="0 0 24 24"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>
+                        </button>
                     </div>
                     <div class="diary-grid">
                         <div class="diary-editor">
@@ -804,7 +846,12 @@
         }
 
         async function syncCloud() {
-            // NOTE: Task push is now handled by single-item upsert/delete, so we only sync Notes, Bookmarks, and Diary here.
+            const cloudTasks = state.todos.map(t => ({
+                date: t.date,
+                status: t.completed ? "Selesai" : "Belum",
+                text: t.title,
+                description: t.desc
+            }));
 
             const cloudBookmarks = state.bookmarks.map(b => ({
                 title: b.title,
@@ -847,6 +894,7 @@
                     id: Date.now() + i + Math.random(),
                     title: t.text,
                     desc: t.description,
+                    category: t.category,
                     completed: (t.status === "Selesai" || t.status === true || t.status === "TRUE"),
                     date: t.date,
                     rowIndex: i + 2, // Sheet row number (2, 3, 4...)
@@ -883,6 +931,7 @@
             }
 
             renderTodos();
+            renderCalendar(); // Re-render calendar to update dots
             renderBookmarks();
             saveLocal(false);
             
@@ -985,12 +1034,8 @@
             renderDiaryCalendar();
             fetchQuote();
 
-            // RE-ENABLED: Sync on load (Stale-While-Revalidate)
-            // 1. Loads local data instantly (above).
-            // 2. Then fetches updates from cloud and updates storage.
-            if(navigator.onLine) {
-                fetchCloud();
-            }
+            // OFFLINE-FIRST: We DO NOT auto-fetch cloud data on load anymore to prevent overwriting.
+            // Cloud sync is push-only by default or manual pull.
         }
 
         function saveLocal(shouldSync = true) {
@@ -1048,14 +1093,17 @@
             if(val) { state.selectedDateString = val; updateDateLabel(); renderTodos(); }
         }
 
-        // Add task now uses upsert_task
+        // Add task now uses upsert_task with Category
         async function addTask() {
             const t = document.getElementById('task-title-in'); 
+            const cat = document.getElementById('quick-task-cat');
             const title = t.value.trim();
             if(!title) return;
 
+            const newCat = cat.value || "Personal"; 
             const newTaskData = {
                 status: "Belum",
+                category: newCat,
                 text: title,
                 description: "",
                 date: state.selectedDateString
@@ -1068,15 +1116,17 @@
                     id: Date.now(), 
                     title: title, 
                     desc: "", 
+                    category: newCat,
                     completed: false, 
                     date: state.selectedDateString, 
-                    rowIndex: res.row, // Store the new Sheet row index
+                    rowIndex: res.row, 
                     link1: "",
                     link2: ""
                 });
                 t.value = ''; 
                 renderTodos(); 
-                saveLocal(false); // Do not trigger another sync as it just happened
+                renderCalendar();
+                saveLocal(false);
             } else {
                 console.error("Failed to add task via upsert:", res);
                 alert("Failed to add task. Check console for details.");
@@ -1129,6 +1179,7 @@
                 <div class="task-item ${t.completed?'completed':''}" onclick="openTaskModal(${t.id})">
                     <input type="checkbox" ${t.completed?'checked':''} onclick="event.stopPropagation()" onchange="toggle(${t.id})" class="accent-primary w-5 h-5 mt-1">
                     <div class="task-content">
+                        <div class="cat-badge">${t.category || 'Personal'}</div>
                         <div style="font-weight:600">${t.title}</div>
                         <div class="task-desc-preview">${t.desc || ""}</div>
                     </div>
@@ -1154,6 +1205,7 @@
             document.getElementById('modal-task-desc').value = t.desc;
             document.getElementById('modal-task-link1').value = t.link1;
             document.getElementById('modal-task-link2').value = t.link2;
+            document.getElementById('modal-task-cat').value = t.category || "Personal";
             
             document.getElementById('task-modal-overlay').classList.add('open');
         }
@@ -1173,12 +1225,14 @@
             t.desc = document.getElementById('modal-task-desc').value;
             t.link1 = document.getElementById('modal-task-link1').value;
             t.link2 = document.getElementById('modal-task-link2').value;
+            t.category = document.getElementById('modal-task-cat').value;
 
             // 2. Prepare data for GAS update (upsert)
             const updateData = {
                 rowIndex: t.rowIndex, // Send the row index for update
                 task: {
                     status: t.completed ? "Selesai" : "Belum",
+                    category: t.category,
                     text: t.title,
                     description: t.desc,
                     link1: t.link1,
@@ -1209,6 +1263,7 @@
             if (res && res.result === 'success') {
                 state.todos = state.todos.filter(x=>x.id!==id);
                 renderTodos();
+                renderCalendar();
                 saveLocal(false); // Save local copy, no need to trigger full sync
             } else {
                 console.error("Failed to delete task:", res);
@@ -1234,6 +1289,7 @@
                     rowIndex: t.rowIndex,
                     task: {
                         status: t.completed ? "Selesai" : "Belum",
+                        category: t.category,
                         text: t.title,
                         description: t.desc,
                         link1: t.link1,
@@ -1244,6 +1300,7 @@
                 await callApi('upsert_task', updateData);
                 
                 renderTodos(); 
+                renderCalendar(); // Update calendar dots
                 saveLocal(false); 
             } 
         }
@@ -1317,11 +1374,23 @@
             document.getElementById('cal-month-year').innerText = new Date(y, m).toLocaleString('default', {month:'long', year:'numeric'});
             const fd = new Date(y, m, 1).getDay(), dim = new Date(y, m+1, 0).getDate();
             const el = document.getElementById('calendar-days'); el.innerHTML = '';
+            
             for(let i=0; i<fd; i++) el.innerHTML += `<div></div>`;
             const today = new Date();
+            
             for(let i=1; i<=dim; i++) {
                 const isToday = (i===today.getDate() && m===today.getMonth() && y===today.getFullYear());
-                el.innerHTML += `<div class="cal-day ${isToday?'today':''}">${i}</div>`;
+                
+                // Check if there are uncompleted tasks for this specific date
+                const dateStr = `${y}-${String(m+1).padStart(2,'0')}-${String(i).padStart(2,'0')}`;
+                const hasPendingTasks = state.todos.some(t => t.date === dateStr && !t.completed);
+                
+                let dotHtml = '';
+                if(hasPendingTasks) {
+                    dotHtml = '<div class="task-dot"></div>';
+                }
+
+                el.innerHTML += `<div class="cal-day ${isToday?'today':''}">${i}${dotHtml}</div>`;
             }
         }
         window.changeMonth = (d) => { state.currentDate.setMonth(state.currentDate.getMonth()+d); renderCalendar(); }
