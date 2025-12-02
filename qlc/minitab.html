@@ -321,8 +321,9 @@
             
             <!-- 3. Scrollable Event Cards -->
             <div class="flex-grow bento-card bg-custom-card p-6 rounded-xl shadow-lg transition-all duration-300 lg:overflow-y-auto overflow-visible" style="min-height: 50%;">
-                <h2 class="text-xl font-semibold mb-5 border-b pb-2 border-custom-border"><span id="event-list-title">Upcoming Events & Tasks</span></h2>
-                <div id="event-cards-container" class="space-y-4">
+                <h2 class="text-xl font-semibold mb-5 border-b pb-2 border-custom-border"><span id="event-list-title">Upcoming Week</span></h2>
+                <!-- Adjusted container to remove space-y-4 for manual grouping control -->
+                <div id="event-cards-container" class="flex flex-col gap-2">
                     <div class="text-center py-10 opacity-60">
                         <p id="loading-message-events">Loading events...</p>
                     </div>
@@ -798,7 +799,7 @@
             if (!dateString) {
                 // Clear filter
                 selectedFilterDate = null;
-                document.getElementById('event-list-title').textContent = 'Upcoming Events & Tasks';
+                document.getElementById('event-list-title').textContent = 'Upcoming Week'; // Changed Title
                 document.getElementById('calendar-header-text').textContent = 'Filter by Date';
             } else {
                 // Set filter
@@ -844,8 +845,12 @@
         function renderEventCards(events) {
             const container = document.getElementById('event-cards-container');
             container.innerHTML = '';
+            
+            // Remove any legacy classes if present, though we set it in HTML now
+            container.classList.remove('space-y-4');
+
             if (!events || events.length === 0) {
-                container.innerHTML = `<p class="text-center opacity-60">No events found.</p>`;
+                container.innerHTML = `<p class="text-center opacity-60 mt-10">No events found.</p>`;
                 return;
             }
             
@@ -868,12 +873,39 @@
             }).sort((a,b) => new Date(a.date_time) - new Date(b.date_time));
 
             if (filtered.length === 0) {
-                container.innerHTML = `<p class="text-center opacity-60">No upcoming events found.</p>`;
+                container.innerHTML = `<p class="text-center opacity-60 mt-10">No upcoming events found.</p>`;
                 return;
             }
+            
+            let lastDateHeader = '';
 
-            filtered.forEach(ev => {
+            filtered.forEach((ev, index) => {
                 const d = new Date(ev.date_time);
+                
+                // Grouping Logic
+                const dateHeader = d.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+                
+                // Humanize Date Header
+                const now = new Date();
+                const todayStr = now.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+                const tom = new Date(now); tom.setDate(tom.getDate() + 1);
+                const tomStr = tom.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+
+                let displayHeader = dateHeader;
+                if (dateHeader === todayStr) displayHeader = "Today";
+                else if (dateHeader === tomStr) displayHeader = "Tomorrow";
+
+                // Insert Header if new group
+                if (dateHeader !== lastDateHeader) {
+                    const headerDiv = document.createElement('div');
+                    // Add margin top if not the first group
+                    const mtClass = index === 0 ? 'mt-0' : 'mt-6';
+                    headerDiv.className = `${mtClass} pb-2 text-sm font-bold text-custom-primary uppercase tracking-wider border-b border-custom-border/50 mb-2 sticky top-0 bg-custom-card/95 backdrop-blur z-10`;
+                    headerDiv.innerHTML = `<span>${displayHeader}</span> <span class="text-xs font-normal opacity-60 normal-case ml-2">${dateHeader !== displayHeader ? dateHeader : ''}</span>`;
+                    container.appendChild(headerDiv);
+                    lastDateHeader = dateHeader;
+                }
+
                 let colorClass = 'bg-gray-200 text-gray-700';
                 const cat = ev.category ? ev.category.toLowerCase() : 'work';
                 if (cat === 'work') colorClass = 'bg-blue-200 text-blue-800';
@@ -882,13 +914,13 @@
                 else if (cat === 'admin') colorClass = 'bg-purple-200 text-purple-800';
 
                 const div = document.createElement('div');
-                div.className = 'flex items-center bento-card bg-custom-surface p-4 rounded-xl shadow-md border-custom-border/70 transition-shadow interactive-card';
+                div.className = 'flex items-center bento-card bg-custom-surface p-4 rounded-xl shadow-md border-custom-border/70 transition-shadow interactive-card mb-3';
                 div.onclick = () => showEventDetailModal(ev);
                 div.innerHTML = `
                     <img src="${ev.pic_url || ''}" onerror="this.src='https://placehold.co/100x100/cccccc/000000?text=IMG'" class="w-16 h-16 object-cover rounded-lg mr-4 flex-shrink-0">
                     <div class="flex-grow">
                         <h3 class="text-lg font-semibold text-custom-text leading-tight">${ev.event_name || 'Untitled Event'}</h3>
-                        <p class="text-sm opacity-80 mt-1">${d.toLocaleDateString([], {month:'short', day:'numeric'})} at <span class="font-semibold">${d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</span></p>
+                        <p class="text-sm opacity-80 mt-1">${d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</p>
                         
                         <!-- NEW: Person In Charge (PIC) Display -->
                         <div class="flex items-center mt-2 text-xs opacity-70">
