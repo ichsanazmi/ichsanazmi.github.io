@@ -590,10 +590,16 @@
                 <div class="bento-wrapper">
                     <div class="bento-header text-primary">
                         <h2>Bookmark Manager</h2>
-                        <!-- Manual Refresh -->
-                        <button onclick="fetchCloud()" class="text-muted hover:text-primary transition-colors p-2 rounded-full hover:bg-primary/10" title="Refresh Data">
-                            <svg viewBox="0 0 24 24"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>
-                        </button>
+                        <div class="flex gap-2">
+                             <!-- Push Changes (New) -->
+                            <button onclick="syncCloud()" class="text-muted hover:text-primary transition-colors p-2 rounded-full hover:bg-primary/10" title="Push Changes to Cloud">
+                                <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                            </button>
+                            <!-- Manual Refresh -->
+                            <button onclick="fetchCloud()" class="text-muted hover:text-primary transition-colors p-2 rounded-full hover:bg-primary/10" title="Refresh Data">
+                                <svg viewBox="0 0 24 24"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>
+                            </button>
+                        </div>
                     </div>
                     <div class="mb-6 flex gap-3 flex-wrap">
                         <input type="text" id="bm-title-in" placeholder="Page Title" class="flex-1 bg-input border-border text-main rounded-lg p-2">
@@ -734,16 +740,25 @@
         const statusEl = document.getElementById('pwa-status');
 
         if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js')
-                    .then(() => { 
+            window.addEventListener('load', async () => {
+                // Service Workers require HTTPS or Localhost.
+                // They generally fail on 'file://' or 'blob:' protocols used in some previews.
+                const isSecure = window.location.protocol === 'https:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+                const isBlob = window.location.protocol === 'blob:';
+                
+                if (isSecure && !isBlob) {
+                    try {
+                        await navigator.serviceWorker.register('sw.js');
                         console.log('SW Registered');
                         if (statusEl.innerText === "Checking...") statusEl.innerText = "Service Worker Active. Waiting for prompt...";
-                    })
-                    .catch(err => { 
-                        console.log('SW failed', err);
-                        statusEl.innerText = "Service Worker Failed (Check console)";
-                    });
+                    } catch (err) {
+                        console.log('SW Registration Failed:', err);
+                        statusEl.innerText = "SW Failed: " + err.message;
+                    }
+                } else {
+                    console.log('PWA features disabled: Not running on a secure HTTP/HTTPS server.');
+                    statusEl.innerText = "PWA Disabled (Preview/File Mode)";
+                }
             });
         }
 
@@ -855,7 +870,8 @@
 
             const cloudBookmarks = state.bookmarks.map(b => ({
                 title: b.title,
-                url: b.url
+                url: b.url,
+                status: b.status
             }));
             
             const cloudDiary = Object.keys(state.diary).map(dateKey => ({
@@ -918,7 +934,7 @@
                     id: Date.now() + idx + 1000,
                     title: b.title,
                     url: b.url,
-                    status: 'toread' 
+                    status: b.status || 'toread' 
                 }));
             }
 
