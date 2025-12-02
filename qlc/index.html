@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Task & File Manager</title>
+    <title>QLC Task Manager</title>
     
     <!-- PWA Manifest & Meta Tags -->
     <meta name="theme-color" content="#4f46e5">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Task Manager">
+    <meta name="apple-mobile-web-app-title" content="QLC Manager">
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/906/906334.png">
     
     <!-- Link to external manifest -->
@@ -96,9 +96,12 @@
         <!-- Header -->
         <header class="mb-6 lg:mb-8 border-b border-indigo-200 pb-4 lg:pb-6 flex flex-col md:flex-row md:items-center md:justify-between">
             <div class="flex items-center gap-3">
+                <div class="bg-indigo-600 text-white p-2 rounded-lg shadow-sm">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
+                </div>
                 <div>
-                    <h1 class="text-2xl lg:text-3xl font-bold text-indigo-700 tracking-tight">Task Manager</h1>
-                    <p class="text-xs lg:text-sm text-gray-500 mt-1">Manage tasks and upload attachments to Drive</p>
+                    <h1 class="text-2xl lg:text-3xl font-bold text-indigo-700 tracking-tight">QLC Manager</h1>
+                    <p class="text-xs lg:text-sm text-gray-500 mt-1">Manage QLC specific tasks and files</p>
                 </div>
                 <!-- PWA Install Button -->
                 <button id="installPwaBtn" class="flex items-center gap-1 bg-indigo-100 text-indigo-700 hover:bg-indigo-200 px-3 py-1.5 lg:px-4 lg:py-2 rounded-full text-xs lg:text-sm font-bold transition hidden">
@@ -128,6 +131,21 @@
             <!-- LEFT SIDEBAR -->
             <div class="w-full lg:w-80 flex-shrink-0 space-y-4 lg:space-y-6">
                 
+                <!-- NEW: Task Progress Bar -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-4 lg:p-6">
+                    <h4 class="text-[10px] lg:text-xs font-bold text-gray-400 uppercase tracking-wider mb-3 lg:mb-4">Today's Progress</h4>
+                    <div>
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-xs lg:text-sm font-medium text-gray-600">Tasks Completed</span>
+                            <span id="taskProgressText" class="text-xs lg:text-sm font-bold text-emerald-600">0%</span>
+                        </div>
+                        <div class="w-full bg-gray-100 rounded-full h-1.5 lg:h-2 overflow-hidden">
+                            <div id="taskProgressBar" class="bg-emerald-500 h-1.5 lg:h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                        <p id="taskStatsText" class="text-[10px] text-gray-400 mt-2 text-right">0/0 Completed</p>
+                    </div>
+                </div>
+
                 <!-- Time Progress Bars -->
                 <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-4 lg:p-6">
                     <h4 class="text-[10px] lg:text-xs font-bold text-gray-400 uppercase tracking-wider mb-3 lg:mb-4">Time Progress</h4>
@@ -190,7 +208,7 @@
                     <section class="bg-white rounded-lg shadow-sm border border-gray-100 p-4 lg:p-6 sticky top-4 lg:top-8">
                         <h2 class="text-sm lg:text-base font-bold mb-3 lg:mb-4 text-gray-700 flex items-center">
                             <svg class="w-3 h-3 lg:w-4 lg:h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-                            Quick Add
+                            Quick Add (QLC)
                         </h2>
                         <form id="addTaskForm" class="space-y-3 lg:space-y-4">
                             <input type="hidden" id="newTaskDate">
@@ -221,7 +239,7 @@
                             </div>
 
                             <button type="submit" id="addBtn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 lg:py-2.5 rounded text-xs lg:text-sm shadow-sm transition duration-200 mt-2">
-                                Add Task
+                                Add QLC Task
                             </button>
                         </form>
                     </section>
@@ -264,7 +282,7 @@
             
             <div class="p-6 lg:p-8 space-y-4 lg:space-y-6">
                 <div class="bg-indigo-50 p-3 lg:p-4 rounded-lg border border-indigo-100">
-                    <p class="text-xs lg:text-sm text-indigo-500 uppercase font-bold tracking-wide mb-2">Selected Task</p>
+                    <p class="text-xs lg:text-sm text-indigo-500 uppercase font-bold tracking-wide mb-2">Selected Task (QLC)</p>
                     <div class="space-y-3">
                         <div>
                             <label class="block text-xs lg:text-sm font-semibold text-gray-500 uppercase mb-1">Title</label>
@@ -467,6 +485,28 @@
             document.getElementById('yearProgressText').textContent = `${yearPercent}%`;
         }
 
+        // NEW: Task Progress Calculation Logic
+        function updateTaskProgress() {
+            const today = new Date();
+            const yyyy = today.getFullYear();
+            const mm = String(today.getMonth() + 1).padStart(2, '0');
+            const dd = String(today.getDate()).padStart(2, '0');
+            const todayStr = `${yyyy}-${mm}-${dd}`;
+
+            // Filter all loaded tasks for the specific "Today" date
+            // Note: allTasks is already filtered for QLC category
+            const todaysTasks = allTasks.filter(t => t.date === todayStr);
+            const total = todaysTasks.length;
+            const completed = todaysTasks.filter(t => t.status === 'Selesai' || t.status === 'Complete').length;
+
+            const percent = total === 0 ? 0 : Math.round((completed / total) * 100);
+            
+            // Update UI
+            document.getElementById('taskProgressBar').style.width = `${percent}%`;
+            document.getElementById('taskProgressText').textContent = `${percent}%`;
+            document.getElementById('taskStatsText').textContent = `${completed}/${total} Completed`;
+        }
+
         function selectToday() {
             selectedDate = new Date();
             calendarViewDate = new Date();
@@ -540,9 +580,18 @@
                 const response = await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: "fetch_tasks" }) });
                 const json = await response.json();
                 if (json.result === 'success') {
-                    allTasks = json.data;
+                    // 1. Assign rowIndex to ALL tasks BEFORE filtering
+                    const mappedTasks = json.data.map((t, i) => ({
+                        ...t,
+                        rowIndex: i + 2 // Sheet Row = Array Index + 2 (Header is row 1)
+                    }));
+                    
+                    // 2. Filter ONLY QLC tasks
+                    allTasks = mappedTasks.filter(t => t.category === 'QLC');
+                    
                     renderCalendar();
                     filterAndRenderTasks();
+                    updateTaskProgress(); // Update the new progress bar
                 } else throw new Error(json.message || "Unknown error");
             } catch (e) {
                 console.error(e);
@@ -553,9 +602,6 @@
         // --- DELETE TASK (Added) ---
         async function deleteTask(rowIndex) {
             if(!confirm("Are you sure you want to delete this task?")) return;
-            const list = document.getElementById('taskList');
-            // Show simple loading state over the list or just continue
-            
             try {
                 const response = await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: "delete_task", rowIndex: rowIndex }) });
                 const json = await response.json();
@@ -580,11 +626,12 @@
             const dd = String(selectedDate.getDate()).padStart(2, '0');
             const filterStr = `${yyyy}-${mm}-${dd}`;
 
+            // We are already filtered to QLC in allTasks, now filter by DATE
             const filteredTasks = allTasks.filter(t => t.date === filterStr);
 
             if (filteredTasks.length === 0) {
                 list.innerHTML = `<div class="text-center py-12 lg:py-20 text-gray-400 bg-white rounded-lg border border-dashed border-gray-300">
-                    <p class="mb-2 text-sm lg:text-base">No tasks found for ${filterStr}</p>
+                    <p class="mb-2 text-sm lg:text-base">No QLC tasks found for ${filterStr}</p>
                     <p class="text-xs lg:text-sm">Use the Quick Add form to create one.</p>
                 </div>`;
                 return;
@@ -596,8 +643,8 @@
             const renderGrid = (tasks) => {
                 let html = '<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4 lg:gap-6">';
                 tasks.forEach(task => {
-                    const globalIndex = allTasks.indexOf(task);
-                    const rowIndex = globalIndex + 2; 
+                    // Use the preserved rowIndex from the fetch step
+                    const rowIndex = task.rowIndex;
                     const isDone = task.status === 'Selesai' || task.status === 'Complete';
                     const statusBadgeClass = isDone ? 'bg-emerald-200 text-emerald-800' : 'bg-amber-200 text-amber-800';
                     const cardBgClass = isDone ? 'bg-emerald-50 border-emerald-100' : 'bg-amber-50 border-amber-100';
@@ -612,7 +659,7 @@
                              <button onclick='deleteTask(${rowIndex})' class="text-gray-400 hover:text-red-500 transition-colors" title="Delete Task">
                                 <svg class="w-4 h-4 lg:w-5 lg:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                              </button>
-                             <button onclick='openModal(${JSON.stringify(task).replace(/'/g, "&#39;")}, ${rowIndex})' class="text-gray-400 hover:text-indigo-600 transition-colors" title="Edit Task">
+                             <button onclick='openModal(${JSON.stringify(task).replace(/'/g, "&#39;")})' class="text-gray-400 hover:text-indigo-600 transition-colors" title="Edit Task">
                                 <svg class="w-4 h-4 lg:w-5 lg:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
                             </button>
                         </div>
@@ -621,7 +668,7 @@
                         <p class="text-gray-600 text-xs lg:text-sm mb-3 lg:mb-4 whitespace-pre-wrap flex-grow line-clamp-3">${task.description}</p>
                         <div class="pt-2 lg:pt-3 mt-auto border-t border-black/5 flex items-center justify-between">
                             ${linksSection}
-                            <button onclick='openModal(${JSON.stringify(task).replace(/'/g, "&#39;")}, ${rowIndex})' class="text-[10px] lg:text-xs font-semibold text-indigo-600 hover:text-indigo-800 lg:opacity-0 group-hover:opacity-100 transition-opacity">Edit</button>
+                            <button onclick='openModal(${JSON.stringify(task).replace(/'/g, "&#39;")})' class="text-[10px] lg:text-xs font-semibold text-indigo-600 hover:text-indigo-800 lg:opacity-0 group-hover:opacity-100 transition-opacity">Edit</button>
                         </div>
                     </div>`;
                 });
@@ -656,13 +703,13 @@
                     text: document.getElementById('newTaskTitle').value,
                     description: document.getElementById('newTaskDesc').value,
                     status: document.getElementById('newTaskStatus').value,
-                    date: document.getElementById('newTaskDate').value
+                    date: document.getElementById('newTaskDate').value,
+                    category: "QLC" // AUTO CATEGORY FOR THIS PAGE
                 };
 
                 const response = await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: "upsert_task", task: task, files: filesPayload }) });
                 const result = await response.json();
                 if (result.result === 'success') {
-                    // MENGGUNAKAN PESAN DINAMIS DARI SERVER
                     const statusText = result.message || 'Task added successfully';
                     showStatus(statusText, 'success'); 
                     
@@ -677,11 +724,12 @@
         });
 
         // --- MODAL & SUBMIT ---
-        function openModal(task, rowIndex) {
+        function openModal(task) {
             document.getElementById('uploadModal').classList.remove('hidden');
-            document.getElementById('modalRowIndex').value = rowIndex;
+            // USE PRESERVED ROW INDEX
+            document.getElementById('modalRowIndex').value = task.rowIndex;
             document.getElementById('modalTitle').value = task.text || "";
-            document.getElementById('modalDesc').value = task.description || ""; // Updated: Populate Description
+            document.getElementById('modalDesc').value = task.description || "";
             document.getElementById('modalStatus').value = task.status;
 
             const f1 = document.getElementById('fileInput1');
@@ -720,7 +768,8 @@
                     task: {
                         status: document.getElementById('modalStatus').value,
                         text: document.getElementById('modalTitle').value,
-                        description: document.getElementById('modalDesc').value // Updated: Send Description
+                        description: document.getElementById('modalDesc').value,
+                        category: "QLC" // ENSURE IT STAYS QLC
                     },
                     files: filesPayload
                 };
@@ -728,7 +777,7 @@
                 const response = await fetch(GAS_URL, { method: 'POST', body: JSON.stringify(payload) });
                 const result = await response.json();
                 if (result.result === 'success') {
-                    showStatus(result.message || 'Task updated successfully!', 'success'); // MENGGUNAKAN PESAN DINAMIS DARI SERVER
+                    showStatus(result.message || 'Task updated successfully!', 'success');
                     closeModal();
                     fetchTasks();
                 } else throw new Error(result.message);
