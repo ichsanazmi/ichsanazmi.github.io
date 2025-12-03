@@ -120,7 +120,7 @@
             --card-bg: #18181b;
             --text-main: #f4f4f5;
             --text-muted: #71717a;
-            --accent: #dc2626; /* Red-600 */
+            --accent: #dc2626; 
             --accent-hover: #b91c1c;
             --border: #27272a;
             --input-bg: #27272a;
@@ -131,11 +131,11 @@
         }
 
         .theme-midnight {
-            --bg-color: #1e1b4b; /* Indigo-950 */
-            --card-bg: #312e81; /* Indigo-900 */
+            --bg-color: #1e1b4b; 
+            --card-bg: #312e81; 
             --text-main: #e0e7ff;
             --text-muted: #818cf8;
-            --accent: #c084fc; /* Purple-400 */
+            --accent: #c084fc; 
             --accent-hover: #a855f7;
             --border: #4338ca;
             --input-bg: #4338ca;
@@ -146,11 +146,11 @@
         }
 
         .theme-coffee {
-            --bg-color: #292524; /* Stone-800 */
-            --card-bg: #44403c; /* Stone-700 */
+            --bg-color: #292524; 
+            --card-bg: #44403c; 
             --text-main: #f5f5f4;
             --text-muted: #a8a29e;
-            --accent: #d6d3d1; /* Stone-200 */
+            --accent: #d6d3d1; 
             --accent-hover: #e7e5e4;
             --border: #57534e;
             --input-bg: #57534e;
@@ -408,6 +408,26 @@
         .diary-textarea { flex: 1; background: transparent; border: none; resize: none; outline: none; font-size: 1.1rem; line-height: 1.6; color: var(--text-main); }
         .diary-calendar-container { background: var(--card-bg); border-radius: 20px; padding: 1.5rem; border: 1px solid var(--border); }
 
+        /* --- BLUR EFFECT (Glassmorphism) --- */
+        /* Increased transparency to 50% for stronger effect */
+        .blur-enabled .bento-card, 
+        .blur-enabled .bm-column, 
+        .blur-enabled .diary-editor, 
+        .blur-enabled .diary-calendar-container, 
+        .blur-enabled .app-modal,
+        .blur-enabled .task-item,  /* Tasks Card Items */
+        .blur-enabled .bm-item     /* Bookmark Items */
+        {
+            background-color: color-mix(in srgb, var(--card-bg), transparent 50%) !important;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .blur-enabled .nav-btn {
+             text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+        }
+
         @media (max-width: 900px) {
             .bento-grid, .bm-grid, .diary-grid { grid-template-columns: 1fr; grid-template-rows: auto; height: auto; }
             .slide { align-items: flex-start; }
@@ -415,11 +435,18 @@
             .fab-container { bottom: 90px; right: 20px; }
             .task-card { grid-row: auto; }
             
-            /* ALLOW TASK LIST TO GROW ON MOBILE TO FIX SCROLLING */
+            /* FIXED: SCROLLING ISSUE ON MOBILE */
             .task-list {
-                max-height: none; 
+                max-height: none;
+                overflow-y: visible; /* Let the container scroll */
+                flex: none; /* Let it grow */
             }
             .slider-track { height: auto; min-height: 100vh; }
+            .slide { 
+                height: auto; 
+                min-height: 100vh; 
+                overflow-y: visible; 
+            }
         }
     </style>
 </head>
@@ -445,6 +472,15 @@
             </div>
             
             <div class="text-left">
+                <!-- BLUR TOGGLE -->
+                <div class="flex justify-between items-center mb-6 bg-input p-3 rounded-xl border border-border">
+                    <span class="text-main font-bold text-sm">Glass Mode (Blur)</span>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="blur-toggle" class="sr-only peer" onchange="toggleBlur()">
+                        <div class="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                    </label>
+                </div>
+
                 <!-- THEME SECTION -->
                 <h3 class="text-main font-semibold text-sm uppercase tracking-wider mb-2">Color Theme</h3>
                 <div class="theme-grid">
@@ -749,6 +785,19 @@
             API_URL: 'https://script.google.com/macros/s/AKfycbz8y5ena3plYJoXwotwT-NakjvI23JB6y59Qo0R4jpV8JOj4tWEDIpKQJSvX1I2tII4/exec'
         };
 
+        const LOCAL_QUOTES = [
+            { quote: "Focus is the key to productivity.", author: "Anonymous" },
+            { quote: "The best way to predict the future is to create it.", author: "Peter Drucker" },
+            { quote: "You miss 100% of the shots you don't take.", author: "Wayne Gretzky" },
+            { quote: "Success is not final, failure is not fatal.", author: "Winston Churchill" },
+            { quote: "Believe you can and you're halfway there.", author: "Theodore Roosevelt" },
+            { quote: "It always seems impossible until it's done.", author: "Nelson Mandela" },
+            { quote: "Action is the foundational key to all success.", author: "Pablo Picasso" },
+            { quote: "Don't watch the clock; do what it does. Keep going.", author: "Sam Levenson" },
+            { quote: "The only way to do great work is to love what you do.", author: "Steve Jobs" },
+            { quote: "Simplicity is the ultimate sophistication.", author: "Leonardo da Vinci" }
+        ];
+
         /* --- PWA INSTALL LOGIC --- */
         let deferredPrompt;
         const statusEl = document.getElementById('pwa-status');
@@ -920,7 +969,7 @@
                 content: state.diary[dateKey]
             }));
 
-            await Promise.all([
+            await Promise.allSettled([
                 callApi('sync_notes', { noteContent: state.notes }),
                 callApi('push_bookmarks', { bookmarks: cloudBookmarks }),
                 callApi('push_daily_notes', { notes: cloudDiary })
@@ -940,9 +989,11 @@
             // Load local data first for immediate UI
             loadData();
 
-            // Only fetch from cloud if it's a new day or never fetched
-            if (lastFetch !== today) {
-                console.log("New day detected. Fetching from cloud...");
+            // Fetch from cloud if:
+            // 1. It's a new day
+            // 2. OR if local bookmark data is completely empty (User likely has data on cloud but no local cache)
+            if (lastFetch !== today || state.bookmarks.length === 0) {
+                console.log("Fetching from cloud (New day or empty local data)...");
                 await fetchCloud();
                 localStorage.setItem('last_fetch_date', today);
             } else {
@@ -965,27 +1016,40 @@
             document.getElementById('sync-status').innerText = "Fetching...";
             document.getElementById('sync-status').style.opacity = '1';
 
-            const [taskRes, noteRes, quoteRes, bmRes, diaryRes] = await Promise.all([
-                callApi('fetch_tasks'),
+            // STAGE 1: Fetch TASKS Only (Priority)
+            try {
+                const taskRes = await callApi('fetch_tasks');
+                if(taskRes && taskRes.result === 'success') {
+                    state.todos = taskRes.data.map((t, i) => ({
+                        id: Date.now() + i + Math.random(),
+                        title: t.text,
+                        desc: t.description,
+                        category: t.category,
+                        completed: (t.status === "Selesai" || t.status === true || t.status === "TRUE"),
+                        date: t.date,
+                        rowIndex: i + 2, 
+                        link1: t.link1 || "",
+                        link2: t.link2 || ""
+                    }));
+                    renderTodos();
+                    renderCalendar();
+                }
+            } catch (e) { console.error("Task fetch failed", e); }
+
+            // STAGE 2: Fetch Background Data (Bookmarks, Diary, Quotes, Notes)
+            // We use Promise.allSettled to ensure one failure doesn't stop the others
+            // and we do it AFTER tasks are loaded to keep UI responsive.
+            const results = await Promise.allSettled([
                 callApi('fetch_notes'),
                 callApi('fetch_quotes'),
                 callApi('fetch_bookmarks'),
                 callApi('fetch_daily_notes')
             ]);
 
-            if(taskRes && taskRes.result === 'success') {
-                state.todos = taskRes.data.map((t, i) => ({
-                    id: Date.now() + i + Math.random(),
-                    title: t.text,
-                    desc: t.description,
-                    category: t.category,
-                    completed: (t.status === "Selesai" || t.status === true || t.status === "TRUE"),
-                    date: t.date,
-                    rowIndex: i + 2, 
-                    link1: t.link1 || "",
-                    link2: t.link2 || ""
-                }));
-            }
+            const noteRes = results[0].status === 'fulfilled' ? results[0].value : null;
+            const quoteRes = results[1].status === 'fulfilled' ? results[1].value : null;
+            const bmRes   = results[2].status === 'fulfilled' ? results[2].value : null;
+            const diaryRes= results[3].status === 'fulfilled' ? results[3].value : null;
 
             if(noteRes && noteRes.result === 'success') {
                 state.notes = noteRes.data;
@@ -995,15 +1059,24 @@
             if(quoteRes && quoteRes.result === 'success') {
                 state.quotes = quoteRes.data; 
                 fetchQuote(); 
+            } else {
+                // If API failed, ensure we still show a quote
+                fetchQuote();
             }
 
             if(bmRes && bmRes.result === 'success') {
-                state.bookmarks = bmRes.data.map((b, idx) => ({
-                    id: Date.now() + idx + 1000,
-                    title: b.title,
-                    url: b.url,
-                    status: b.status || 'toread' 
-                }));
+                console.log("Bookmarks fetched:", bmRes); // DEBUG LOG
+                if(Array.isArray(bmRes.data)) {
+                    state.bookmarks = bmRes.data.map((b, idx) => ({
+                        id: Date.now() + idx + 1000,
+                        title: b.title,
+                        url: b.url,
+                        status: b.status || 'toread' 
+                    }));
+                    renderBookmarks();
+                }
+            } else {
+                console.warn("Bookmark fetch failed or returned empty", bmRes);
             }
 
             if(diaryRes && diaryRes.result === 'success') {
@@ -1014,9 +1087,6 @@
                 renderDiary();
             }
 
-            renderTodos();
-            renderCalendar(); 
-            renderBookmarks();
             saveLocal(false); // Save fetched data but don't trigger sync
             
             document.getElementById('sync-status').innerText = "Synced";
@@ -1027,15 +1097,29 @@
         function initTheme() {
             const savedTheme = localStorage.getItem('appTheme') || 'theme-dark';
             setTheme(savedTheme);
+            
+            const isBlurEnabled = localStorage.getItem('blurEnabled') === 'true';
+            document.getElementById('blur-toggle').checked = isBlurEnabled;
+            toggleBlur(false); // Apply without saving
         }
         function setTheme(theme) {
-            document.body.className = theme + " text-main bg-background";
+            document.body.className = theme + (document.body.classList.contains('blur-enabled') ? ' blur-enabled' : '') + " text-main bg-background";
             localStorage.setItem('appTheme', theme);
             document.querySelectorAll('.theme-option').forEach(opt => {
                 opt.classList.toggle('active', opt.dataset.theme === theme);
             });
         }
         function togglePrefModal() { document.getElementById('pref-modal-overlay').classList.toggle('open'); }
+        
+        function toggleBlur(save = true) {
+            const isChecked = document.getElementById('blur-toggle').checked;
+            if(isChecked) {
+                document.body.classList.add('blur-enabled');
+            } else {
+                document.body.classList.remove('blur-enabled');
+            }
+            if(save) localStorage.setItem('blurEnabled', isChecked);
+        }
 
         /* --- CLOCK --- */
         setInterval(() => {
@@ -1134,6 +1218,12 @@
         function renderBookmarks() {
             const toReadList = document.getElementById('list-toread'); const readList = document.getElementById('list-read');
             toReadList.innerHTML = ''; readList.innerHTML = '';
+            
+            if(state.bookmarks.length === 0) {
+                 toReadList.innerHTML = '<div class="text-center text-muted text-xs p-4 italic">No bookmarks found. Add one locally or Pull from cloud.</div>';
+                 return;
+            }
+
             state.bookmarks.forEach(bm => {
                 const el = document.createElement('div'); el.className = 'bm-item';
                 const actionBtn = bm.status === 'toread' 
@@ -1475,7 +1565,7 @@
 
         /* --- QUOTE --- */
         async function fetchQuote() {
-            // Check cache from Sheet first
+            // 1. Try to load from local state (synced from DB)
             if (state.quotes && state.quotes.length > 0) {
                 const rand = state.quotes[Math.floor(Math.random() * state.quotes.length)];
                 document.getElementById('quote-text').innerText = `"${rand.quote}"`;
@@ -1483,14 +1573,11 @@
                 return;
             }
 
-            // Fallback to API or Offline
-            if(!navigator.onLine) { document.getElementById('quote-text').innerText = "\"Focus is the key to productivity.\""; document.getElementById('quote-author').innerText = "- Offline Mode"; return; }
-            try {
-                const r = await fetch('https://api.quotable.io/random?maxLength=80');
-                const d = await r.json();
-                document.getElementById('quote-text').innerText = `"${d.content}"`;
-                document.getElementById('quote-author').innerText = `- ${d.author}`;
-            } catch(e) {}
+            // 2. Fallback to LOCAL constant (fastest, guaranteed)
+            // Removed api.quotable.io because it is often down/slow
+            const rand = LOCAL_QUOTES[Math.floor(Math.random() * LOCAL_QUOTES.length)];
+            document.getElementById('quote-text').innerText = `"${rand.quote}"`;
+            document.getElementById('quote-author').innerText = `- ${rand.author}`;
         }
 
         /* --- INIT --- */
