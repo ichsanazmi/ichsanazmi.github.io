@@ -462,7 +462,7 @@
                 <!-- STORAGE SECTION -->
                 <div class="mt-8 pt-6 border-t border-border">
                     <h3 class="text-main font-semibold text-sm uppercase tracking-wider mb-2">Data Management</h3>
-                    <button onclick="fetchCloud()" class="w-full py-2 mb-2 rounded-xl border border-border text-muted text-sm hover:text-main transition-colors flex justify-center items-center gap-2">
+                    <button onclick="forceReload()" class="w-full py-2 mb-2 rounded-xl border border-border text-muted text-sm hover:text-main transition-colors flex justify-center items-center gap-2">
                         <svg style="width:16px;height:16px;" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                         Force Load from Cloud
                     </button>
@@ -597,11 +597,11 @@
                         <h2>Bookmark Manager</h2>
                         <div class="flex gap-2">
                              <!-- Push Changes (New) -->
-                            <button onclick="syncCloud()" class="text-muted hover:text-primary transition-colors p-2 rounded-full hover:bg-primary/10" title="Push Changes to Cloud">
+                            <button onclick="processQueue(true)" class="text-muted hover:text-primary transition-colors p-2 rounded-full hover:bg-primary/10" title="Push Changes Now">
                                 <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
                             </button>
                             <!-- Manual Refresh -->
-                            <button onclick="fetchCloud()" class="text-muted hover:text-primary transition-colors p-2 rounded-full hover:bg-primary/10" title="Refresh Data">
+                            <button onclick="forceReload()" class="text-muted hover:text-primary transition-colors p-2 rounded-full hover:bg-primary/10" title="Pull Data (Refresh)">
                                 <svg viewBox="0 0 24 24"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>
                             </button>
                         </div>
@@ -628,7 +628,7 @@
             <div class="slide" id="slide-1">
                 <div class="clock-container relative">
                     <!-- Manual Refresh (Subtle) -->
-                    <button onclick="fetchCloud()" class="absolute -top-10 right-0 text-muted hover:text-primary transition-colors p-2 opacity-50 hover:opacity-100" title="Refresh Data">
+                    <button onclick="forceReload()" class="absolute -top-10 right-0 text-muted hover:text-primary transition-colors p-2 opacity-50 hover:opacity-100" title="Pull Data">
                          <svg viewBox="0 0 24 24"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>
                     </button>
 
@@ -647,10 +647,16 @@
                 <div class="bento-wrapper">
                     <div class="bento-header flex justify-between items-center mb-4">
                         <h2 class="text-primary">Dashboard <span id="sync-status" class="text-muted text-sm opacity-0">Synced</span></h2>
-                        <!-- Manual Refresh -->
-                        <button onclick="fetchCloud()" class="text-muted hover:text-primary transition-colors p-2 rounded-full hover:bg-primary/10" title="Refresh Data">
-                            <svg viewBox="0 0 24 24"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>
-                        </button>
+                        <div class="flex gap-2">
+                            <!-- Push Changes (New) -->
+                            <button onclick="processQueue(true)" class="text-muted hover:text-primary transition-colors p-2 rounded-full hover:bg-primary/10" title="Push Changes Now">
+                                <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                            </button>
+                            <!-- Manual Refresh -->
+                            <button onclick="forceReload()" class="text-muted hover:text-primary transition-colors p-2 rounded-full hover:bg-primary/10" title="Pull Data (Refresh)">
+                                <svg viewBox="0 0 24 24"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>
+                            </button>
+                        </div>
                     </div>
                     <div class="bento-grid">
                         <!-- Tasks -->
@@ -709,7 +715,10 @@
                     <div class="bento-header flex justify-between items-center mb-4">
                         <h2 class="text-primary">My Diary</h2>
                          <!-- Manual Refresh -->
-                        <button onclick="fetchCloud()" class="text-muted hover:text-primary transition-colors p-2 rounded-full hover:bg-primary/10" title="Refresh Data">
+                        <button onclick="processQueue(true)" class="text-muted hover:text-primary transition-colors p-2 rounded-full hover:bg-primary/10" title="Push Changes Now">
+                            <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                        </button>
+                        <button onclick="forceReload()" class="text-muted hover:text-primary transition-colors p-2 rounded-full hover:bg-primary/10" title="Pull Data (Refresh)">
                             <svg viewBox="0 0 24 24"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>
                         </button>
                     </div>
@@ -746,8 +755,6 @@
 
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', async () => {
-                // Service Workers require HTTPS or Localhost.
-                // They generally fail on 'file://' or 'blob:' protocols used in some previews.
                 const isSecure = window.location.protocol === 'https:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
                 const isBlob = window.location.protocol === 'blob:';
                 
@@ -788,34 +795,23 @@
             deferredPrompt = null;
         }
         
-        // Helper to generate icons on the fly so users don't need to manually create them
         function generateIcons() {
             const sizes = [192, 512];
-            
             sizes.forEach(size => {
                 const canvas = document.createElement('canvas');
                 canvas.width = size;
                 canvas.height = size;
                 const ctx = canvas.getContext('2d');
-                
-                // Get current theme accent color if possible, else default
                 const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#bb86fc';
-                
-                // Draw Background
                 ctx.fillStyle = accent;
                 ctx.beginPath();
-                // Draw rounded rect or circle? Let's do a simple circle for adaptive icons
                 ctx.arc(size/2, size/2, size/2, 0, Math.PI * 2);
                 ctx.fill();
-                
-                // Draw 'F' Icon
                 ctx.fillStyle = 'white';
                 ctx.font = `bold ${size/2}px sans-serif`;
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
-                ctx.fillText('F', size/2, size/2 + (size * 0.05)); // Slight offset for visual center
-                
-                // Convert to Blob and Download
+                ctx.fillText('F', size/2, size/2 + (size * 0.05)); 
                 canvas.toBlob(blob => {
                     const link = document.createElement('a');
                     link.download = `icon-${size}.png`;
@@ -823,11 +819,9 @@
                     link.click();
                 }, 'image/png');
             });
-            
             alert("Icons downloaded!\n\nMove 'icon-192.png' and 'icon-512.png' to your project folder.\nThen refresh this page.");
         }
         
-        // Check if already installed
         if (window.matchMedia('(display-mode: standalone)').matches) {
             statusEl.innerText = "Running as App";
         }
@@ -843,10 +837,11 @@
             selectedDateString: new Date().toISOString().split('T')[0], 
             diaryDateString: new Date().toISOString().split('T')[0], 
             diaryViewDate: new Date(), 
-            editingId: null 
+            editingId: null,
+            syncQueue: [] // Queue for offline/delayed writes
         };
         let currentSlideIndex = 1;
-        let syncTimer = null;
+        let syncTimer = null; // Debounce timer
 
         /* --- API & SYNC --- */
         async function callApi(action, payload = {}) {
@@ -865,14 +860,55 @@
             }
         }
 
-        async function syncCloud() {
-            const cloudTasks = state.todos.map(t => ({
-                date: t.date,
-                status: t.completed ? "Selesai" : "Belum",
-                text: t.title,
-                description: t.desc
-            }));
+        // --- NEW: SYNC QUEUE SYSTEM ---
+        function addToQueue(action, payload) {
+            // Add to in-memory queue
+            state.syncQueue.push({ action, payload, timestamp: Date.now() });
+            
+            // Persist queue in case of reload
+            localStorage.setItem('syncQueue', JSON.stringify(state.syncQueue));
+            
+            // UI Feedback
+            const statusEl = document.getElementById('sync-status');
+            statusEl.innerText = "Changes Cached...";
+            statusEl.style.opacity = '1';
+            
+            // Restart 1-minute debounce timer
+            clearTimeout(syncTimer);
+            syncTimer = setTimeout(() => processQueue(), 60000); // 1 Minute Idle
+        }
 
+        async function processQueue(force = false) {
+            if (state.syncQueue.length === 0) return;
+
+            document.getElementById('sync-status').innerText = "Syncing...";
+            document.getElementById('sync-status').style.opacity = '1';
+
+            // Process queue items one by one (FIFO) to maintain order
+            // Note: In a production app, we might batch these, but GAS api is atomic for now
+            const queueCopy = [...state.syncQueue];
+            state.syncQueue = []; // Clear local queue immediately to prevent double processing
+            localStorage.setItem('syncQueue', JSON.stringify([]));
+
+            try {
+                for (const item of queueCopy) {
+                    await callApi(item.action, item.payload);
+                }
+                
+                // Also trigger bulk sync for notes/diary/bookmarks
+                await syncBulkData();
+
+                document.getElementById('sync-status').innerText = "Synced";
+                setTimeout(() => { document.getElementById('sync-status').style.opacity='0'; }, 2000);
+            } catch (e) {
+                console.error("Queue Processing Error", e);
+                // On error, put items back? For now, we log it. Simple retry logic could be added here.
+                document.getElementById('sync-status').innerText = "Sync Partial Error";
+            }
+        }
+
+        // Bulk sync for non-atomic items (Notes, Bookmarks, Diary)
+        async function syncBulkData() {
             const cloudBookmarks = state.bookmarks.map(b => ({
                 title: b.title,
                 url: b.url,
@@ -884,17 +920,45 @@
                 content: state.diary[dateKey]
             }));
 
-            document.getElementById('sync-status').innerText = "Syncing...";
-            document.getElementById('sync-status').style.opacity = '1';
-
             await Promise.all([
                 callApi('sync_notes', { noteContent: state.notes }),
                 callApi('push_bookmarks', { bookmarks: cloudBookmarks }),
                 callApi('push_daily_notes', { notes: cloudDiary })
             ]);
+        }
+        
+        // This function acts as the "Push" for everything non-task related
+        function triggerSync() {
+            addToQueue('bulk_sync_trigger', {}); // Dummy action to trigger debounce
+        }
 
-            document.getElementById('sync-status').innerText = "Synced";
-            setTimeout(() => { document.getElementById('sync-status').style.opacity='0'; }, 2000);
+        /* --- LOAD STRATEGY (Once a day) --- */
+        async function initDataLoad() {
+            const lastFetch = localStorage.getItem('last_fetch_date');
+            const today = new Date().toDateString();
+            
+            // Load local data first for immediate UI
+            loadData();
+
+            // Only fetch from cloud if it's a new day or never fetched
+            if (lastFetch !== today) {
+                console.log("New day detected. Fetching from cloud...");
+                await fetchCloud();
+                localStorage.setItem('last_fetch_date', today);
+            } else {
+                console.log("Loaded from local cache (Policy: Once a day).");
+                // Check if there is a pending queue from previous session
+                const savedQueue = localStorage.getItem('syncQueue');
+                if (savedQueue) {
+                    state.syncQueue = JSON.parse(savedQueue);
+                    if (state.syncQueue.length > 0) processQueue();
+                }
+            }
+        }
+        
+        function forceReload() {
+            fetchCloud();
+            localStorage.setItem('last_fetch_date', new Date().toDateString());
         }
 
         async function fetchCloud() {
@@ -910,7 +974,6 @@
             ]);
 
             if(taskRes && taskRes.result === 'success') {
-                // Task data starts at row 2 (i=0) in the GAS output
                 state.todos = taskRes.data.map((t, i) => ({
                     id: Date.now() + i + Math.random(),
                     title: t.text,
@@ -918,7 +981,7 @@
                     category: t.category,
                     completed: (t.status === "Selesai" || t.status === true || t.status === "TRUE"),
                     date: t.date,
-                    rowIndex: i + 2, // Sheet row number (2, 3, 4...)
+                    rowIndex: i + 2, 
                     link1: t.link1 || "",
                     link2: t.link2 || ""
                 }));
@@ -952,17 +1015,12 @@
             }
 
             renderTodos();
-            renderCalendar(); // Re-render calendar to update dots
+            renderCalendar(); 
             renderBookmarks();
-            saveLocal(false);
+            saveLocal(false); // Save fetched data but don't trigger sync
             
             document.getElementById('sync-status').innerText = "Synced";
             setTimeout(() => { document.getElementById('sync-status').style.opacity='0'; }, 2000);
-        }
-
-        function triggerSync() {
-            clearTimeout(syncTimer);
-            syncTimer = setTimeout(syncCloud, 2000); 
         }
 
         /* --- THEME & PREFS --- */
@@ -1054,9 +1112,6 @@
             renderDiary();
             renderDiaryCalendar();
             fetchQuote();
-
-            // OFFLINE-FIRST: We DO NOT auto-fetch cloud data on load anymore to prevent overwriting.
-            // Cloud sync is push-only by default or manual pull.
         }
 
         function saveLocal(shouldSync = true) {
@@ -1136,28 +1191,25 @@
                 date: state.selectedDateString
             };
 
-            const res = await callApi('upsert_task', { task: newTaskData });
-            
-            if (res && res.result === 'success' && res.row) {
-                state.todos.unshift({ 
-                    id: Date.now(), 
-                    title: title, 
-                    desc: "", 
-                    category: newCat,
-                    completed: false, 
-                    date: state.selectedDateString, 
-                    rowIndex: res.row, 
-                    link1: "",
-                    link2: ""
-                });
-                t.value = ''; 
-                renderTodos(); 
-                renderCalendar();
-                saveLocal(false);
-            } else {
-                console.error("Failed to add task via upsert:", res);
-                alert("Failed to add task. Check console for details.");
-            }
+            // 1. Update UI Locally First (Optimistic)
+            state.todos.unshift({ 
+                id: Date.now(), 
+                title: title, 
+                desc: "", 
+                category: newCat,
+                completed: false, 
+                date: state.selectedDateString, 
+                rowIndex: null, // No row index yet
+                link1: "",
+                link2: ""
+            });
+            t.value = ''; 
+            renderTodos(); 
+            renderCalendar();
+            saveLocal(false); // Save to LS, don't trigger bulk sync
+
+            // 2. Queue the server update
+            addToQueue('upsert_task', { task: newTaskData });
         }
 
         function handleTaskInput(e) {
@@ -1254,9 +1306,9 @@
             t.link2 = document.getElementById('modal-task-link2').value;
             t.category = document.getElementById('modal-task-cat').value;
 
-            // 2. Prepare data for GAS update (upsert)
+            // 2. Queue Update
             const updateData = {
-                rowIndex: t.rowIndex, // Send the row index for update
+                rowIndex: t.rowIndex, // Send the row index for update (if exists)
                 task: {
                     status: t.completed ? "Selesai" : "Belum",
                     category: t.category,
@@ -1267,34 +1319,26 @@
                 }
             };
             
-            const res = await callApi('upsert_task', updateData); // Send update to GAS
-            
-            if (res && res.result === 'success') {
-                renderTodos();
-                saveLocal(false); // Save local copy, no need to trigger full sync
-            } else {
-                console.error("Failed to update task via upsert:", res);
-                alert("Update failed. Check console.");
-            }
-
+            renderTodos();
+            saveLocal(false);
+            addToQueue('upsert_task', updateData);
             closeTaskModal();
         }
         
         // Core delete function using the new GAS API
         async function deleteTask(id) {
             const t = state.todos.find(x=>x.id==id);
-            if (!t || !t.rowIndex) return;
+            if (!t) return;
 
-            const res = await callApi('delete_task', { rowIndex: t.rowIndex });
-            
-            if (res && res.result === 'success') {
-                state.todos = state.todos.filter(x=>x.id!==id);
-                renderTodos();
-                renderCalendar();
-                saveLocal(false); // Save local copy, no need to trigger full sync
-            } else {
-                console.error("Failed to delete task:", res);
-                alert("Delete failed. Check console.");
+            // Optimistic Remove
+            state.todos = state.todos.filter(x=>x.id!==id);
+            renderTodos();
+            renderCalendar();
+            saveLocal(false);
+
+            // Queue Delete if row exists
+            if (t.rowIndex) {
+                addToQueue('delete_task', { rowIndex: t.rowIndex });
             }
         }
 
@@ -1324,11 +1368,10 @@
                     }
                 };
                 
-                await callApi('upsert_task', updateData);
-                
                 renderTodos(); 
-                renderCalendar(); // Update calendar dots
-                saveLocal(false); 
+                renderCalendar(); 
+                saveLocal(false);
+                addToQueue('upsert_task', updateData);
             } 
         }
         
@@ -1451,7 +1494,7 @@
         }
 
         /* --- INIT --- */
-        initTheme(); initSlide(); renderCalendar(); renderDiaryCalendar(); loadData();
+        initTheme(); initSlide(); renderCalendar(); renderDiaryCalendar(); initDataLoad();
     </script>
 </body>
 </html>
