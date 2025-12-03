@@ -389,9 +389,15 @@
                     <div class="flex justify-between items-center mb-4 lg:mb-6">
                         <h2 class="text-lg lg:text-xl font-bold text-main flex items-center gap-2">
                             Tasks for <span id="selectedDateTitle" class="text-primary"></span>
+                             <span id="sync-status" class="text-xs font-normal text-muted opacity-0 transition-opacity ml-2">Synced</span>
                         </h2>
                         <div class="flex gap-2">
-                            <button onclick="fetchTasks()" class="text-xs lg:text-sm text-muted hover:text-primary font-medium flex items-center gap-1 bg-card border border-border px-2 py-1 lg:px-3 lg:py-1.5 rounded shadow-sm">
+                            <!-- Push Changes (New) -->
+                            <button onclick="processQueue(true)" class="text-muted hover:text-primary transition-colors p-2 rounded-full hover:bg-primary/10" title="Push Changes Now">
+                                <svg class="w-4 h-4" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                            </button>
+                            <!-- Manual Refresh -->
+                            <button onclick="forceReload()" class="text-xs lg:text-sm text-muted hover:text-primary font-medium flex items-center gap-1 bg-card border border-border px-2 py-1 lg:px-3 lg:py-1.5 rounded shadow-sm">
                                 <svg class="w-3 h-3 lg:w-4 lg:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
                                 Refresh
                             </button>
@@ -499,6 +505,16 @@
                     <div class="theme-option" onclick="setTheme('theme-midnight')" data-theme="theme-midnight"><div class="theme-dot" style="background:#1e1b4b; border-color: #c084fc;"></div> Midnight</div>
                     <div class="theme-option" onclick="setTheme('theme-coffee')" data-theme="theme-coffee"><div class="theme-dot" style="background:#292524; border-color: #d6d3d1;"></div> Coffee</div>
                 </div>
+                
+                 <!-- STORAGE SECTION -->
+                <div class="mt-8 pt-6 border-t border-border">
+                    <h3 class="text-xs font-bold text-muted uppercase tracking-wider mb-2">Data Management</h3>
+                    <button onclick="forceReload()" class="w-full py-2 mb-2 rounded-xl border border-border text-muted text-sm hover:text-main transition-colors flex justify-center items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                        Force Load from Cloud
+                    </button>
+                    <p class="text-[10px] text-muted text-center mb-4">Warning: Overwrites local data</p>
+                </div>
             </div>
         </div>
     </div>
@@ -536,17 +552,23 @@
         let selectedDate = new Date(); // Date object
         let calendarViewDate = new Date(); // Date object for calendar navigation
         let deferredPrompt; // PWA Install Prompt
+        
+        // --- NEW: SYNC QUEUE STATE ---
+        let syncQueue = [];
+        let syncTimer = null;
 
         // --- INIT ---
         window.onload = function() {
             initTheme();
             selectToday();
             updateProgress();
-            fetchTasks();
+            
+            // SMART LOAD (Once a day logic)
+            initDataLoad();
+            
             setInterval(updateProgress, 60000);
             
             if ('serviceWorker' in navigator) {
-                // Check protocol
                 const isSecure = window.location.protocol === 'https:' || window.location.hostname === 'localhost';
                 const isBlob = window.location.protocol === 'blob:';
 
@@ -557,6 +579,113 @@
                 }
             }
         };
+        
+        // --- API WRAPPER ---
+        async function callApi(action, payload = {}) {
+            try {
+                const response = await fetch(GAS_URL, {
+                    method: "POST",
+                    body: JSON.stringify({ action, ...payload })
+                });
+                return await response.json();
+            } catch (error) {
+                console.error("Sync Error:", error);
+                showSyncStatus("Sync Error", true);
+                return null;
+            }
+        }
+        
+        // --- SYNC QUEUE LOGIC ---
+        function addToQueue(action, payload) {
+            // Add to in-memory queue
+            syncQueue.push({ action, payload, timestamp: Date.now() });
+            
+            // Persist queue in case of reload
+            try {
+                localStorage.setItem('qlcSyncQueue', JSON.stringify(syncQueue));
+            } catch (e) {
+                console.warn("Queue too large for LocalStorage (Files included?)", e);
+            }
+            
+            // UI Feedback
+            showSyncStatus("Changes Cached...");
+            
+            // Restart 1-minute debounce timer
+            clearTimeout(syncTimer);
+            syncTimer = setTimeout(() => processQueue(), 60000); // 1 Minute Idle
+        }
+        
+        async function processQueue(force = false) {
+            if (syncQueue.length === 0) return;
+
+            showSyncStatus("Syncing...");
+
+            // Process queue items one by one (FIFO)
+            const queueCopy = [...syncQueue];
+            syncQueue = []; // Clear local queue immediately
+            localStorage.setItem('qlcSyncQueue', JSON.stringify([]));
+
+            try {
+                for (const item of queueCopy) {
+                    await callApi(item.action, item.payload);
+                }
+                
+                showSyncStatus("Synced");
+                setTimeout(() => { document.getElementById('sync-status').style.opacity='0'; }, 2000);
+            } catch (e) {
+                console.error("Queue Processing Error", e);
+                showSyncStatus("Sync Partial Error", true);
+            }
+        }
+        
+        function showSyncStatus(msg, isError = false) {
+            const el = document.getElementById('sync-status');
+            el.textContent = msg;
+            el.style.opacity = '1';
+            el.className = isError ? "text-xs font-bold text-red-500 transition-opacity ml-2" : "text-xs font-normal text-muted transition-opacity ml-2";
+        }
+
+        // --- LOAD STRATEGY ---
+        async function initDataLoad() {
+            const lastFetch = localStorage.getItem('qlc_last_fetch_date');
+            const today = new Date().toDateString();
+            
+            // Load from local storage immediately for UI
+            const cached = localStorage.getItem('qlcAllTasks');
+            if (cached) {
+                allTasks = JSON.parse(cached);
+                renderCalendar();
+                filterAndRenderTasks();
+                updateTaskProgress();
+            }
+
+            // Only fetch from cloud if it's a new day or never fetched
+            if (lastFetch !== today) {
+                console.log("New day detected. Fetching from cloud...");
+                await fetchCloud();
+                localStorage.setItem('qlc_last_fetch_date', today);
+            } else {
+                console.log("Loaded from local cache.");
+                // Check if there is a pending queue
+                const savedQueue = localStorage.getItem('qlcSyncQueue');
+                if (savedQueue) {
+                    syncQueue = JSON.parse(savedQueue);
+                    if (syncQueue.length > 0) processQueue();
+                }
+            }
+        }
+
+        function forceReload() {
+            fetchCloud();
+            localStorage.setItem('qlc_last_fetch_date', new Date().toDateString());
+        }
+        
+        function saveLocal(shouldSync = true) {
+            localStorage.setItem('qlcAllTasks', JSON.stringify(allTasks));
+            // Queue logic handles the syncing, so we don't trigger immediate sync here usually
+            // But if we want to ensure data consistency:
+            // (Queue logic handles individual item updates. Full overwrite saveLocal is just for cache)
+        }
 
         // --- THEME LOGIC ---
         function initTheme() {
@@ -756,45 +885,54 @@
         }
 
         // --- FETCH TASKS ---
-        async function fetchTasks() {
+        async function fetchCloud() {
             const list = document.getElementById('taskList');
-            list.innerHTML = `<div class="flex justify-center py-12"><div class="loader"></div></div>`;
+            // Only show loader if we have NO data
+            if (allTasks.length === 0) {
+                 list.innerHTML = `<div class="flex justify-center py-12"><div class="loader"></div></div>`;
+            }
+            showSyncStatus("Fetching...");
+
             try {
-                const response = await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: "fetch_tasks" }) });
-                const json = await response.json();
-                if (json.result === 'success') {
+                const json = await callApi("fetch_tasks");
+                if (json && json.result === 'success') {
                     const mappedTasks = json.data.map((t, i) => ({
                         ...t,
                         rowIndex: i + 2
                     }));
                     
                     allTasks = mappedTasks.filter(t => t.category === 'QLC');
-                    
+                    saveLocal(false); // Cache results
+
                     renderCalendar();
                     filterAndRenderTasks();
                     updateTaskProgress();
-                } else throw new Error(json.message || "Unknown error");
+                    
+                    showSyncStatus("Synced");
+                    setTimeout(() => { document.getElementById('sync-status').style.opacity='0'; }, 2000);
+                } else {
+                     showSyncStatus("Error Fetching", true);
+                }
             } catch (e) {
                 console.error(e);
                 list.innerHTML = `<div class="bg-red-50 text-red-600 p-4 rounded-lg text-center">Error loading tasks: ${e.message}</div>`;
+                showSyncStatus("Net Error", true);
             }
         }
 
         // --- DELETE TASK ---
         async function deleteTask(rowIndex) {
             if(!confirm("Are you sure you want to delete this task?")) return;
-            try {
-                const response = await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: "delete_task", rowIndex: rowIndex }) });
-                const json = await response.json();
-                if(json.result === 'success') {
-                    showStatus(json.message || 'Task deleted successfully', 'success');
-                    fetchTasks();
-                } else {
-                    throw new Error(json.message);
-                }
-            } catch(e) {
-                showStatus(e.message, 'error');
-            }
+            
+            // 1. Optimistic UI Update
+            allTasks = allTasks.filter(t => t.rowIndex !== rowIndex);
+            renderCalendar();
+            filterAndRenderTasks();
+            updateTaskProgress();
+            saveLocal(false);
+
+            // 2. Queue Server Update
+            addToQueue("delete_task", { rowIndex: rowIndex });
         }
 
         // --- FILTER & RENDER TASKS ---
@@ -886,20 +1024,32 @@
                     category: "QLC" 
                 };
 
-                const response = await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: "upsert_task", task: task, files: filesPayload }) });
-                const result = await response.json();
-                if (result.result === 'success') {
-                    const statusText = result.message || 'Task added successfully';
-                    showStatus(statusText, 'success'); 
-                    
-                    document.getElementById('newTaskTitle').value = "";
-                    document.getElementById('newTaskDesc').value = "";
-                    document.getElementById('newTaskFile1').value = "";
-                    document.getElementById('newTaskFile2').value = "";
-                    fetchTasks();
-                } else throw new Error(result.message);
-            } catch (error) { showStatus(error.message, 'error'); } 
-            finally { btn.disabled = false; btn.innerHTML = originalText; }
+                // 1. Optimistic UI Update
+                allTasks.push({
+                    ...task,
+                    rowIndex: null, // No row index yet
+                    link1: "",
+                    link2: ""
+                });
+                renderCalendar();
+                filterAndRenderTasks();
+                updateTaskProgress();
+                saveLocal(false);
+
+                // 2. Queue Server Update
+                addToQueue("upsert_task", { task: task, files: filesPayload });
+
+                // Reset Form
+                document.getElementById('newTaskTitle').value = "";
+                document.getElementById('newTaskDesc').value = "";
+                document.getElementById('newTaskFile1').value = "";
+                document.getElementById('newTaskFile2').value = "";
+                
+            } catch (error) { 
+                showStatus(error.message, 'error'); 
+            } finally { 
+                btn.disabled = false; btn.innerHTML = originalText; 
+            }
         });
 
         // --- MODAL & SUBMIT ---
@@ -930,7 +1080,7 @@
             const originalText = btn.innerHTML;
             const rowIndex = document.getElementById('modalRowIndex').value;
             btn.disabled = true;
-            btn.innerHTML = `<div class="loader mr-2" style="width:16px;height:16px;border-width:2px;"></div> Uploading...`;
+            btn.innerHTML = `Saving...`;
 
             try {
                 const file1 = document.getElementById('fileInput1').files[0];
@@ -940,27 +1090,40 @@
                 if (file1) filesPayload.push(await toBase64(file1, 1));
                 if (file2) filesPayload.push(await toBase64(file2, 2));
 
+                const taskUpdate = {
+                    status: document.getElementById('modalStatus').value,
+                    text: document.getElementById('modalTitle').value,
+                    description: document.getElementById('modalDesc').value,
+                    category: "QLC" 
+                };
+
                 const payload = {
                     action: "upsert_task",
                     rowIndex: parseInt(rowIndex),
-                    task: {
-                        status: document.getElementById('modalStatus').value,
-                        text: document.getElementById('modalTitle').value,
-                        description: document.getElementById('modalDesc').value,
-                        category: "QLC" 
-                    },
+                    task: taskUpdate,
                     files: filesPayload
                 };
 
-                const response = await fetch(GAS_URL, { method: 'POST', body: JSON.stringify(payload) });
-                const result = await response.json();
-                if (result.result === 'success') {
-                    showStatus(result.message || 'Task updated successfully!', 'success');
-                    closeModal();
-                    fetchTasks();
-                } else throw new Error(result.message);
-            } catch (error) { showStatus('Error: ' + error.message, 'error'); } 
-            finally { btn.disabled = false; btn.innerHTML = originalText; }
+                // 1. Optimistic UI Update
+                const taskIndex = allTasks.findIndex(t => t.rowIndex == rowIndex);
+                if (taskIndex !== -1) {
+                    allTasks[taskIndex] = { ...allTasks[taskIndex], ...taskUpdate };
+                    renderCalendar();
+                    filterAndRenderTasks();
+                    updateTaskProgress();
+                    saveLocal(false);
+                }
+
+                // 2. Queue Server Update
+                // Note: File uploads are queued, which might be risky for large files in localStorage.
+                addToQueue("upsert_task", payload.task ? { task: taskUpdate, rowIndex: parseInt(rowIndex), files: filesPayload } : payload);
+
+                closeModal();
+            } catch (error) { 
+                showStatus('Error: ' + error.message, 'error'); 
+            } finally { 
+                btn.disabled = false; btn.innerHTML = originalText; 
+            }
         }
 
         function toBase64(file, slotNumber) {
