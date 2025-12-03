@@ -114,7 +114,6 @@
             --wave-opacity: 0.05;
         }
 
-        /* NEW THEMES */
         .theme-crimson {
             --bg-color: #000000;
             --card-bg: #18181b;
@@ -160,6 +159,37 @@
             --wave-opacity: 0.05;
         }
 
+        /* NEW THEMES */
+        .theme-sunset {
+            --bg-color: #2a1b1b; /* Dark reddish brown */
+            --card-bg: #451a1a;
+            --text-main: #ffd1b3;
+            --text-muted: #b38b7d;
+            --accent: #f97316; /* Orange-500 */
+            --accent-hover: #ea580c;
+            --border: #7c2d12;
+            --input-bg: #5c2212;
+            --modal-overlay: rgba(42, 27, 27, 0.9);
+            --status-read: #4ade80;
+            --status-unread: #f87171;
+            --wave-opacity: 0.1;
+        }
+
+        .theme-nebula {
+            --bg-color: #110e1b; /* Deep Void */
+            --card-bg: #240b3b; /* Deep Purple */
+            --text-main: #e0e7ff;
+            --text-muted: #a5b4fc;
+            --accent: #d946ef; /* Fuchsia-500 */
+            --accent-hover: #c026d3;
+            --border: #4c1d95;
+            --input-bg: #3b0764;
+            --modal-overlay: rgba(17, 14, 27, 0.9);
+            --status-read: #2dd4bf;
+            --status-unread: #fb7185;
+            --wave-opacity: 0.15;
+        }
+
 
         /* --- 2. GLOBAL STYLES --- */
         body {
@@ -173,43 +203,62 @@
             -webkit-tap-highlight-color: transparent;
         }
         
-        body::before {
+        /* --- BACKGROUND STYLES --- */
+        
+        /* 1. Wavy (Default) */
+        body.bg-wavy::before {
             content: "";
             position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 35vh;
+            bottom: 0; left: 0; right: 0; height: 35vh;
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320'%3E%3Cpath fill='white' d='M0,192L48,197.3C96,203,192,213,288,229.3C384,245,480,267,576,250.7C672,235,768,181,864,181.3C960,181,1056,235,1152,234.7C1248,235,1344,181,1392,154.7L1440,128V320H0Z'%3E%3C/path%3E%3C/svg%3E");
-            background-size: cover;
-            background-repeat: no-repeat;
-            background-position: center bottom;
-            opacity: var(--wave-opacity);
-            pointer-events: none;
-            z-index: 0;
+            background-size: cover; background-repeat: no-repeat; background-position: center bottom;
+            opacity: var(--wave-opacity); pointer-events: none; z-index: 0;
         }
-
-        body::after {
+        body.bg-wavy::after {
             content: "";
             position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 35vh;
+            bottom: 0; left: 0; right: 0; height: 35vh;
             background-color: var(--accent);
             -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320'%3E%3Cpath d='M0,224L48,213.3C96,203,192,181,288,181.3C384,181,480,203,576,224C672,245,768,267,864,261.3C960,256,1056,224,1152,197.3C1248,171,1344,149,1392,138.7L1440,128V320H0Z'%3E%3C/path%3E%3C/svg%3E");
             mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320'%3E%3Cpath d='M0,224L48,213.3C96,203,192,181,288,181.3C384,181,480,203,576,224C672,245,768,267,864,261.3C960,256,1056,224,1152,197.3C1248,171,1344,149,1392,138.7L1440,128V320H0Z'%3E%3C/path%3E%3C/svg%3E");
-            -webkit-mask-size: cover;
-            mask-size: cover;
-            -webkit-mask-position: center bottom;
-            mask-position: center bottom;
-            -webkit-mask-repeat: no-repeat;
-            mask-repeat: no-repeat;
-            opacity: 0.15;
-            pointer-events: none;
-            z-index: 0;
-            transition: background-color var(--transition-speed);
+            -webkit-mask-size: cover; mask-size: cover; -webkit-mask-position: center bottom; mask-position: center bottom;
+            -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
+            opacity: 0.15; pointer-events: none; z-index: 0; transition: background-color var(--transition-speed);
         }
+
+        /* 2. Gradient */
+        body.bg-gradient {
+            background: linear-gradient(135deg, var(--bg-color) 0%, color-mix(in srgb, var(--accent), transparent 90%) 100%);
+            background-attachment: fixed;
+        }
+
+        /* 3. Pixelated */
+        body.bg-pixelated {
+             background-image: 
+                linear-gradient(45deg, var(--card-bg) 25%, transparent 25%, transparent 75%, var(--card-bg) 75%, var(--card-bg)), 
+                linear-gradient(45deg, var(--card-bg) 25%, transparent 25%, transparent 75%, var(--card-bg) 75%, var(--card-bg));
+            background-color: var(--bg-color);
+            background-position: 0 0, 20px 20px;
+            background-size: 40px 40px;
+            opacity: 1;
+        }
+        body.bg-pixelated::before {
+            content: ""; position: absolute; inset: 0;
+            background: radial-gradient(circle at center, transparent 0%, var(--bg-color) 100%);
+            pointer-events: none;
+        }
+
+        /* 4. Starry */
+        body.bg-starry {
+            background-color: var(--bg-color);
+            background-image: 
+                radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 3px),
+                radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 2px),
+                radial-gradient(white, rgba(255,255,255,.1) 2px, transparent 3px);
+            background-size: 550px 550px, 350px 350px, 250px 250px;
+            background-position: 0 0, 40px 60px, 130px 270px;
+        }
+
 
         button { cursor: pointer; font-family: inherit; }
         h2 { font-size: 1.5rem; font-weight: 700; margin-bottom: 0.5rem; }
@@ -450,7 +499,7 @@
         }
     </style>
 </head>
-<body class="theme-dark text-main bg-background">
+<body class="theme-dark bg-wavy text-main bg-background">
 
     <!-- FLOATING ACTION BUTTONS -->
     <div class="fab-container">
@@ -473,12 +522,23 @@
             
             <div class="text-left">
                 <!-- BLUR TOGGLE -->
-                <div class="flex justify-between items-center mb-6 bg-input p-3 rounded-xl border border-border">
+                <div class="flex justify-between items-center mb-4 bg-input p-3 rounded-xl border border-border">
                     <span class="text-main font-bold text-sm">Glass Mode (Blur)</span>
                     <label class="relative inline-flex items-center cursor-pointer">
                         <input type="checkbox" id="blur-toggle" class="sr-only peer" onchange="toggleBlur()">
                         <div class="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
                     </label>
+                </div>
+                
+                <!-- BACKGROUND SELECTOR -->
+                <div class="mb-6">
+                    <label class="text-main font-semibold text-sm uppercase tracking-wider mb-2 block">Background Style</label>
+                    <select id="bg-selector" onchange="setBackground(this.value)" class="w-full bg-input border border-border text-main rounded-xl p-3">
+                        <option value="bg-wavy">Wavy (Default)</option>
+                        <option value="bg-gradient">Gradient</option>
+                        <option value="bg-pixelated">Pixelated</option>
+                        <option value="bg-starry">Starry</option>
+                    </select>
                 </div>
 
                 <!-- THEME SECTION -->
@@ -489,10 +549,12 @@
                     <div class="theme-option" onclick="setTheme('theme-ocean')" data-theme="theme-ocean"><div class="theme-dot" style="background:#0f172a;"></div> Ocean</div>
                     <div class="theme-option" onclick="setTheme('theme-forest')" data-theme="theme-forest"><div class="theme-dot" style="background:#1a2f1a;"></div> Forest</div>
                     
-                    <!-- New Themes -->
                     <div class="theme-option" onclick="setTheme('theme-crimson')" data-theme="theme-crimson"><div class="theme-dot" style="background:#000000; border-color: #dc2626;"></div> Crimson</div>
                     <div class="theme-option" onclick="setTheme('theme-midnight')" data-theme="theme-midnight"><div class="theme-dot" style="background:#1e1b4b; border-color: #c084fc;"></div> Midnight</div>
                     <div class="theme-option" onclick="setTheme('theme-coffee')" data-theme="theme-coffee"><div class="theme-dot" style="background:#292524; border-color: #d6d3d1;"></div> Coffee</div>
+                    <!-- New Themes -->
+                    <div class="theme-option" onclick="setTheme('theme-sunset')" data-theme="theme-sunset"><div class="theme-dot" style="background:#2a1b1b; border-color: #f97316;"></div> Sunset</div>
+                    <div class="theme-option" onclick="setTheme('theme-nebula')" data-theme="theme-nebula"><div class="theme-dot" style="background:#110e1b; border-color: #d946ef;"></div> Nebula</div>
                 </div>
 
                 <!-- STORAGE SECTION -->
@@ -1066,13 +1128,35 @@
 
             if(bmRes && bmRes.result === 'success') {
                 console.log("Bookmarks fetched:", bmRes); // DEBUG LOG
+                
                 if(Array.isArray(bmRes.data)) {
-                    state.bookmarks = bmRes.data.map((b, idx) => ({
-                        id: Date.now() + idx + 1000,
-                        title: b.title,
-                        url: b.url,
-                        status: b.status || 'toread' 
-                    }));
+                    state.bookmarks = bmRes.data.map((b, idx) => {
+                        // ROBUST MAPPING: Handle both Object (JSON) and Array (Rows) formats
+                        let title, url, status;
+                        
+                        if (typeof b === 'object' && !Array.isArray(b)) {
+                            // It's an object {title, url, status}
+                            title = b.title;
+                            url = b.url;
+                            status = b.status;
+                        } else if (Array.isArray(b)) {
+                            // It's a raw row [Title, Url, Status]
+                            title = b[0];
+                            url = b[1];
+                            status = b[2];
+                        }
+                        
+                        // Fallback/Safety
+                        if (!title) title = "Untitled";
+                        if (!url) url = "#";
+                        
+                        return {
+                            id: Date.now() + idx + 1000,
+                            title: String(title), // Force string
+                            url: String(url),
+                            status: status || 'toread'
+                        };
+                    });
                     renderBookmarks();
                 }
             } else {
@@ -1101,14 +1185,35 @@
             const isBlurEnabled = localStorage.getItem('blurEnabled') === 'true';
             document.getElementById('blur-toggle').checked = isBlurEnabled;
             toggleBlur(false); // Apply without saving
+            
+            // New: Init Background
+            const savedBg = localStorage.getItem('appBgStyle') || 'bg-wavy';
+            document.getElementById('bg-selector').value = savedBg;
+            setBackground(savedBg);
         }
+
         function setTheme(theme) {
-            document.body.className = theme + (document.body.classList.contains('blur-enabled') ? ' blur-enabled' : '') + " text-main bg-background";
+            // Preserve other classes (blur, background style)
+            const body = document.body;
+            const currentBg = localStorage.getItem('appBgStyle') || 'bg-wavy';
+            const isBlur = body.classList.contains('blur-enabled');
+            
+            body.className = `${theme} ${currentBg} ${isBlur ? 'blur-enabled' : ''} text-main bg-background`;
+            
             localStorage.setItem('appTheme', theme);
             document.querySelectorAll('.theme-option').forEach(opt => {
                 opt.classList.toggle('active', opt.dataset.theme === theme);
             });
         }
+        
+        function setBackground(style) {
+            // Remove old bg styles
+            document.body.classList.remove('bg-wavy', 'bg-gradient', 'bg-pixelated', 'bg-starry');
+            // Add new
+            document.body.classList.add(style);
+            localStorage.setItem('appBgStyle', style);
+        }
+
         function togglePrefModal() { document.getElementById('pref-modal-overlay').classList.toggle('open'); }
         
         function toggleBlur(save = true) {
