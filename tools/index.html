@@ -161,11 +161,11 @@
 
         /* NEW THEMES */
         .theme-sunset {
-            --bg-color: #2a1b1b; /* Dark reddish brown */
+            --bg-color: #2a1b1b;
             --card-bg: #451a1a;
             --text-main: #ffd1b3;
             --text-muted: #b38b7d;
-            --accent: #f97316; /* Orange-500 */
+            --accent: #f97316;
             --accent-hover: #ea580c;
             --border: #7c2d12;
             --input-bg: #5c2212;
@@ -176,11 +176,11 @@
         }
 
         .theme-nebula {
-            --bg-color: #110e1b; /* Deep Void */
-            --card-bg: #240b3b; /* Deep Purple */
+            --bg-color: #110e1b;
+            --card-bg: #240b3b;
             --text-main: #e0e7ff;
             --text-muted: #a5b4fc;
-            --accent: #d946ef; /* Fuchsia-500 */
+            --accent: #d946ef;
             --accent-hover: #c026d3;
             --border: #4c1d95;
             --input-bg: #3b0764;
@@ -204,20 +204,14 @@
         }
         
         /* --- BACKGROUND STYLES --- */
-        
-        /* 1. Wavy (Default) */
         body.bg-wavy::before {
-            content: "";
-            position: absolute;
-            bottom: 0; left: 0; right: 0; height: 35vh;
+            content: ""; position: absolute; bottom: 0; left: 0; right: 0; height: 35vh;
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320'%3E%3Cpath fill='white' d='M0,192L48,197.3C96,203,192,213,288,229.3C384,245,480,267,576,250.7C672,235,768,181,864,181.3C960,181,1056,235,1152,234.7C1248,235,1344,181,1392,154.7L1440,128V320H0Z'%3E%3C/path%3E%3C/svg%3E");
             background-size: cover; background-repeat: no-repeat; background-position: center bottom;
             opacity: var(--wave-opacity); pointer-events: none; z-index: 0;
         }
         body.bg-wavy::after {
-            content: "";
-            position: absolute;
-            bottom: 0; left: 0; right: 0; height: 35vh;
+            content: ""; position: absolute; bottom: 0; left: 0; right: 0; height: 35vh;
             background-color: var(--accent);
             -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320'%3E%3Cpath d='M0,224L48,213.3C96,203,192,181,288,181.3C384,181,480,203,576,224C672,245,768,267,864,261.3C960,256,1056,224,1152,197.3C1248,171,1344,149,1392,138.7L1440,128V320H0Z'%3E%3C/path%3E%3C/svg%3E");
             mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320'%3E%3Cpath d='M0,224L48,213.3C96,203,192,181,288,181.3C384,181,480,203,576,224C672,245,768,267,864,261.3C960,256,1056,224,1152,197.3C1248,171,1344,149,1392,138.7L1440,128V320H0Z'%3E%3C/path%3E%3C/svg%3E");
@@ -226,13 +220,11 @@
             opacity: 0.15; pointer-events: none; z-index: 0; transition: background-color var(--transition-speed);
         }
 
-        /* 2. Gradient */
         body.bg-gradient {
             background: linear-gradient(135deg, var(--bg-color) 0%, color-mix(in srgb, var(--accent), transparent 90%) 100%);
             background-attachment: fixed;
         }
 
-        /* 3. Pixelated */
         body.bg-pixelated {
              background-image: 
                 linear-gradient(45deg, var(--card-bg) 25%, transparent 25%, transparent 75%, var(--card-bg) 75%, var(--card-bg)), 
@@ -248,7 +240,6 @@
             pointer-events: none;
         }
 
-        /* 4. Starry */
         body.bg-starry {
             background-color: var(--bg-color);
             background-image: 
@@ -259,93 +250,37 @@
             background-position: 0 0, 40px 60px, 130px 270px;
         }
 
-
         button { cursor: pointer; font-family: inherit; }
         h2 { font-size: 1.5rem; font-weight: 700; margin-bottom: 0.5rem; }
 
         /* --- 3. LAYOUT & SLIDER --- */
         #app-container {
-            width: 100vw;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            position: relative;
-            z-index: 1;
+            width: 100vw; height: 100vh; display: flex; flex-direction: column; position: relative; z-index: 1;
         }
+        .slider-track { display: flex; width: 400vw; height: 100%; transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1); }
+        .slide { width: 100vw; flex: 0 0 100vw; height: 100vh; overflow-y: auto; padding: 2rem; padding-bottom: 8rem; box-sizing: border-box; display: flex; justify-content: center; align-items: center; -webkit-overflow-scrolling: touch; }
 
-        .slider-track {
-            display: flex;
-            width: 400vw; /* 4 Slides */
-            height: 100%;
-            transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
-        }
-
-        .slide {
-            width: 100vw;
-            flex: 0 0 100vw; 
-            height: 100vh;
-            overflow-y: auto;
-            padding: 2rem;
-            padding-bottom: 8rem;
-            box-sizing: border-box;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            /* Smooth scrolling for mobile */
-            -webkit-overflow-scrolling: touch;
-        }
-
-        /* --- 4. FABS --- */
-        .fab-container {
-            position: fixed; bottom: 110px; right: 24px;
-            display: flex; flex-direction: column; gap: 16px; z-index: 200; align-items: center;
-        }
-
-        .fab {
-            width: var(--fab-size); height: var(--fab-size); border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3); transition: transform 0.2s; position: relative;
-        }
-
+        /* --- 4. FABS & MODALS --- */
+        .fab-container { position: fixed; bottom: 110px; right: 24px; display: flex; flex-direction: column; gap: 16px; z-index: 200; align-items: center; }
+        .fab { width: var(--fab-size); height: var(--fab-size); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(0,0,0,0.3); transition: transform 0.2s; position: relative; }
         .pomo-fab { background: var(--accent); color: white; }
         .pomo-fab:hover { transform: scale(1.05) rotate(5deg); }
-
         .pref-fab { background: var(--card-bg); color: var(--text-muted); border: 1px solid var(--border); width: 48px; height: 48px; }
         .pref-fab:hover { transform: scale(1.05); color: var(--accent); border-color: var(--accent); }
-
-        .pomo-badge {
-            position: absolute; top: -2px; right: -2px; background: #ef4444; color: white;
-            font-size: 0.7rem; width: 18px; height: 18px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center; opacity: 0;
-            border: 2px solid var(--card-bg);
-        }
+        .pomo-badge { position: absolute; top: -2px; right: -2px; background: #ef4444; color: white; font-size: 0.7rem; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; opacity: 0; border: 2px solid var(--card-bg); }
         .pomo-badge.active { opacity: 1; }
-
-        /* --- 5. MODALS --- */
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: var(--modal-overlay); z-index: 300; display: flex; justify-content: center; align-items: center;
-            opacity: 0; pointer-events: none; transition: opacity 0.3s; backdrop-filter: blur(4px);
-        }
+        
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--modal-overlay); z-index: 300; display: flex; justify-content: center; align-items: center; opacity: 0; pointer-events: none; transition: opacity 0.3s; backdrop-filter: blur(4px); }
         .modal-overlay.open { opacity: 1; pointer-events: auto; }
-
-        .app-modal {
-            background: var(--card-bg); padding: 2rem; border-radius: 24px; width: 90%; max-width: 400px;
-            text-align: center; border: 1px solid var(--border); transform: translateY(20px); transition: transform 0.3s;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-            max-height: 80vh; overflow-y: auto;
-        }
+        .app-modal { background: var(--card-bg); padding: 2rem; border-radius: 24px; width: 90%; max-width: 400px; text-align: center; border: 1px solid var(--border); transform: translateY(20px); transition: transform 0.3s; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); max-height: 80vh; overflow-y: auto; }
         .modal-overlay.open .app-modal { transform: translateY(0); }
-
+        
         .theme-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 1.5rem; }
-        .theme-option {
-            padding: 12px; border-radius: 12px; border: 1px solid var(--border); background: var(--input-bg);
-            cursor: pointer; display: flex; align-items: center; gap: 10px; transition: all 0.2s;
-        }
+        .theme-option { padding: 12px; border-radius: 12px; border: 1px solid var(--border); background: var(--input-bg); cursor: pointer; display: flex; align-items: center; gap: 10px; transition: all 0.2s; }
         .theme-option:hover { border-color: var(--accent); }
         .theme-option.active { border-color: var(--accent); background: var(--accent); color: white; }
         .theme-dot { width: 16px; height: 16px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.2); }
-
+        
         .timer-display { font-size: 4rem; font-weight: 200; margin: 1rem 0; font-variant-numeric: tabular-nums; }
         .duration-input { background: var(--input-bg); border: 1px solid var(--border); color: var(--text-main); padding: 5px; width: 60px; text-align: center; border-radius: 8px; font-size: 1rem; }
 
@@ -356,62 +291,22 @@
         .bento-card { background: var(--card-bg); border-radius: 20px; padding: 1.5rem; border: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; }
         input[type="text"], textarea, input[type="url"], input[type="number"], input[type="date"], select { background: var(--input-bg); border: 1px solid var(--border); color: var(--text-main); padding: 10px; border-radius: 10px; font-family: inherit; }
         
-        /* New Quote Styles */
         .clock-container { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 2rem; }
         .digital-clock { font-size: clamp(4rem, 15vw, 10rem); font-weight: 200; line-height: 1; letter-spacing: -2px; }
         .date-display { font-size: clamp(1rem, 3vw, 1.5rem); color: var(--accent); text-transform: uppercase; letter-spacing: 2px; }
+        .elegant-quote { max-width: 650px; margin-top: 3rem; position: relative; padding: 20px; }
+        .elegant-quote p { font-family: 'Georgia', serif; font-size: 1.5rem; line-height: 1.6; font-style: italic; color: var(--text-main); position: relative; z-index: 10; }
+        .elegant-quote::before { content: '“'; position: absolute; top: -40px; left: 50%; transform: translateX(-50%); font-size: 8rem; font-family: serif; color: var(--accent); opacity: 0.15; z-index: 0; line-height: 1; }
         
-        .elegant-quote {
-            max-width: 650px;
-            margin-top: 3rem;
-            position: relative;
-            padding: 20px;
-        }
-        
-        .elegant-quote p {
-            font-family: 'Georgia', serif;
-            font-size: 1.5rem;
-            line-height: 1.6;
-            font-style: italic;
-            color: var(--text-main);
-            position: relative;
-            z-index: 10;
-        }
-        
-        .elegant-quote::before {
-            content: '“';
-            position: absolute;
-            top: -40px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 8rem;
-            font-family: serif;
-            color: var(--accent);
-            opacity: 0.15;
-            z-index: 0;
-            line-height: 1;
-        }
-
         .task-card { grid-row: span 2; }
         .task-input-area { display: flex; gap: 10px; margin-bottom: 1rem; flex-wrap: wrap; align-items: flex-start; }
         .task-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
-        .task-item { 
-            background: var(--bg-color); padding: 12px; border-radius: 12px; 
-            display: flex; align-items: flex-start; gap: 10px; border: 1px solid var(--border); 
-            cursor: pointer; transition: border-color 0.2s;
-        }
+        .task-item { background: var(--bg-color); padding: 12px; border-radius: 12px; display: flex; align-items: flex-start; gap: 10px; border: 1px solid var(--border); cursor: pointer; transition: border-color 0.2s; }
         .task-item:hover { border-color: var(--accent); }
         .task-item.completed .task-content { text-decoration: line-through; opacity: 0.6; }
         .task-content { flex: 1; min-width: 0; }
-        .task-desc-preview {
-            white-space: nowrap; 
-            overflow: hidden; 
-            text-overflow: ellipsis; 
-            font-size: 0.8em; 
-            opacity: 0.8;
-            width: 100%;
-        }
-
+        .task-desc-preview { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 0.8em; opacity: 0.8; width: 100%; }
+        
         .bm-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; height: 70vh; }
         .bm-column { background: var(--card-bg); border-radius: 20px; padding: 1.5rem; border: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; }
         .bm-header { font-size: 1.2rem; font-weight: bold; margin-bottom: 1rem; display: flex; align-items: center; gap: 8px; color: var(--accent); }
@@ -422,80 +317,43 @@
         .bm-title { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; margin-bottom: 4px; }
         .bm-url { font-size: 0.75rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .bm-actions { display: flex; gap: 5px; }
-        
         .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
         .status-dot.read { background: var(--status-read); }
         .status-dot.unread { background: var(--status-unread); }
-
+        
         svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
         #sync-status { font-size: 0.8rem; color: var(--text-muted); opacity: 0; transition: opacity 0.5s; }
         #sync-status.visible { opacity: 1; }
         
         .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; text-align: center; font-size: 0.85rem; }
-        /* UPDATED: Calendar Day Styles */
         .cal-day { padding: 8px 0; border-radius: 6px; position: relative; cursor: pointer; transition: background-color 0.2s, border-color 0.2s; }
         .cal-day:hover { background-color: var(--input-bg); }
         .cal-day.today { background: var(--accent); color: white; font-weight: bold; }
         .cal-day.selected { border: 2px dashed var(--accent); font-weight: bold; }
-        .cal-day.today.selected { border: 2px solid white; } /* Highlight selection even if today */
-
-        .task-dot {
-            width: 4px; height: 4px; background-color: var(--status-unread);
-            border-radius: 50%; position: absolute; bottom: 4px; left: 50%; transform: translateX(-50%);
-        }
+        .cal-day.today.selected { border: 2px solid white; }
+        .task-dot { width: 4px; height: 4px; background-color: var(--status-unread); border-radius: 50%; position: absolute; bottom: 4px; left: 50%; transform: translateX(-50%); }
+        .cat-badge { font-size: 0.65rem; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; font-weight: bold; letter-spacing: 0.05em; margin-bottom: 2px; display: inline-block; background: var(--input-bg); color: var(--text-muted); }
         
-        .cat-badge {
-            font-size: 0.65rem; padding: 2px 6px; border-radius: 4px; 
-            text-transform: uppercase; font-weight: bold; letter-spacing: 0.05em;
-            margin-bottom: 2px; display: inline-block;
-            background: var(--input-bg); color: var(--text-muted);
-        }
-
-        /* Diary Styles */
         .diary-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; height: 70vh; }
         .diary-editor { background: var(--card-bg); border-radius: 20px; padding: 1.5rem; border: 1px solid var(--border); display: flex; flex-direction: column; }
         .diary-textarea { flex: 1; background: transparent; border: none; resize: none; outline: none; font-size: 1.1rem; line-height: 1.6; color: var(--text-main); }
         .diary-calendar-container { background: var(--card-bg); border-radius: 20px; padding: 1.5rem; border: 1px solid var(--border); }
-
-        /* --- BLUR EFFECT (Glassmorphism) --- */
-        /* Increased transparency to 50% for stronger effect */
-        .blur-enabled .bento-card, 
-        .blur-enabled .bm-column, 
-        .blur-enabled .diary-editor, 
-        .blur-enabled .diary-calendar-container, 
-        .blur-enabled .app-modal,
-        .blur-enabled .task-item,  /* Tasks Card Items */
-        .blur-enabled .bm-item     /* Bookmark Items */
-        {
-            background-color: color-mix(in srgb, var(--card-bg), transparent 50%) !important;
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
         
-        .blur-enabled .nav-btn {
-             text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+        .blur-enabled .bento-card, .blur-enabled .bm-column, .blur-enabled .diary-editor, .blur-enabled .diary-calendar-container, .blur-enabled .app-modal, .blur-enabled .task-item, .blur-enabled .bm-item {
+            background-color: color-mix(in srgb, var(--card-bg), transparent 50%) !important;
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1);
         }
-
+        .blur-enabled .nav-btn { text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
+        
         @media (max-width: 900px) {
             .bento-grid, .bm-grid, .diary-grid { grid-template-columns: 1fr; grid-template-rows: auto; height: auto; }
             .slide { align-items: flex-start; }
             .bento-wrapper { padding-top: 40px; padding-bottom: 150px; }
             .fab-container { bottom: 90px; right: 20px; }
             .task-card { grid-row: auto; }
-            
-            /* FIXED: SCROLLING ISSUE ON MOBILE */
-            .task-list {
-                max-height: none;
-                overflow-y: visible; /* Let the container scroll */
-                flex: none; /* Let it grow */
-            }
+            .task-list { max-height: none; overflow-y: visible; flex: none; }
             .slider-track { height: auto; min-height: 100vh; }
-            .slide { 
-                height: auto; 
-                min-height: 100vh; 
-                overflow-y: visible; 
-            }
+            .slide { height: auto; min-height: 100vh; overflow-y: visible; }
         }
     </style>
 </head>
@@ -570,27 +428,12 @@
                 <!-- INSTALL APP SECTION -->
                 <div class="mt-4 pt-6 border-t border-border">
                      <h3 class="text-main font-semibold text-sm uppercase tracking-wider mb-2">App Install</h3>
-                     
-                     <!-- Generate Icons Button -->
-                     <button onclick="generateIcons()" class="w-full py-2 mb-2 rounded-xl border border-border text-muted text-sm hover:text-main transition-colors flex justify-center items-center gap-2">
-                        <svg style="width:16px;height:16px;" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                        Download Placeholder Icons
-                     </button>
+                     <button onclick="generateIcons()" class="w-full py-2 mb-2 rounded-xl border border-border text-muted text-sm hover:text-main transition-colors flex justify-center items-center gap-2">Download Placeholder Icons</button>
                      <p class="text-[10px] text-muted text-center mb-4">Click above if "Install App" doesn't appear</p>
-
-                     <!-- Install Button (Hidden by default) -->
-                     <button id="install-btn" onclick="installPwa()" class="hidden w-full py-3 rounded-xl bg-primary text-white font-bold hover:opacity-90 transition-colors flex justify-center items-center gap-2 mb-2">
-                        <svg style="width:20px;height:20px;" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                        Install App
-                     </button>
-
-                     <!-- Status / Instructions -->
+                     <button id="install-btn" onclick="installPwa()" class="hidden w-full py-3 rounded-xl bg-primary text-white font-bold hover:opacity-90 transition-colors flex justify-center items-center gap-2 mb-2">Install App</button>
                      <div id="install-status" class="text-xs text-muted mt-2 bg-input p-3 rounded-lg">
                         <p class="mb-1 font-bold">Status: <span id="pwa-status">Checking...</span></p>
-                        <p class="opacity-80">
-                            • Must use HTTPS or Localhost<br>
-                            • iOS: Use Safari > Share > Add to Home Screen
-                        </p>
+                        <p class="opacity-80">• Must use HTTPS or Localhost<br>• iOS: Use Safari > Share > Add to Home Screen</p>
                      </div>
                 </div>
             </div>
@@ -624,7 +467,6 @@
             </div>
             
             <div class="flex flex-col gap-4">
-                <!-- NEW CATEGORY SELECTOR -->
                 <div>
                     <label class="text-xs text-muted font-bold uppercase">Category</label>
                     <select id="modal-task-cat" class="w-full mt-1 bg-input border border-border text-main rounded-lg p-3">
@@ -642,7 +484,6 @@
                     <label class="text-xs text-muted font-bold uppercase">Description</label>
                     <textarea id="modal-task-desc" class="w-full mt-1 bg-input border border-border text-main rounded-lg p-3 h-32 resize-none" placeholder="Add description..."></textarea>
                 </div>
-                <!-- NEW LINKS -->
                 <div>
                     <label class="text-xs text-muted font-bold uppercase">Link 1 (URL)</label>
                     <input type="url" id="modal-task-link1" class="w-full mt-1 bg-input border border-border text-main rounded-lg p-3" placeholder="https://">
@@ -663,45 +504,33 @@
 
     <!-- MAIN APP CONTAINER -->
     <div id="app-container">
-        
-        <!-- NAV DOCK (Icon Only) -->
+        <!-- NAV DOCK -->
         <nav class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-card/90 backdrop-blur-md border border-border shadow-2xl rounded-full px-6 py-3 flex gap-8 items-center transition-all duration-300">
-            <!-- Bookmarks -->
             <button onclick="goToSlide(0)" class="nav-btn group flex flex-col items-center justify-center gap-1 text-muted hover:text-primary transition-colors" data-slide="0" title="Bookmarks">
                 <svg class="w-6 h-6 group-hover:scale-110 transition-transform" viewBox="0 0 24 24"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
             </button>
-            <!-- Focus -->
             <button onclick="goToSlide(1)" class="nav-btn group flex flex-col items-center justify-center gap-1 text-muted hover:text-primary transition-colors" data-slide="1" title="Focus">
                 <div class="bg-primary/10 p-2 rounded-full group-hover:bg-primary/20 transition-colors">
                     <svg class="w-6 h-6 text-primary group-hover:scale-110 transition-transform" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                 </div>
             </button>
-            <!-- Dashboard -->
             <button onclick="goToSlide(2)" class="nav-btn group flex flex-col items-center justify-center gap-1 text-muted hover:text-primary transition-colors" data-slide="2" title="Dashboard">
                 <svg class="w-6 h-6 group-hover:scale-110 transition-transform" viewBox="0 0 24 24"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
             </button>
-            <!-- Diary (New) -->
             <button onclick="goToSlide(3)" class="nav-btn group flex flex-col items-center justify-center gap-1 text-muted hover:text-primary transition-colors" data-slide="3" title="Diary">
                 <svg class="w-6 h-6 group-hover:scale-110 transition-transform" viewBox="0 0 24 24"><path d="M2 6h4"/><path d="M2 10h4"/><path d="M2 14h4"/><path d="M2 18h4"/><rect width="16" height="20" x="4" y="2" rx="2"/><path d="M16 2v20"/><path d="M9.5 10a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1Z"/><path d="M15 10a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1Z"/><path d="M9.5 14a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1Z"/><path d="M15 14a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1Z"/></svg>
             </button>
         </nav>
 
         <div class="slider-track" id="sliderTrack">
-            
             <!-- SLIDE 0: Bookmarks -->
             <div class="slide" id="slide-0">
                 <div class="bento-wrapper">
                     <div class="bento-header text-primary">
                         <h2>Bookmark Manager</h2>
                         <div class="flex gap-2">
-                             <!-- Push Changes (New) -->
-                            <button onclick="processQueue(true)" class="text-muted hover:text-primary transition-colors p-2 rounded-full hover:bg-primary/10" title="Push Changes Now">
-                                <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                            </button>
-                            <!-- Manual Refresh -->
-                            <button onclick="forceReload()" class="text-muted hover:text-primary transition-colors p-2 rounded-full hover:bg-primary/10" title="Pull Data (Refresh)">
-                                <svg viewBox="0 0 24 24"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>
-                            </button>
+                            <button onclick="processQueue(true)" class="text-muted hover:text-primary transition-colors p-2 rounded-full hover:bg-primary/10" title="Push Changes Now"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></button>
+                            <button onclick="forceReload()" class="text-muted hover:text-primary transition-colors p-2 rounded-full hover:bg-primary/10" title="Pull Data (Refresh)"><svg viewBox="0 0 24 24"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg></button>
                         </div>
                     </div>
                     <div class="mb-6 flex gap-3 flex-wrap">
@@ -725,14 +554,9 @@
             <!-- SLIDE 1: Clock -->
             <div class="slide" id="slide-1">
                 <div class="clock-container relative">
-                    <!-- Manual Refresh (Subtle) -->
-                    <button onclick="forceReload()" class="absolute -top-10 right-0 text-muted hover:text-primary transition-colors p-2 opacity-50 hover:opacity-100" title="Pull Data">
-                         <svg viewBox="0 0 24 24"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>
-                    </button>
-
+                    <button onclick="forceReload()" class="absolute -top-10 right-0 text-muted hover:text-primary transition-colors p-2 opacity-50 hover:opacity-100" title="Pull Data"><svg viewBox="0 0 24 24"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg></button>
                     <div class="digital-clock text-main animate-pulse" id="clock">00:00:00</div>
                     <div class="date-display text-primary tracking-[0.2em]" id="date">Loading...</div>
-                    
                     <div class="elegant-quote animate-fade-in">
                         <p id="quote-text">Loading inspiration...</p>
                         <span class="block text-right text-sm font-bold text-muted mt-4 uppercase tracking-widest" id="quote-author"></span>
@@ -746,20 +570,12 @@
                     <div class="bento-header flex justify-between items-center mb-4">
                         <h2 class="text-primary">Dashboard <span id="sync-status" class="text-muted text-sm opacity-0">Synced</span></h2>
                         <div class="flex gap-2">
-                            <!-- Push Changes (New) -->
-                            <button onclick="processQueue(true)" class="text-muted hover:text-primary transition-colors p-2 rounded-full hover:bg-primary/10" title="Push Changes Now">
-                                <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                            </button>
-                            <!-- Manual Refresh -->
-                            <button onclick="forceReload()" class="text-muted hover:text-primary transition-colors p-2 rounded-full hover:bg-primary/10" title="Pull Data (Refresh)">
-                                <svg viewBox="0 0 24 24"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>
-                            </button>
+                            <button onclick="processQueue(true)" class="text-muted hover:text-primary transition-colors p-2 rounded-full hover:bg-primary/10" title="Push Changes Now"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></button>
+                            <button onclick="forceReload()" class="text-muted hover:text-primary transition-colors p-2 rounded-full hover:bg-primary/10" title="Pull Data (Refresh)"><svg viewBox="0 0 24 24"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg></button>
                         </div>
                     </div>
                     <div class="bento-grid">
-                        <!-- Tasks -->
                         <div class="bento-card task-card">
-                            <!-- DATE NAVIGATOR -->
                             <div class="flex items-center justify-between mb-4 pb-2 border-b border-border">
                                 <button onclick="changeDate(-1)" class="text-muted hover:text-primary"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button>
                                 <div class="flex items-center gap-2">
@@ -769,24 +585,19 @@
                                 </div>
                                 <button onclick="changeDate(1)" class="text-muted hover:text-primary"><svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></button>
                             </div>
-                            <!-- INPUT (Only for Adding) -->
                             <div class="task-input-area">
-                                <!-- New Category Dropdown -->
                                 <select id="quick-task-cat" class="w-24 bg-input border border-border text-main rounded-lg p-3 text-sm focus:outline-none focus:border-primary transition-colors">
                                     <option value="Personal">Personal</option>
                                     <option value="QLC">QLC</option>
                                     <option value="Work">Work</option>
                                     <option value="Health">Health</option>
                                 </select>
-                                
                                 <input type="text" id="task-title-in" placeholder="New Task..." class="flex-[2]" onkeypress="handleTaskInput(event)">
                                 <button class="bg-primary text-white px-4 py-2 rounded-lg font-bold shadow-lg shadow-primary/30 hover:opacity-90" onclick="addTask()">Add</button>
                             </div>
-                            <!-- LIST -->
                             <div class="task-list" id="task-list"></div>
                         </div>
 
-                        <!-- Calendar (Right Column Top) -->
                         <div class="bento-card">
                             <div class="calendar-header flex justify-between mb-4 font-bold text-primary">
                                 <span onclick="changeMonth(-1)" class="cursor-pointer hover:scale-125 transition-transform">&lt;</span>
@@ -796,29 +607,23 @@
                             <div class="calendar-grid text-sm" id="calendar-days"></div>
                         </div>
 
-                        <!-- Notes (Right Column Bottom) -->
                         <div class="bento-card relative">
                             <textarea id="quick-notes" class="notes-area w-full h-full bg-transparent border-none outline-none resize-none p-2" placeholder="Quick notes..."></textarea>
-                            <div class="absolute bottom-2 right-2 opacity-50 pointer-events-none">
-                                <svg class="w-4 h-4" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
-                            </div>
+                            <div class="absolute bottom-2 right-2 opacity-50 pointer-events-none"><svg class="w-4 h-4" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- SLIDE 3: Diary (New) -->
+            <!-- SLIDE 3: Diary -->
             <div class="slide" id="slide-3">
                 <div class="bento-wrapper">
                     <div class="bento-header flex justify-between items-center mb-4">
                         <h2 class="text-primary">My Diary</h2>
-                         <!-- Manual Refresh -->
-                        <button onclick="processQueue(true)" class="text-muted hover:text-primary transition-colors p-2 rounded-full hover:bg-primary/10" title="Push Changes Now">
-                            <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                        </button>
-                        <button onclick="forceReload()" class="text-muted hover:text-primary transition-colors p-2 rounded-full hover:bg-primary/10" title="Pull Data (Refresh)">
-                            <svg viewBox="0 0 24 24"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>
-                        </button>
+                        <div class="flex gap-2">
+                             <button onclick="processQueue(true)" class="text-muted hover:text-primary transition-colors p-2 rounded-full hover:bg-primary/10" title="Push Changes Now"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></button>
+                             <button onclick="forceReload()" class="text-muted hover:text-primary transition-colors p-2 rounded-full hover:bg-primary/10" title="Pull Data (Refresh)"><svg viewBox="0 0 24 24"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg></button>
+                        </div>
                     </div>
                     <div class="diary-grid">
                         <div class="diary-editor">
@@ -863,104 +668,58 @@
         /* --- PWA INSTALL LOGIC --- */
         let deferredPrompt;
         const statusEl = document.getElementById('pwa-status');
-
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', async () => {
                 const isSecure = window.location.protocol === 'https:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
                 const isBlob = window.location.protocol === 'blob:';
-                
                 if (isSecure && !isBlob) {
                     try {
                         await navigator.serviceWorker.register('sw.js');
                         console.log('SW Registered');
                         if (statusEl.innerText === "Checking...") statusEl.innerText = "Service Worker Active. Waiting for prompt...";
-                    } catch (err) {
-                        console.log('SW Registration Failed:', err);
-                        statusEl.innerText = "SW Failed: " + err.message;
-                    }
-                } else {
-                    console.log('PWA features disabled: Not running on a secure HTTP/HTTPS server.');
-                    statusEl.innerText = "PWA Disabled (Preview/File Mode)";
-                }
+                    } catch (err) { console.log('SW Registration Failed:', err); statusEl.innerText = "SW Failed: " + err.message; }
+                } else { console.log('PWA features disabled.'); statusEl.innerText = "PWA Disabled (Preview/File Mode)"; }
             });
         }
-
         window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            document.getElementById('install-btn').classList.remove('hidden');
-            statusEl.innerText = "Ready to Install";
+            e.preventDefault(); deferredPrompt = e;
+            document.getElementById('install-btn').classList.remove('hidden'); statusEl.innerText = "Ready to Install";
         });
-
         window.addEventListener('appinstalled', () => {
-             document.getElementById('install-btn').classList.add('hidden');
-             statusEl.innerText = "App Installed";
-             deferredPrompt = null;
+             document.getElementById('install-btn').classList.add('hidden'); statusEl.innerText = "App Installed"; deferredPrompt = null;
         });
-
         async function installPwa() {
             if (!deferredPrompt) return;
-            deferredPrompt.prompt();
-            const { outcome } = await deferredPrompt.userChoice;
-            console.log(`User response to the install prompt: ${outcome}`);
-            deferredPrompt = null;
+            deferredPrompt.prompt(); const { outcome } = await deferredPrompt.userChoice;
+            console.log(`User response: ${outcome}`); deferredPrompt = null;
         }
-        
         function generateIcons() {
             const sizes = [192, 512];
             sizes.forEach(size => {
-                const canvas = document.createElement('canvas');
-                canvas.width = size;
-                canvas.height = size;
-                const ctx = canvas.getContext('2d');
-                const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#bb86fc';
-                ctx.fillStyle = accent;
-                ctx.beginPath();
-                ctx.arc(size/2, size/2, size/2, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.fillStyle = 'white';
-                ctx.font = `bold ${size/2}px sans-serif`;
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
+                const canvas = document.createElement('canvas'); canvas.width = size; canvas.height = size;
+                const ctx = canvas.getContext('2d'); const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#bb86fc';
+                ctx.fillStyle = accent; ctx.beginPath(); ctx.arc(size/2, size/2, size/2, 0, Math.PI * 2); ctx.fill();
+                ctx.fillStyle = 'white'; ctx.font = `bold ${size/2}px sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
                 ctx.fillText('F', size/2, size/2 + (size * 0.05)); 
-                canvas.toBlob(blob => {
-                    const link = document.createElement('a');
-                    link.download = `icon-${size}.png`;
-                    link.href = URL.createObjectURL(blob);
-                    link.click();
-                }, 'image/png');
+                canvas.toBlob(blob => { const link = document.createElement('a'); link.download = `icon-${size}.png`; link.href = URL.createObjectURL(blob); link.click(); }, 'image/png');
             });
-            alert("Icons downloaded!\n\nMove 'icon-192.png' and 'icon-512.png' to your project folder.\nThen refresh this page.");
+            alert("Icons downloaded! Move 'icon-192.png' and 'icon-512.png' to your project folder then refresh.");
         }
-        
-        if (window.matchMedia('(display-mode: standalone)').matches) {
-            statusEl.innerText = "Running as App";
-        }
+        if (window.matchMedia('(display-mode: standalone)').matches) statusEl.innerText = "Running as App";
 
         /* --- STATE --- */
         let state = { 
-            todos: [], 
-            notes: "", 
-            bookmarks: [], 
-            diary: {}, 
-            quotes: [], 
-            currentDate: new Date(),
-            selectedDateString: new Date().toISOString().split('T')[0], 
-            diaryDateString: new Date().toISOString().split('T')[0], 
-            diaryViewDate: new Date(), 
-            editingId: null,
-            syncQueue: [] // Queue for offline/delayed writes
+            todos: [], notes: "", bookmarks: [], diary: {}, quotes: [], 
+            currentDate: new Date(), selectedDateString: new Date().toISOString().split('T')[0], 
+            diaryDateString: new Date().toISOString().split('T')[0], diaryViewDate: new Date(), 
+            editingId: null, syncQueue: [] 
         };
-        let currentSlideIndex = 1;
-        let syncTimer = null; // Debounce timer
+        let currentSlideIndex = 1; let syncTimer = null;
 
         /* --- API & SYNC --- */
         async function callApi(action, payload = {}) {
             try {
-                const response = await fetch(CONFIG.API_URL, {
-                    method: "POST",
-                    body: JSON.stringify({ action, ...payload })
-                });
+                const response = await fetch(CONFIG.API_URL, { method: "POST", body: JSON.stringify({ action, ...payload }) });
                 return await response.json();
             } catch (error) {
                 console.error("Sync Error:", error);
@@ -971,292 +730,95 @@
             }
         }
 
-        // --- NEW: SYNC QUEUE SYSTEM ---
         function addToQueue(action, payload) {
-            // Add to in-memory queue
             state.syncQueue.push({ action, payload, timestamp: Date.now() });
-            
-            // Persist queue in case of reload
             localStorage.setItem('syncQueue', JSON.stringify(state.syncQueue));
-            
-            // UI Feedback
-            const statusEl = document.getElementById('sync-status');
-            statusEl.innerText = "Changes Cached...";
-            statusEl.style.opacity = '1';
-            
-            // Restart 1-minute debounce timer
-            clearTimeout(syncTimer);
-            syncTimer = setTimeout(() => processQueue(), 60000); // 1 Minute Idle
+            const statusEl = document.getElementById('sync-status'); statusEl.innerText = "Changes Cached..."; statusEl.style.opacity = '1';
+            clearTimeout(syncTimer); syncTimer = setTimeout(() => processQueue(), 60000);
         }
 
         async function processQueue(force = false) {
             if (state.syncQueue.length === 0) return;
-
-            document.getElementById('sync-status').innerText = "Syncing...";
-            document.getElementById('sync-status').style.opacity = '1';
-
-            // Process queue items one by one (FIFO) to maintain order
-            // Note: In a production app, we might batch these, but GAS api is atomic for now
-            const queueCopy = [...state.syncQueue];
-            state.syncQueue = []; // Clear local queue immediately to prevent double processing
+            document.getElementById('sync-status').innerText = "Syncing..."; document.getElementById('sync-status').style.opacity = '1';
+            const queueCopy = [...state.syncQueue]; state.syncQueue = []; 
             localStorage.setItem('syncQueue', JSON.stringify([]));
-
             try {
-                for (const item of queueCopy) {
-                    await callApi(item.action, item.payload);
-                }
-                
-                // Also trigger bulk sync for notes/diary/bookmarks
+                for (const item of queueCopy) await callApi(item.action, item.payload);
                 await syncBulkData();
-
                 document.getElementById('sync-status').innerText = "Synced";
                 setTimeout(() => { document.getElementById('sync-status').style.opacity='0'; }, 2000);
             } catch (e) {
                 console.error("Queue Processing Error", e);
-                // On error, put items back? For now, we log it. Simple retry logic could be added here.
                 document.getElementById('sync-status').innerText = "Sync Partial Error";
             }
         }
 
-        // Bulk sync for non-atomic items (Notes, Bookmarks, Diary)
         async function syncBulkData() {
-            const cloudBookmarks = state.bookmarks.map(b => ({
-                title: b.title,
-                url: b.url,
-                status: b.status
-            }));
-            
-            const cloudDiary = Object.keys(state.diary).map(dateKey => ({
-                date: dateKey,
-                content: state.diary[dateKey]
-            }));
-
+            const cloudBookmarks = state.bookmarks.map(b => ({ title: b.title, url: b.url, status: b.status }));
+            const cloudDiary = Object.keys(state.diary).map(dateKey => ({ date: dateKey, content: state.diary[dateKey] }));
             await Promise.allSettled([
                 callApi('sync_notes', { noteContent: state.notes }),
                 callApi('push_bookmarks', { bookmarks: cloudBookmarks }),
                 callApi('push_daily_notes', { notes: cloudDiary })
             ]);
         }
-        
-        // This function acts as the "Push" for everything non-task related
-        function triggerSync() {
-            addToQueue('bulk_sync_trigger', {}); // Dummy action to trigger debounce
-        }
+        function triggerSync() { addToQueue('bulk_sync_trigger', {}); }
 
-        /* --- LOAD STRATEGY (Once a day) --- */
         async function initDataLoad() {
-            const lastFetch = localStorage.getItem('last_fetch_date');
-            const today = new Date().toDateString();
-            
-            // Load local data first for immediate UI
+            const lastFetch = localStorage.getItem('last_fetch_date'); const today = new Date().toDateString();
             loadData();
-
-            // Fetch from cloud if:
-            // 1. It's a new day
-            // 2. OR if local bookmark data is completely empty (User likely has data on cloud but no local cache)
             if (lastFetch !== today || state.bookmarks.length === 0) {
-                console.log("Fetching from cloud (New day or empty local data)...");
-                await fetchCloud();
-                localStorage.setItem('last_fetch_date', today);
+                console.log("Fetching from cloud..."); await fetchCloud(); localStorage.setItem('last_fetch_date', today);
             } else {
-                console.log("Loaded from local cache (Policy: Once a day).");
-                // Check if there is a pending queue from previous session
+                console.log("Loaded from local cache.");
                 const savedQueue = localStorage.getItem('syncQueue');
-                if (savedQueue) {
-                    state.syncQueue = JSON.parse(savedQueue);
-                    if (state.syncQueue.length > 0) processQueue();
-                }
+                if (savedQueue) { state.syncQueue = JSON.parse(savedQueue); if (state.syncQueue.length > 0) processQueue(); }
             }
         }
-        
-        function forceReload() {
-            fetchCloud();
-            localStorage.setItem('last_fetch_date', new Date().toDateString());
-        }
-
-        async function fetchCloud() {
-            document.getElementById('sync-status').innerText = "Fetching...";
-            document.getElementById('sync-status').style.opacity = '1';
-
-            // STAGE 1: Fetch TASKS Only (Priority)
-            try {
-                const taskRes = await callApi('fetch_tasks');
-                if(taskRes && taskRes.result === 'success') {
-                    state.todos = taskRes.data.map((t, i) => ({
-                        id: Date.now() + i + Math.random(),
-                        title: t.text,
-                        desc: t.description,
-                        category: t.category,
-                        completed: (t.status === "Selesai" || t.status === true || t.status === "TRUE"),
-                        date: t.date,
-                        rowIndex: i + 2, 
-                        link1: t.link1 || "",
-                        link2: t.link2 || ""
-                    }));
-                    renderTodos();
-                    renderCalendar();
-                }
-            } catch (e) { console.error("Task fetch failed", e); }
-
-            // STAGE 2: Fetch Background Data (Bookmarks, Diary, Quotes, Notes)
-            // We use Promise.allSettled to ensure one failure doesn't stop the others
-            // and we do it AFTER tasks are loaded to keep UI responsive.
-            const results = await Promise.allSettled([
-                callApi('fetch_notes'),
-                callApi('fetch_quotes'),
-                callApi('fetch_bookmarks'),
-                callApi('fetch_daily_notes')
-            ]);
-
-            const noteRes = results[0].status === 'fulfilled' ? results[0].value : null;
-            const quoteRes = results[1].status === 'fulfilled' ? results[1].value : null;
-            const bmRes   = results[2].status === 'fulfilled' ? results[2].value : null;
-            const diaryRes= results[3].status === 'fulfilled' ? results[3].value : null;
-
-            if(noteRes && noteRes.result === 'success') {
-                state.notes = noteRes.data;
-                document.getElementById('quick-notes').value = state.notes;
-            }
-
-            if(quoteRes && quoteRes.result === 'success') {
-                state.quotes = quoteRes.data; 
-                fetchQuote(); 
-            } else {
-                // If API failed, ensure we still show a quote
-                fetchQuote();
-            }
-
-            if(bmRes && bmRes.result === 'success') {
-                console.log("Bookmarks fetched:", bmRes); // DEBUG LOG
-                
-                if(Array.isArray(bmRes.data)) {
-                    state.bookmarks = bmRes.data.map((b, idx) => {
-                        // ROBUST MAPPING: Handle both Object (JSON) and Array (Rows) formats
-                        let title, url, status;
-                        
-                        if (typeof b === 'object' && !Array.isArray(b)) {
-                            // It's an object {title, url, status}
-                            title = b.title;
-                            url = b.url;
-                            status = b.status;
-                        } else if (Array.isArray(b)) {
-                            // It's a raw row [Title, Url, Status]
-                            title = b[0];
-                            url = b[1];
-                            status = b[2];
-                        }
-                        
-                        // Fallback/Safety
-                        if (!title) title = "Untitled";
-                        if (!url) url = "#";
-                        
-                        return {
-                            id: Date.now() + idx + 1000,
-                            title: String(title), // Force string
-                            url: String(url),
-                            status: status || 'toread'
-                        };
-                    });
-                    renderBookmarks();
-                }
-            } else {
-                console.warn("Bookmark fetch failed or returned empty", bmRes);
-            }
-
-            if(diaryRes && diaryRes.result === 'success') {
-                state.diary = {};
-                diaryRes.data.forEach(d => {
-                    state.diary[d.date] = d.content;
-                });
-                renderDiary();
-            }
-
-            saveLocal(false); // Save fetched data but don't trigger sync
-            
-            document.getElementById('sync-status').innerText = "Synced";
-            setTimeout(() => { document.getElementById('sync-status').style.opacity='0'; }, 2000);
-        }
+        function forceReload() { fetchCloud(); localStorage.setItem('last_fetch_date', new Date().toDateString()); }
 
         /* --- THEME & PREFS --- */
         function initTheme() {
-            const savedTheme = localStorage.getItem('appTheme') || 'theme-dark';
-            setTheme(savedTheme);
-            
-            const isBlurEnabled = localStorage.getItem('blurEnabled') === 'true';
-            document.getElementById('blur-toggle').checked = isBlurEnabled;
-            toggleBlur(false); // Apply without saving
-            
-            // New: Init Background
-            const savedBg = localStorage.getItem('appBgStyle') || 'bg-wavy';
-            document.getElementById('bg-selector').value = savedBg;
-            setBackground(savedBg);
+            const savedTheme = localStorage.getItem('appTheme') || 'theme-dark'; setTheme(savedTheme);
+            const isBlurEnabled = localStorage.getItem('blurEnabled') === 'true'; document.getElementById('blur-toggle').checked = isBlurEnabled; toggleBlur(false);
+            const savedBg = localStorage.getItem('appBgStyle') || 'bg-wavy'; document.getElementById('bg-selector').value = savedBg; setBackground(savedBg);
         }
-
         function setTheme(theme) {
-            // Preserve other classes (blur, background style)
-            const body = document.body;
-            const currentBg = localStorage.getItem('appBgStyle') || 'bg-wavy';
-            const isBlur = body.classList.contains('blur-enabled');
-            
+            const body = document.body; const currentBg = localStorage.getItem('appBgStyle') || 'bg-wavy'; const isBlur = body.classList.contains('blur-enabled');
             body.className = `${theme} ${currentBg} ${isBlur ? 'blur-enabled' : ''} text-main bg-background`;
-            
             localStorage.setItem('appTheme', theme);
-            document.querySelectorAll('.theme-option').forEach(opt => {
-                opt.classList.toggle('active', opt.dataset.theme === theme);
-            });
+            document.querySelectorAll('.theme-option').forEach(opt => { opt.classList.toggle('active', opt.dataset.theme === theme); });
         }
-        
         function setBackground(style) {
-            // Remove old bg styles
             document.body.classList.remove('bg-wavy', 'bg-gradient', 'bg-pixelated', 'bg-starry');
-            // Add new
-            document.body.classList.add(style);
-            localStorage.setItem('appBgStyle', style);
+            document.body.classList.add(style); localStorage.setItem('appBgStyle', style);
         }
-
         function togglePrefModal() { document.getElementById('pref-modal-overlay').classList.toggle('open'); }
-        
         function toggleBlur(save = true) {
             const isChecked = document.getElementById('blur-toggle').checked;
-            if(isChecked) {
-                document.body.classList.add('blur-enabled');
-            } else {
-                document.body.classList.remove('blur-enabled');
-            }
+            if(isChecked) document.body.classList.add('blur-enabled'); else document.body.classList.remove('blur-enabled');
             if(save) localStorage.setItem('blurEnabled', isChecked);
         }
 
         /* --- CLOCK --- */
         setInterval(() => {
-            const now = new Date();
-            document.getElementById('clock').innerText = now.toLocaleTimeString('en-US', { hour12: false });
+            const now = new Date(); document.getElementById('clock').innerText = now.toLocaleTimeString('en-US', { hour12: false });
             document.getElementById('date').innerText = now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
         }, 1000);
 
         /* --- NAVIGATION --- */
         function initSlide() {
-            const track = document.getElementById('sliderTrack');
-            track.style.transition = 'none'; 
-            track.style.transform = `translateX(-100vw)`;
-            updateNavState();
-            setTimeout(() => { track.style.transition = 'transform 0.6s cubic-bezier(0.25, 1, 0.5, 1)'; }, 100);
+            const track = document.getElementById('sliderTrack'); track.style.transition = 'none'; track.style.transform = `translateX(-100vw)`;
+            updateNavState(); setTimeout(() => { track.style.transition = 'transform 0.6s cubic-bezier(0.25, 1, 0.5, 1)'; }, 100);
         }
         function goToSlide(index) {
-            if (index >= 0 && index <= 3) {
-                currentSlideIndex = index;
-                const track = document.getElementById('sliderTrack');
-                track.style.transform = `translateX(-${currentSlideIndex * 100}vw)`;
-                updateNavState();
-            }
+            if (index >= 0 && index <= 3) { currentSlideIndex = index; document.getElementById('sliderTrack').style.transform = `translateX(-${currentSlideIndex * 100}vw)`; updateNavState(); }
         }
         function updateNavState() {
             document.querySelectorAll('.nav-btn').forEach(btn => {
                 const slideIdx = parseInt(btn.getAttribute('data-slide'));
-                if(slideIdx === currentSlideIndex) {
-                    btn.classList.add('text-primary'); btn.classList.remove('text-muted');
-                } else {
-                    btn.classList.remove('text-primary'); btn.classList.add('text-muted');
-                }
+                if(slideIdx === currentSlideIndex) { btn.classList.add('text-primary'); btn.classList.remove('text-muted'); } 
+                else { btn.classList.remove('text-primary'); btn.classList.add('text-muted'); }
             });
         }
 
@@ -1269,10 +831,7 @@
             if (pomoTimeLeft === 0 || !pomoInterval) { pomoTimeLeft = parseInt(document.getElementById('pomo-duration').value) * 60; }
             if (Notification.permission !== "granted") Notification.requestPermission();
             isPomoRunning = true; document.getElementById('btn-pomo-start').innerText = "Pause"; document.getElementById('pomo-badge').classList.add('active');
-            pomoInterval = setInterval(() => {
-                pomoTimeLeft--; document.getElementById('pomo-timer-display').innerText = formatTime(pomoTimeLeft);
-                if (pomoTimeLeft <= 0) completePomodoro();
-            }, 1000);
+            pomoInterval = setInterval(() => { pomoTimeLeft--; document.getElementById('pomo-timer-display').innerText = formatTime(pomoTimeLeft); if (pomoTimeLeft <= 0) completePomodoro(); }, 1000);
         }
         function resetPomodoro() { clearInterval(pomoInterval); isPomoRunning = false; pomoTimeLeft = parseInt(document.getElementById('pomo-duration').value) * 60; document.getElementById('pomo-timer-display').innerText = formatTime(pomoTimeLeft); document.getElementById('btn-pomo-start').innerText = "Start"; document.getElementById('pomo-badge').classList.remove('active'); pomoInterval = null; }
         function completePomodoro() { resetPomodoro(); playAlarmSound(); if (Notification.permission === "granted") new Notification("Time is up!"); else alert("Time is up!"); }
@@ -1285,34 +844,128 @@
 
         /* --- DATA MANAGEMENT --- */
         function loadData() {
-            const t = localStorage.getItem('myTodos');
-            if(t) state.todos = JSON.parse(t);
-            const b = localStorage.getItem('myBookmarks');
-            if(b) state.bookmarks = JSON.parse(b);
-            const d = localStorage.getItem('myDiary');
-            if(d) state.diary = JSON.parse(d);
-            
-            state.notes = localStorage.getItem('myNotes') || "";
-            document.getElementById('quick-notes').value = state.notes;
-            
-            updateDateLabel();
-            renderTodos();
-            renderBookmarks();
-            renderDiary();
-            renderDiaryCalendar();
-            fetchQuote();
+            const t = localStorage.getItem('myTodos'); if(t) state.todos = JSON.parse(t);
+            const b = localStorage.getItem('myBookmarks'); if(b) state.bookmarks = JSON.parse(b);
+            const d = localStorage.getItem('myDiary'); if(d) state.diary = JSON.parse(d);
+            state.notes = localStorage.getItem('myNotes') || ""; document.getElementById('quick-notes').value = state.notes;
+            updateDateLabel(); renderTodos(); renderBookmarks(); renderDiary(); renderDiaryCalendar(); fetchQuote();
         }
-
         function saveLocal(shouldSync = true) {
-            localStorage.setItem('myTodos', JSON.stringify(state.todos));
-            localStorage.setItem('myBookmarks', JSON.stringify(state.bookmarks));
-            localStorage.setItem('myNotes', state.notes);
-            localStorage.setItem('myDiary', JSON.stringify(state.diary));
-            
+            localStorage.setItem('myTodos', JSON.stringify(state.todos)); localStorage.setItem('myBookmarks', JSON.stringify(state.bookmarks));
+            localStorage.setItem('myNotes', state.notes); localStorage.setItem('myDiary', JSON.stringify(state.diary));
             if(shouldSync) triggerSync();
         }
 
-        /* --- BOOKMARKS --- */
+        /* --- HELPER FUNCTIONS FOR FETCH (FIXED) --- */
+        async function fetchCloud() {
+            document.getElementById('sync-status').innerText = "Fetching...";
+            document.getElementById('sync-status').style.opacity = '1';
+            
+            // 1. FETCH TASKS
+            try {
+                const taskRes = await callApi('fetch_tasks');
+                console.log("Raw Task Data:", taskRes); // DEBUG LOG
+                
+                if(taskRes && taskRes.result === 'success' && Array.isArray(taskRes.data)) {
+                    state.todos = taskRes.data.map((t, i) => {
+                        // Robust Parsing: Handle Array (Row) OR Object (JSON)
+                        let text, desc, status, dateVal, cat, link1, link2;
+                        
+                        if (Array.isArray(t)) {
+                             // Row Format: [Date, Status, Category, Title, Desc, Link1, Link2]
+                             dateVal = t[0]; status = t[1]; cat = t[2]; text = t[3]; desc = t[4]; link1 = t[5]; link2 = t[6];
+                        } else {
+                             // Object Format
+                             text = t.text || t.title; desc = t.description || t.desc; status = t.status; dateVal = t.date; cat = t.category; link1 = t.link1; link2 = t.link2;
+                        }
+
+                        // Date Normalization
+                        let dateStr = state.selectedDateString; 
+                        try { 
+                            if(dateVal) {
+                                let d = new Date(dateVal);
+                                if(!isNaN(d.getTime())) dateStr = d.toISOString().split('T')[0];
+                            }
+                        } catch(e) { console.warn("Date parse error", e); }
+                        
+                        return { 
+                            id: Date.now() + i + Math.random(), 
+                            title: text || "Untitled", 
+                            desc: desc || "", 
+                            category: cat || "Personal", 
+                            completed: (status === "Selesai" || status === true || status === "TRUE"), 
+                            date: dateStr, 
+                            rowIndex: i + 2, 
+                            link1: link1 || "", 
+                            link2: link2 || "" 
+                        };
+                    });
+                    renderTodos(); renderCalendar();
+                }
+            } catch (e) { console.error("Task fetch failed completely", e); }
+
+            // 2. FETCH OTHERS
+            const results = await Promise.allSettled([ 
+                callApi('fetch_notes'), 
+                callApi('fetch_quotes'), 
+                callApi('fetch_bookmarks'), 
+                callApi('fetch_daily_notes') 
+            ]);
+            
+            const noteRes = results[0].status === 'fulfilled' ? results[0].value : null;
+            const quoteRes = results[1].status === 'fulfilled' ? results[1].value : null;
+            const bmRes   = results[2].status === 'fulfilled' ? results[2].value : null;
+            const diaryRes= results[3].status === 'fulfilled' ? results[3].value : null;
+
+            // NOTES FIX: Ensure string
+            if(noteRes && noteRes.result === 'success') { 
+                state.notes = String(noteRes.data || ""); 
+                document.getElementById('quick-notes').value = state.notes; 
+            }
+
+            // QUOTES
+            if(quoteRes && quoteRes.result === 'success') { state.quotes = quoteRes.data; fetchQuote(); } else { fetchQuote(); }
+            
+            // BOOKMARKS
+            if(bmRes && bmRes.result === 'success' && Array.isArray(bmRes.data)) {
+                state.bookmarks = bmRes.data.map((b, idx) => {
+                    let title, url, status;
+                    if (Array.isArray(b)) { title = b[0]; url = b[1]; status = b[2]; } 
+                    else { title = b.title; url = b.url; status = b.status; }
+                    return { id: Date.now() + idx + 1000, title: String(title || "Untitled"), url: String(url || "#"), status: status || 'toread' };
+                });
+                renderBookmarks();
+            }
+
+            // DIARY FIX: Date Normalization
+            if(diaryRes && diaryRes.result === 'success') {
+                state.diary = {};
+                if(Array.isArray(diaryRes.data)) { 
+                    diaryRes.data.forEach(d => { 
+                        let rawDate = d.date || d[0];
+                        let content = d.content || d[1];
+                        let dateKey = null;
+                        
+                        // Parse Date
+                        try {
+                            if(rawDate) {
+                                let dt = new Date(rawDate);
+                                if(!isNaN(dt.getTime())) dateKey = dt.toISOString().split('T')[0];
+                            }
+                        } catch(e) {}
+                        
+                        if(dateKey && content) state.diary[dateKey] = content; 
+                    }); 
+                }
+                renderDiary();
+            }
+
+            saveLocal(false);
+            document.getElementById('sync-status').innerText = "Synced";
+            setTimeout(() => { document.getElementById('sync-status').style.opacity='0'; }, 2000);
+        }
+
+        /* --- BOOKMARKS UI --- */
         function addBookmark() {
             const titleIn = document.getElementById('bm-title-in'); const urlIn = document.getElementById('bm-url-in');
             const title = titleIn.value.trim(); const url = urlIn.value.trim();
@@ -1323,366 +976,145 @@
         function renderBookmarks() {
             const toReadList = document.getElementById('list-toread'); const readList = document.getElementById('list-read');
             toReadList.innerHTML = ''; readList.innerHTML = '';
-            
-            if(state.bookmarks.length === 0) {
-                 toReadList.innerHTML = '<div class="text-center text-muted text-xs p-4 italic">No bookmarks found. Add one locally or Pull from cloud.</div>';
-                 return;
-            }
-
+            if(state.bookmarks.length === 0) { toReadList.innerHTML = '<div class="text-center text-muted text-xs p-4 italic">No bookmarks found. Add one locally or Pull from cloud.</div>'; return; }
             state.bookmarks.forEach(bm => {
                 const el = document.createElement('div'); el.className = 'bm-item';
-                const actionBtn = bm.status === 'toread' 
-                    ? `<button onclick="toggleBookmark('${bm.id}')" title="Mark Read" class="text-status-read hover:scale-110 transition-transform"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></button>`
-                    : `<button onclick="toggleBookmark('${bm.id}')" title="Mark Unread" class="text-muted hover:scale-110 transition-transform"><svg viewBox="0 0 24 24"><path d="M12.5 8c-2.65 0-5.05.99-6.9 2.6L2 7v9h9l-3.62-3.62c1.39-1.16 3.16-1.88 5.12-1.88 3.54 0 6.55 2.31 7.6 5.5l2.37-.78C21.08 11.03 17.15 8 12.5 8z"/></svg></button>`;
-                el.innerHTML = `
-                    <div class="bm-content"><a href="${bm.url}" target="_blank" class="bm-title">${bm.title}</a><div class="bm-url">${bm.url}</div></div>
-                    <div class="bm-actions">${actionBtn}<button onclick="delBookmark('${bm.id}')" class="text-status-unread hover:scale-110 transition-transform"><svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></button></div>`;
+                const actionBtn = bm.status === 'toread' ? `<button onclick="toggleBookmark('${bm.id}')" title="Mark Read" class="text-status-read hover:scale-110 transition-transform"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></button>` : `<button onclick="toggleBookmark('${bm.id}')" title="Mark Unread" class="text-muted hover:scale-110 transition-transform"><svg viewBox="0 0 24 24"><path d="M12.5 8c-2.65 0-5.05.99-6.9 2.6L2 7v9h9l-3.62-3.62c1.39-1.16 3.16-1.88 5.12-1.88 3.54 0 6.55 2.31 7.6 5.5l2.37-.78C21.08 11.03 17.15 8 12.5 8z"/></svg></button>`;
+                el.innerHTML = `<div class="bm-content"><a href="${bm.url}" target="_blank" class="bm-title">${bm.title}</a><div class="bm-url">${bm.url}</div></div><div class="bm-actions">${actionBtn}<button onclick="delBookmark('${bm.id}')" class="text-status-unread hover:scale-110 transition-transform"><svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></button></div>`;
                 if(bm.status === 'toread') toReadList.appendChild(el); else readList.appendChild(el);
             });
         }
         window.toggleBookmark = (id) => { const bm = state.bookmarks.find(b => b.id == id); if(bm) { bm.status = bm.status === 'toread' ? 'read' : 'toread'; renderBookmarks(); saveLocal(); } }
         window.delBookmark = (id) => { if(confirm("Delete bookmark?")) { state.bookmarks = state.bookmarks.filter(b => b.id != id); renderBookmarks(); saveLocal(); } }
 
-        /* --- DATE & TODO LOGIC --- */
+        /* --- DATE & TODO UI --- */
         function updateDateLabel() {
-            const today = new Date().toISOString().split('T')[0];
-            const disp = document.getElementById('display-date-label');
-            if(state.selectedDateString === today) disp.innerText = "Today";
-            else disp.innerText = state.selectedDateString;
+            const today = new Date().toISOString().split('T')[0]; const disp = document.getElementById('display-date-label');
+            if(state.selectedDateString === today) disp.innerText = "Today"; else disp.innerText = state.selectedDateString;
             document.getElementById('date-picker').value = state.selectedDateString;
         }
+        window.changeDate = (delta) => { const d = new Date(state.selectedDateString); d.setDate(d.getDate() + delta); state.selectedDateString = d.toISOString().split('T')[0]; updateDateLabel(); renderTodos(); renderCalendar(); }
+        window.pickDate = (val) => { if(val) { state.selectedDateString = val; updateDateLabel(); renderTodos(); renderCalendar(); } }
 
-        window.changeDate = (delta) => {
-            const d = new Date(state.selectedDateString);
-            d.setDate(d.getDate() + delta);
-            state.selectedDateString = d.toISOString().split('T')[0];
-            updateDateLabel();
-            renderTodos();
-            renderCalendar(); // Re-render calendar to show selection change
-        }
-
-        window.pickDate = (val) => {
-            if(val) { 
-                state.selectedDateString = val; 
-                updateDateLabel(); 
-                renderTodos(); 
-                renderCalendar(); // Update calendar UI to show selection
-            }
-        }
-
-        // Add task now uses upsert_task with Category
         async function addTask() {
-            const t = document.getElementById('task-title-in'); 
-            const cat = document.getElementById('quick-task-cat');
-            const title = t.value.trim();
+            const t = document.getElementById('task-title-in'); const cat = document.getElementById('quick-task-cat'); const title = t.value.trim();
             if(!title) return;
-
-            const newCat = cat.value || "Personal"; 
-            const newTaskData = {
-                status: "Belum",
-                category: newCat,
-                text: title,
-                description: "",
-                date: state.selectedDateString
-            };
-
-            // 1. Update UI Locally First (Optimistic)
-            state.todos.unshift({ 
-                id: Date.now(), 
-                title: title, 
-                desc: "", 
-                category: newCat,
-                completed: false, 
-                date: state.selectedDateString, 
-                rowIndex: null, // No row index yet
-                link1: "",
-                link2: ""
-            });
-            t.value = ''; 
-            renderTodos(); 
-            renderCalendar();
-            saveLocal(false); // Save to LS, don't trigger bulk sync
-
-            // 2. Queue the server update
-            addToQueue('upsert_task', { task: newTaskData });
+            const newCat = cat.value || "Personal"; const newTaskData = { status: "Belum", category: newCat, text: title, description: "", date: state.selectedDateString };
+            state.todos.unshift({ id: Date.now(), title: title, desc: "", category: newCat, completed: false, date: state.selectedDateString, rowIndex: null, link1: "", link2: "" });
+            t.value = ''; renderTodos(); renderCalendar(); saveLocal(false); addToQueue('upsert_task', { task: newTaskData });
         }
+        function handleTaskInput(e) { if(e.key === 'Enter') addTask(); }
 
-        function handleTaskInput(e) {
-            if(e.key === 'Enter') {
-                addTask();
-            }
-        }
-
-        /* --- TASK REORDERING LOGIC --- */
         function moveTask(id, direction, e) {
-            if(e) e.stopPropagation(); // Prevent opening modal
-            // Find current task in list of ALL tasks
-            const allIndex = state.todos.findIndex(t => t.id === id);
-            if(allIndex === -1) return;
-            
-            // Get visible filtered list
-            const currentTask = state.todos[allIndex];
-            const filtered = state.todos.filter(t => t.date === state.selectedDateString);
-            const visibleIndex = filtered.findIndex(t => t.id === id);
-
-            if(visibleIndex === -1) return;
-            
-            const targetVisibleIndex = visibleIndex + direction;
-            
-            // Check bounds in visible list
-            if(targetVisibleIndex < 0 || targetVisibleIndex >= filtered.length) return;
-            
-            // Get the ID of the neighbor we are swapping with
-            const neighborId = filtered[targetVisibleIndex].id;
-            const neighborAllIndex = state.todos.findIndex(t => t.id === neighborId);
-            
-            // Swap in main array
-            const temp = state.todos[allIndex];
-            state.todos[allIndex] = state.todos[neighborAllIndex];
-            state.todos[neighborAllIndex] = temp;
-            
-            // NOTE: Reordering locally is immediate. Cloud sync happens on next autosave or item update.
-            renderTodos();
-            saveLocal(); 
+            if(e) e.stopPropagation();
+            const allIndex = state.todos.findIndex(t => t.id === id); if(allIndex === -1) return;
+            const filtered = state.todos.filter(t => t.date === state.selectedDateString); const visibleIndex = filtered.findIndex(t => t.id === id); if(visibleIndex === -1) return;
+            const targetVisibleIndex = visibleIndex + direction; if(targetVisibleIndex < 0 || targetVisibleIndex >= filtered.length) return;
+            const neighborId = filtered[targetVisibleIndex].id; const neighborAllIndex = state.todos.findIndex(t => t.id === neighborId);
+            const temp = state.todos[allIndex]; state.todos[allIndex] = state.todos[neighborAllIndex]; state.todos[neighborAllIndex] = temp;
+            renderTodos(); saveLocal();
         }
 
         function renderTodos() {
-            const el = document.getElementById('task-list');
-            const filtered = state.todos.filter(t => t.date === state.selectedDateString);
+            const el = document.getElementById('task-list'); const filtered = state.todos.filter(t => t.date === state.selectedDateString);
             el.innerHTML = filtered.map((t, idx) => `
                 <div class="task-item ${t.completed?'completed':''}" onclick="openTaskModal(${t.id})">
                     <input type="checkbox" ${t.completed?'checked':''} onclick="event.stopPropagation()" onchange="toggle(${t.id})" class="accent-primary w-5 h-5 mt-1">
-                    <div class="task-content">
-                        <div class="cat-badge">${t.category || 'Personal'}</div>
-                        <div style="font-weight:600">${t.title}</div>
-                        <div class="task-desc-preview">${t.desc || ""}</div>
-                    </div>
+                    <div class="task-content"><div class="cat-badge">${t.category || 'Personal'}</div><div style="font-weight:600">${t.title}</div><div class="task-desc-preview">${t.desc || ""}</div></div>
                     <div class="flex flex-col gap-1 mr-2" onclick="event.stopPropagation()">
                         <button onclick="moveTask(${t.id}, -1, event)" class="text-muted hover:text-primary p-0.5" title="Move Up" ${idx===0 ? 'style="opacity:0.3;pointer-events:none"':''}><svg class="w-4 h-4" viewBox="0 0 24 24"><path d="M18 15l-6-6-6 6"/></svg></button>
                         <button onclick="moveTask(${t.id}, 1, event)" class="text-muted hover:text-primary p-0.5" title="Move Down" ${idx===filtered.length-1 ? 'style="opacity:0.3;pointer-events:none"':''}><svg class="w-4 h-4" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button>
                     </div>
-                    <!-- Inline Delete uses new async logic -->
                     <button onclick="event.stopPropagation(); del(${t.id})" class="text-muted hover:text-status-unread p-1"><svg viewBox="0 0 24 24" style="width:18px;height:18px;"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
                 </div>
             `).join('');
         }
 
-        /* --- TASK MODAL LOGIC --- */
+        /* --- TASK MODAL --- */
         let editingTaskId = null;
-
         function openTaskModal(id) {
-            const t = state.todos.find(x => x.id === id);
-            if (!t) return;
-            
+            const t = state.todos.find(x => x.id === id); if (!t) return;
             editingTaskId = id;
-            document.getElementById('modal-task-title').value = t.title;
-            document.getElementById('modal-task-desc').value = t.desc;
-            document.getElementById('modal-task-link1').value = t.link1;
-            document.getElementById('modal-task-link2').value = t.link2;
+            document.getElementById('modal-task-title').value = t.title; document.getElementById('modal-task-desc').value = t.desc;
+            document.getElementById('modal-task-link1').value = t.link1; document.getElementById('modal-task-link2').value = t.link2;
             document.getElementById('modal-task-cat').value = t.category || "Personal";
-            
             document.getElementById('task-modal-overlay').classList.add('open');
         }
-
-        function closeTaskModal() {
-            document.getElementById('task-modal-overlay').classList.remove('open');
-            editingTaskId = null;
-        }
-
+        function closeTaskModal() { document.getElementById('task-modal-overlay').classList.remove('open'); editingTaskId = null; }
         async function saveTaskFromModal() {
             if (!editingTaskId) return;
-            const t = state.todos.find(x => x.id === editingTaskId);
-            if (!t) return;
-
-            // 1. Update local state
-            t.title = document.getElementById('modal-task-title').value;
-            t.desc = document.getElementById('modal-task-desc').value;
-            t.link1 = document.getElementById('modal-task-link1').value;
-            t.link2 = document.getElementById('modal-task-link2').value;
+            const t = state.todos.find(x => x.id === editingTaskId); if (!t) return;
+            t.title = document.getElementById('modal-task-title').value; t.desc = document.getElementById('modal-task-desc').value;
+            t.link1 = document.getElementById('modal-task-link1').value; t.link2 = document.getElementById('modal-task-link2').value;
             t.category = document.getElementById('modal-task-cat').value;
-
-            // 2. Queue Update
-            const updateData = {
-                rowIndex: t.rowIndex, // Send the row index for update (if exists)
-                task: {
-                    status: t.completed ? "Selesai" : "Belum",
-                    category: t.category,
-                    text: t.title,
-                    description: t.desc,
-                    link1: t.link1,
-                    link2: t.link2
-                }
-            };
-            
-            renderTodos();
-            saveLocal(false);
-            addToQueue('upsert_task', updateData);
-            closeTaskModal();
+            const updateData = { rowIndex: t.rowIndex, task: { status: t.completed ? "Selesai" : "Belum", category: t.category, text: t.title, description: t.desc, link1: t.link1, link2: t.link2 } };
+            renderTodos(); saveLocal(false); addToQueue('upsert_task', updateData); closeTaskModal();
         }
-        
-        // Core delete function using the new GAS API
         async function deleteTask(id) {
-            const t = state.todos.find(x=>x.id==id);
-            if (!t) return;
-
-            // Optimistic Remove
-            state.todos = state.todos.filter(x=>x.id!==id);
-            renderTodos();
-            renderCalendar();
-            saveLocal(false);
-
-            // Queue Delete if row exists
-            if (t.rowIndex) {
-                addToQueue('delete_task', { rowIndex: t.rowIndex });
-            }
+            const t = state.todos.find(x=>x.id==id); if (!t) return;
+            state.todos = state.todos.filter(x=>x.id!==id); renderTodos(); renderCalendar(); saveLocal(false);
+            if (t.rowIndex) addToQueue('delete_task', { rowIndex: t.rowIndex });
         }
-
-        function deleteTaskFromModal() {
-            if (editingTaskId && confirm("Delete this task?")) {
-                deleteTask(editingTaskId); 
-                closeTaskModal();
-            }
-        }
-
-        // Toggle uses upsert to push status change immediately
+        function deleteTaskFromModal() { if (editingTaskId && confirm("Delete this task?")) { deleteTask(editingTaskId); closeTaskModal(); } }
         window.toggle = async (id) => { 
             const t = state.todos.find(x=>x.id==id); 
-            if(t){ 
-                t.completed=!t.completed; 
-                
-                // Immediate push of status change
-                const updateData = {
-                    rowIndex: t.rowIndex,
-                    task: {
-                        status: t.completed ? "Selesai" : "Belum",
-                        category: t.category,
-                        text: t.title,
-                        description: t.desc,
-                        link1: t.link1,
-                        link2: t.link2
-                    }
-                };
-                
-                renderTodos(); 
-                renderCalendar(); 
-                saveLocal(false);
-                addToQueue('upsert_task', updateData);
+            if(t){ t.completed=!t.completed; 
+                const updateData = { rowIndex: t.rowIndex, task: { status: t.completed ? "Selesai" : "Belum", category: t.category, text: t.title, description: t.desc, link1: t.link1, link2: t.link2 } };
+                renderTodos(); renderCalendar(); saveLocal(false); addToQueue('upsert_task', updateData);
             } 
         }
-        
-        window.del = (id) => { 
-            if (confirm("Delete task?")) {
-                deleteTask(id);
-            }
-        }
-        
-        document.getElementById('quick-notes').addEventListener('input', (e) => { 
-            state.notes = e.target.value; localStorage.setItem('myNotes', state.notes); triggerSync();
-        });
+        window.del = (id) => { if (confirm("Delete task?")) deleteTask(id); }
+        document.getElementById('quick-notes').addEventListener('input', (e) => { state.notes = e.target.value; localStorage.setItem('myNotes', state.notes); triggerSync(); });
 
-        /* --- DIARY LOGIC --- */
-        document.getElementById('diary-content').addEventListener('input', (e) => {
-            state.diary[state.diaryDateString] = e.target.value;
-            saveLocal();
-        });
-
+        /* --- DIARY UI --- */
+        document.getElementById('diary-content').addEventListener('input', (e) => { state.diary[state.diaryDateString] = e.target.value; saveLocal(); });
         function renderDiary() {
-            const content = state.diary[state.diaryDateString] || "";
-            document.getElementById('diary-content').value = content;
-            
-            const today = new Date().toISOString().split('T')[0];
-            const label = document.getElementById('diary-date-label');
-            if(state.diaryDateString === today) label.innerText = "Today";
-            else label.innerText = state.diaryDateString;
-
-            // Highlight calendar
+            const content = state.diary[state.diaryDateString] || ""; document.getElementById('diary-content').value = content;
+            const today = new Date().toISOString().split('T')[0]; const label = document.getElementById('diary-date-label');
+            if(state.diaryDateString === today) label.innerText = "Today"; else label.innerText = state.diaryDateString;
             renderDiaryCalendar();
         }
-
         function renderDiaryCalendar() {
             const y = state.diaryViewDate.getFullYear(), m = state.diaryViewDate.getMonth();
-            document.getElementById('diary-cal-month-year').innerText = new Date(y, m).toLocaleString('default', {month:'long', year:'numeric'});
             const fd = new Date(y, m, 1).getDay(), dim = new Date(y, m+1, 0).getDate();
             const el = document.getElementById('diary-calendar-days'); el.innerHTML = '';
-            
-            // Empty slots
             for(let i=0; i<fd; i++) el.innerHTML += `<div></div>`;
-            
             for(let i=1; i<=dim; i++) {
-                // Construct date string YYYY-MM-DD
                 const currentDateStr = `${y}-${String(m+1).padStart(2,'0')}-${String(i).padStart(2,'0')}`;
-                
                 let classes = "cal-day cursor-pointer hover:bg-input transition-colors";
-                
-                // Highlight if selected
-                if(currentDateStr === state.diaryDateString) classes += " bg-primary text-white font-bold";
-                // Highlight if has entry
-                else if(state.diary[currentDateStr]) classes += " border border-primary";
-
+                if(currentDateStr === state.diaryDateString) classes += " bg-primary text-white font-bold"; else if(state.diary[currentDateStr]) classes += " border border-primary";
                 el.innerHTML += `<div class="${classes}" onclick="pickDiaryDate('${currentDateStr}')">${i}</div>`;
             }
         }
+        window.changeDiaryMonth = (delta) => { state.diaryViewDate.setMonth(state.diaryViewDate.getMonth() + delta); renderDiaryCalendar(); }
+        window.pickDiaryDate = (dateStr) => { state.diaryDateString = dateStr; renderDiary(); }
 
-        window.changeDiaryMonth = (delta) => {
-            state.diaryViewDate.setMonth(state.diaryViewDate.getMonth() + delta);
-            renderDiaryCalendar();
-        }
-
-        window.pickDiaryDate = (dateStr) => {
-            state.diaryDateString = dateStr;
-            renderDiary();
-        }
-
-        /* --- CALENDAR (DASHBOARD) --- */
+        /* --- CALENDAR UI --- */
         function renderCalendar() {
             const y = state.currentDate.getFullYear(), m = state.currentDate.getMonth();
             document.getElementById('cal-month-year').innerText = new Date(y, m).toLocaleString('default', {month:'long', year:'numeric'});
             const fd = new Date(y, m, 1).getDay(), dim = new Date(y, m+1, 0).getDate();
             const el = document.getElementById('calendar-days'); el.innerHTML = '';
-            
             for(let i=0; i<fd; i++) el.innerHTML += `<div></div>`;
             const today = new Date();
-            
             for(let i=1; i<=dim; i++) {
                 const isToday = (i===today.getDate() && m===today.getMonth() && y===today.getFullYear());
                 const dateStr = `${y}-${String(m+1).padStart(2,'0')}-${String(i).padStart(2,'0')}`;
-                
-                // Check if this date is the selected date
                 const isSelected = (dateStr === state.selectedDateString);
-
-                // Check if there are uncompleted tasks for this specific date
                 const hasPendingTasks = state.todos.some(t => t.date === dateStr && !t.completed);
-                
-                let dotHtml = '';
-                if(hasPendingTasks) {
-                    dotHtml = '<div class="task-dot"></div>';
-                }
-
-                // Build CSS classes
-                let classes = "cal-day";
-                if (isToday) classes += " today";
-                if (isSelected) classes += " selected";
-
+                let dotHtml = hasPendingTasks ? '<div class="task-dot"></div>' : '';
+                let classes = "cal-day"; if (isToday) classes += " today"; if (isSelected) classes += " selected";
                 el.innerHTML += `<div class="${classes}" onclick="pickDate('${dateStr}')">${i}${dotHtml}</div>`;
             }
         }
         window.changeMonth = (d) => { state.currentDate.setMonth(state.currentDate.getMonth()+d); renderCalendar(); }
-
-        /* --- QUOTE --- */
         async function fetchQuote() {
-            // 1. Try to load from local state (synced from DB)
             if (state.quotes && state.quotes.length > 0) {
                 const rand = state.quotes[Math.floor(Math.random() * state.quotes.length)];
-                document.getElementById('quote-text').innerText = `"${rand.quote}"`;
-                document.getElementById('quote-author').innerText = `- ${rand.author}`;
-                return;
+                document.getElementById('quote-text').innerText = `"${rand.quote}"`; document.getElementById('quote-author').innerText = `- ${rand.author}`; return;
             }
-
-            // 2. Fallback to LOCAL constant (fastest, guaranteed)
-            // Removed api.quotable.io because it is often down/slow
             const rand = LOCAL_QUOTES[Math.floor(Math.random() * LOCAL_QUOTES.length)];
-            document.getElementById('quote-text').innerText = `"${rand.quote}"`;
-            document.getElementById('quote-author').innerText = `- ${rand.author}`;
+            document.getElementById('quote-text').innerText = `"${rand.quote}"`; document.getElementById('quote-author').innerText = `- ${rand.author}`;
         }
 
         /* --- INIT --- */
