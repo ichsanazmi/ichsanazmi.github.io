@@ -545,7 +545,7 @@
 
     <script>
         // --- CONFIGURATION ---
-        const GAS_URL = "https://script.google.com/macros/s/AKfycbz8y5ena3plYJoXwotwT-NakjvI23JB6y59Qo0R4jpV8JOj4tWEDIpKQJSvX1I2tII4/exec";
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbz8y5ena3plYJoXwotwT-NakjvI23JB6y59Qo0R4jpV8JOj4tWEDIpKQJSvX1I2tII4/exec"; // <--- User must change this
 
         // --- STATE VARIABLES ---
         let allTasks = [];
@@ -582,11 +582,26 @@
         
         // --- API WRAPPER ---
         async function callApi(action, payload = {}) {
+            if (GAS_URL === "YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL" || !GAS_URL) {
+                showStatus("Error: backend URL not set. Please edit the code.", "error");
+                return null;
+            }
+
             try {
+                // Using text/plain to avoid CORS preflight options request which GAS often fails on
                 const response = await fetch(GAS_URL, {
                     method: "POST",
+                    headers: {
+                      "Content-Type": "text/plain;charset=utf-8", 
+                    },
+                    redirect: "follow",
                     body: JSON.stringify({ action, ...payload })
                 });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
                 return await response.json();
             } catch (error) {
                 console.error("Sync Error:", error);
@@ -899,6 +914,12 @@
 
             try {
                 const json = await callApi("fetch_tasks");
+                // If API returns null due to missing URL, just stop loading but don't error out
+                if (json === null) {
+                    list.innerHTML = `<div class="text-center py-12 text-muted">Backend not connected. Check console or setup.</div>`;
+                    return;
+                }
+                
                 console.log("QLC Raw:", json);
 
                 if (json && json.result === 'success' && Array.isArray(json.data)) {
