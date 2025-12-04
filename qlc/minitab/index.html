@@ -265,9 +265,17 @@
                 <div class="flex justify-between items-center mb-2 px-1">
                     <h2 class="text-lg font-semibold flex items-center gap-2">
                         Prayer Times 
-                        <span class="text-xs font-normal opacity-70 bg-custom-card px-2 py-0.5 rounded-full border border-custom-border" id="prayer-location-badge">
+                        <span class="text-xs font-normal opacity-70 bg-custom-card px-2 py-0.5 rounded-full border border-custom-border flex items-center" id="prayer-location-badge">
                             <svg class="w-3 h-3 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                             <span id="prayer-city-display">Locating...</span>
+                            
+                            <!-- Manual Location Refresh Button -->
+                            <button onclick="refreshLocation()" class="ml-2 p-1 rounded-full hover:bg-black/10 transition flex items-center justify-center text-custom-text opacity-70 hover:opacity-100" title="Detect Location">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                </svg>
+                            </button>
                         </span>
                     </h2>
                 </div>
@@ -572,32 +580,62 @@
         // --- Prayer Times ---
         
         function handleManualCityChange(city) {
+            // Manual City Override takes precedence over GPS
             localStorage.setItem('prayer-city-override', city);
+            // Clear GPS data to avoid confusion
+            localStorage.removeItem('prayer-lat');
+            localStorage.removeItem('prayer-lng');
             fetchPrayerTimesByCity(city);
         }
 
         async function initPrayerTimes() {
-            // Check for manual override first
+            // 1. Check Manual City Override first
             const overrideCity = localStorage.getItem('prayer-city-override');
             if (overrideCity) {
                 fetchPrayerTimesByCity(overrideCity);
                 return;
             }
 
-            // Default: Try Geolocation
+            // 2. Check Saved GPS Coords (The "Only Once" Logic)
+            const savedLat = localStorage.getItem('prayer-lat');
+            const savedLng = localStorage.getItem('prayer-lng');
+            if (savedLat && savedLng) {
+                document.getElementById('prayer-city-display').textContent = 'Saved Location';
+                fetchPrayerTimesByCoords(savedLat, savedLng);
+                return;
+            }
+
+            // 3. Fallback: Trigger Auto-detect if nothing is saved
+            refreshLocation(); 
+        }
+
+        function refreshLocation() {
+            // Manual or Initial Trigger for Geolocation
             if (navigator.geolocation) {
                 document.getElementById('prayer-city-display').textContent = 'Locating...';
                 navigator.geolocation.getCurrentPosition(
                     (position) => {
-                        fetchPrayerTimesByCoords(position.coords.latitude, position.coords.longitude);
+                        // SUCCESS: Save coords to localStorage so we don't ask again next time
+                        const lat = position.coords.latitude;
+                        const lng = position.coords.longitude;
+                        localStorage.setItem('prayer-lat', lat);
+                        localStorage.setItem('prayer-lng', lng);
+                        
+                        // Clear any manual city override
+                        localStorage.removeItem('prayer-city-override'); 
+                        
+                        document.getElementById('prayer-city-display').textContent = 'Detected Location';
+                        fetchPrayerTimesByCoords(lat, lng);
                     },
                     (error) => {
-                        console.warn("Geolocation denied/failed. Falling back to Bekasi.");
-                        fetchPrayerTimesByCity('Bekasi');
+                        console.warn("Geolocation failed or denied.");
+                        // Fallback only if we have absolutely no data
+                        if (!localStorage.getItem('prayer-lat') && !localStorage.getItem('prayer-city-override')) {
+                             fetchPrayerTimesByCity('Bekasi');
+                        }
                     }
                 );
             } else {
-                // Browser doesn't support geolocation
                 fetchPrayerTimesByCity('Bekasi');
             }
         }
@@ -609,8 +647,10 @@
                 const dStr = `${date.getDate()}-${date.getMonth()+1}-${date.getFullYear()}`;
                 const url = `${PRAYER_API_BASE}/timings/${dStr}?latitude=${lat}&longitude=${lng}&method=20`;
 
-                document.getElementById('prayer-city-display').textContent = 'Detected Location';
-                document.getElementById('setting-current-city').textContent = 'Detected Location';
+                // Update UI to show we are using coords
+                // (Note: refreshLocation updates text to 'Detected', init uses 'Saved')
+                document.getElementById('setting-current-city').textContent = 'GPS Coordinates';
+                
                 await executePrayerFetch(url);
             } catch (e) {
                 fetchPrayerTimesByCity('Bekasi');
