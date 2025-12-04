@@ -665,6 +665,21 @@
             { quote: "Simplicity is the ultimate sophistication.", author: "Leonardo da Vinci" }
         ];
 
+        /* --- HELPER DATE FUNCTIONS (FIX TIMEZONE ISSUE) --- */
+        function formatLocalYYYYMMDD(date) {
+            const y = date.getFullYear();
+            const m = String(date.getMonth() + 1).padStart(2, '0');
+            const d = String(date.getDate()).padStart(2, '0');
+            return `${y}-${m}-${d}`;
+        }
+        function parseLocalYYYYMMDD(dateStr) {
+            if (!dateStr) return new Date();
+            // Split by T to handle ISO strings from backend
+            if (dateStr.includes('T')) dateStr = dateStr.split('T')[0];
+            const [y, m, d] = dateStr.split('-').map(Number);
+            return new Date(y, m - 1, d);
+        }
+
         /* --- PWA INSTALL LOGIC --- */
         let deferredPrompt;
         const statusEl = document.getElementById('pwa-status');
@@ -710,8 +725,11 @@
         /* --- STATE --- */
         let state = { 
             todos: [], notes: "", bookmarks: [], diary: {}, quotes: [], 
-            currentDate: new Date(), selectedDateString: new Date().toISOString().split('T')[0], 
-            diaryDateString: new Date().toISOString().split('T')[0], diaryViewDate: new Date(), 
+            currentDate: new Date(), 
+            // FIX: Initialize with local time
+            selectedDateString: formatLocalYYYYMMDD(new Date()), 
+            diaryDateString: formatLocalYYYYMMDD(new Date()), 
+            diaryViewDate: new Date(), 
             editingId: null, syncQueue: [] 
         };
         let currentSlideIndex = 1; let syncTimer = null;
@@ -879,12 +897,27 @@
                              text = t.text || t.title; desc = t.description || t.desc; status = t.status; dateVal = t.date; cat = t.category; link1 = t.link1; link2 = t.link2;
                         }
 
-                        // Date Normalization
+                        // Date Normalization (FIXED: Robust string parsing)
                         let dateStr = state.selectedDateString; 
                         try { 
                             if(dateVal) {
-                                let d = new Date(dateVal);
-                                if(!isNaN(d.getTime())) dateStr = d.toISOString().split('T')[0];
+                                if (typeof dateVal === 'string') {
+                                    // Take the date part directly if it's an ISO string or similar
+                                    // This prevents Timezone shifts (e.g. 2023-10-27T00:00Z -> 2023-10-26 in PST)
+                                    if (dateVal.includes('T')) {
+                                         dateStr = dateVal.split('T')[0];
+                                    } else if (dateVal.match(/^\d{4}-\d{2}-\d{2}$/)) {
+                                         dateStr = dateVal;
+                                    } else {
+                                        // Try parsing other formats
+                                         let d = new Date(dateVal);
+                                         if(!isNaN(d.getTime())) dateStr = formatLocalYYYYMMDD(d);
+                                    }
+                                } else {
+                                    // If it's a number (timestamp) or Date object
+                                    let d = new Date(dateVal);
+                                    if(!isNaN(d.getTime())) dateStr = formatLocalYYYYMMDD(d);
+                                }
                             }
                         } catch(e) { console.warn("Date parse error", e); }
                         
@@ -946,11 +979,17 @@
                         let content = d.content || d[1];
                         let dateKey = null;
                         
-                        // Parse Date
-                        try {
+                        // Parse Date with Fix
+                         try {
                             if(rawDate) {
-                                let dt = new Date(rawDate);
-                                if(!isNaN(dt.getTime())) dateKey = dt.toISOString().split('T')[0];
+                                if (typeof rawDate === 'string' && rawDate.includes('T')) {
+                                    dateKey = rawDate.split('T')[0];
+                                } else if (typeof rawDate === 'string' && rawDate.match(/^\d{4}-\d{2}-\d{2}$/)) {
+                                    dateKey = rawDate;
+                                } else {
+                                    let dt = new Date(rawDate);
+                                    if(!isNaN(dt.getTime())) dateKey = formatLocalYYYYMMDD(dt);
+                                }
                             }
                         } catch(e) {}
                         
@@ -989,11 +1028,19 @@
 
         /* --- DATE & TODO UI --- */
         function updateDateLabel() {
-            const today = new Date().toISOString().split('T')[0]; const disp = document.getElementById('display-date-label');
+            const today = formatLocalYYYYMMDD(new Date()); 
+            const disp = document.getElementById('display-date-label');
             if(state.selectedDateString === today) disp.innerText = "Today"; else disp.innerText = state.selectedDateString;
             document.getElementById('date-picker').value = state.selectedDateString;
         }
-        window.changeDate = (delta) => { const d = new Date(state.selectedDateString); d.setDate(d.getDate() + delta); state.selectedDateString = d.toISOString().split('T')[0]; updateDateLabel(); renderTodos(); renderCalendar(); }
+        // FIX: Ensure date changes respect local time
+        window.changeDate = (delta) => { 
+            const currentParts = state.selectedDateString.split('-').map(Number);
+            const d = new Date(currentParts[0], currentParts[1] - 1, currentParts[2]);
+            d.setDate(d.getDate() + delta); 
+            state.selectedDateString = formatLocalYYYYMMDD(d);
+            updateDateLabel(); renderTodos(); renderCalendar(); 
+        }
         window.pickDate = (val) => { if(val) { state.selectedDateString = val; updateDateLabel(); renderTodos(); renderCalendar(); } }
 
         async function addTask() {
@@ -1047,7 +1094,8 @@
             t.title = document.getElementById('modal-task-title').value; t.desc = document.getElementById('modal-task-desc').value;
             t.link1 = document.getElementById('modal-task-link1').value; t.link2 = document.getElementById('modal-task-link2').value;
             t.category = document.getElementById('modal-task-cat').value;
-            const updateData = { rowIndex: t.rowIndex, task: { status: t.completed ? "Selesai" : "Belum", category: t.category, text: t.title, description: t.desc, link1: t.link1, link2: t.link2 } };
+            // FIX: Keep date intact
+            const updateData = { rowIndex: t.rowIndex, task: { status: t.completed ? "Selesai" : "Belum", category: t.category, text: t.title, description: t.desc, link1: t.link1, link2: t.link2, date: t.date } };
             renderTodos(); saveLocal(false); addToQueue('upsert_task', updateData); closeTaskModal();
         }
         async function deleteTask(id) {
@@ -1059,7 +1107,8 @@
         window.toggle = async (id) => { 
             const t = state.todos.find(x=>x.id==id); 
             if(t){ t.completed=!t.completed; 
-                const updateData = { rowIndex: t.rowIndex, task: { status: t.completed ? "Selesai" : "Belum", category: t.category, text: t.title, description: t.desc, link1: t.link1, link2: t.link2 } };
+                // FIX: Keep date intact
+                const updateData = { rowIndex: t.rowIndex, task: { status: t.completed ? "Selesai" : "Belum", category: t.category, text: t.title, description: t.desc, link1: t.link1, link2: t.link2, date: t.date } };
                 renderTodos(); renderCalendar(); saveLocal(false); addToQueue('upsert_task', updateData);
             } 
         }
@@ -1070,7 +1119,8 @@
         document.getElementById('diary-content').addEventListener('input', (e) => { state.diary[state.diaryDateString] = e.target.value; saveLocal(); });
         function renderDiary() {
             const content = state.diary[state.diaryDateString] || ""; document.getElementById('diary-content').value = content;
-            const today = new Date().toISOString().split('T')[0]; const label = document.getElementById('diary-date-label');
+            const today = formatLocalYYYYMMDD(new Date()); 
+            const label = document.getElementById('diary-date-label');
             if(state.diaryDateString === today) label.innerText = "Today"; else label.innerText = state.diaryDateString;
             renderDiaryCalendar();
         }
