@@ -557,21 +557,6 @@
         let syncQueue = [];
         let syncTimer = null;
 
-        /* --- HELPER DATE FUNCTIONS (FIX TIMEZONE ISSUE) --- */
-        function formatLocalYYYYMMDD(date) {
-            const y = date.getFullYear();
-            const m = String(date.getMonth() + 1).padStart(2, '0');
-            const d = String(date.getDate()).padStart(2, '0');
-            return `${y}-${m}-${d}`;
-        }
-        function parseLocalYYYYMMDD(dateStr) {
-            if (!dateStr) return new Date();
-            // Split by T to handle ISO strings from backend
-            if (dateStr.includes('T')) dateStr = dateStr.split('T')[0];
-            const [y, m, d] = dateStr.split('-').map(Number);
-            return new Date(y, m - 1, d);
-        }
-
         // --- INIT ---
         window.onload = function() {
             initTheme();
@@ -619,7 +604,7 @@
             try {
                 localStorage.setItem('qlcSyncQueue', JSON.stringify(syncQueue));
             } catch (e) {
-                console.warn("Queue too large for LocalStorage (Files included?)", e);
+                console.warn("Queue too large for LocalStorage", e);
             }
             
             // UI Feedback
@@ -895,6 +880,13 @@
                 daysContainer.appendChild(dayEl);
             }
         }
+        
+        function formatLocalYYYYMMDD(date) {
+            const y = date.getFullYear();
+            const m = String(date.getMonth() + 1).padStart(2, '0');
+            const d = String(date.getDate()).padStart(2, '0');
+            return `${y}-${m}-${d}`;
+        }
 
         // --- FETCH TASKS ---
         async function fetchCloud() {
@@ -922,15 +914,24 @@
                              text = t.text || t.title; desc = t.description || t.desc; status = t.status; dateVal = t.date; cat = t.category; link1 = t.link1; link2 = t.link2;
                         }
 
-                        // Date Normalization (FIX: Use local parser)
+                        // Date Normalization (FIXED: Robust string parsing)
                         let dateStr = ""; 
                         try { 
                             if(dateVal) {
-                                // If already YYYY-MM-DD format from backend, keep it.
-                                if (typeof dateVal === 'string' && dateVal.match(/^\d{4}-\d{2}-\d{2}$/)) {
-                                    dateStr = dateVal;
+                                if (typeof dateVal === 'string') {
+                                    // Take the date part directly if it's an ISO string or similar
+                                    // This prevents Timezone shifts (e.g. 2023-10-27T00:00Z -> 2023-10-26 in PST)
+                                    if (dateVal.includes('T')) {
+                                         dateStr = dateVal.split('T')[0];
+                                    } else if (dateVal.match(/^\d{4}-\d{2}-\d{2}$/)) {
+                                         dateStr = dateVal;
+                                    } else {
+                                        // Try parsing other formats
+                                         let d = new Date(dateVal);
+                                         if(!isNaN(d.getTime())) dateStr = formatLocalYYYYMMDD(d);
+                                    }
                                 } else {
-                                    // Fallback to parser
+                                    // If it's a number (timestamp) or Date object
                                     let d = new Date(dateVal);
                                     if(!isNaN(d.getTime())) dateStr = formatLocalYYYYMMDD(d);
                                 }
@@ -1092,7 +1093,15 @@
                 saveLocal(false);
 
                 // 2. Queue Server Update
-                addToQueue("upsert_task", { task: task, files: filesPayload });
+                // FIX: If files are present, bypass queue and force immediate sync
+                // allowing the UI to block until upload is complete.
+                if (filesPayload.length > 0) {
+                    btn.innerHTML = "Uploading...";
+                    await callApi("upsert_task", { task: task, files: filesPayload });
+                    showSyncStatus("Uploaded Successfully");
+                } else {
+                    addToQueue("upsert_task", { task: task, files: filesPayload });
+                }
 
                 // Reset Form
                 document.getElementById('newTaskTitle').value = "";
@@ -1182,7 +1191,14 @@
                 }
 
                 // 2. Queue Server Update
-                addToQueue("upsert_task", payload);
+                // FIX: If files are present, bypass queue and force immediate sync
+                if (filesPayload.length > 0) {
+                     btn.innerHTML = "Uploading...";
+                     await callApi("upsert_task", payload);
+                     showSyncStatus("Uploaded Successfully");
+                } else {
+                     addToQueue("upsert_task", payload);
+                }
 
                 closeModal();
             } catch (error) { 
