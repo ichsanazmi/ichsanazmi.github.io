@@ -34,11 +34,16 @@
                     },
                     animation: {
                         'fade-in': 'fadeIn 1s ease-in-out',
+                        'spin-slow': 'spin 3s linear infinite',
                     },
                     keyframes: {
                         fadeIn: {
                             '0%': { opacity: '0', transform: 'translateY(10px)' },
                             '100%': { opacity: '1', transform: 'translateY(0)' },
+                        },
+                        spin: {
+                            '0%': { transform: 'rotate(0deg)' },
+                            '100%': { transform: 'rotate(360deg)' }
                         }
                     }
                 }
@@ -93,7 +98,7 @@
             --accent-hover: #0891b2;
             --border: #334155;
             --input-bg: #334155;
-            --modal-overlay: rgba(15, 23, 42, 0.85);
+            --modal-overlay: rgba(15, 17, 42, 0.85);
             --status-read: #2dd4bf;
             --status-unread: #fb7185;
             --wave-opacity: 0.08;
@@ -159,7 +164,6 @@
             --wave-opacity: 0.05;
         }
 
-        /* NEW THEMES */
         .theme-sunset {
             --bg-color: #2a1b1b;
             --card-bg: #451a1a;
@@ -190,6 +194,66 @@
             --wave-opacity: 0.15;
         }
 
+        /* --- NEW THEMES --- */
+        .theme-lavender {
+            --bg-color: #f3e8ff;
+            --card-bg: #ffffff;
+            --text-main: #581c87;
+            --text-muted: #a855f7;
+            --accent: #9333ea;
+            --accent-hover: #7e22ce;
+            --border: #d8b4fe;
+            --input-bg: #f3e8ff;
+            --modal-overlay: rgba(88, 28, 135, 0.4);
+            --status-read: #4ade80;
+            --status-unread: #f472b6;
+            --wave-opacity: 0.05;
+        }
+        
+        .theme-mint {
+            --bg-color: #ecfdf5;
+            --card-bg: #ffffff;
+            --text-main: #064e3b;
+            --text-muted: #34d399;
+            --accent: #10b981;
+            --accent-hover: #059669;
+            --border: #6ee7b7;
+            --input-bg: #d1fae5;
+            --modal-overlay: rgba(6, 78, 59, 0.4);
+            --status-read: #34d399;
+            --status-unread: #fb7185;
+            --wave-opacity: 0.05;
+        }
+
+        .theme-ember {
+            --bg-color: #181212;
+            --card-bg: #2b1d1d;
+            --text-main: #fdba74;
+            --text-muted: #9a3412;
+            --accent: #f97316;
+            --accent-hover: #ea580c;
+            --border: #7c2d12;
+            --input-bg: #431407;
+            --modal-overlay: rgba(24, 18, 18, 0.9);
+            --status-read: #84cc16;
+            --status-unread: #ef4444;
+            --wave-opacity: 0.1;
+        }
+
+        .theme-royal {
+            --bg-color: #0c0a1e;
+            --card-bg: #1e1b38;
+            --text-main: #fcd34d;
+            --text-muted: #9ca3af;
+            --accent: #fbbf24;
+            --accent-hover: #f59e0b;
+            --border: #3730a3;
+            --input-bg: #312e81;
+            --modal-overlay: rgba(12, 10, 30, 0.95);
+            --status-read: #34d399;
+            --status-unread: #fb7185;
+            --wave-opacity: 0.12;
+        }
 
         /* --- 2. GLOBAL STYLES --- */
         body {
@@ -249,6 +313,28 @@
             background-size: 550px 550px, 350px 350px, 250px 250px;
             background-position: 0 0, 40px 60px, 130px 270px;
         }
+        
+        /* NEW BACKGROUNDS */
+        body.bg-grid {
+            background-color: var(--bg-color);
+            background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px);
+            background-size: 20px 20px;
+            background-position: center center;
+        }
+        body.bg-grid::before {
+            content: ""; position: absolute; inset: 0;
+            background: radial-gradient(circle, transparent 20%, var(--bg-color) 100%);
+            pointer-events: none;
+        }
+
+        body.bg-mesh {
+            background-color: var(--bg-color);
+            background-image: 
+                radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), 
+                radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%), 
+                radial-gradient(at 100% 0%, hsla(339,49%,30%,1) 0, transparent 50%);
+            background-size: 100% 100%;
+        }
 
         button { cursor: pointer; font-family: inherit; }
         h2 { font-size: 1.5rem; font-weight: 700; margin-bottom: 0.5rem; }
@@ -287,8 +373,10 @@
         /* --- 6. CONTENT STYLES --- */
         .bento-wrapper { width: 100%; max-width: 1200px; height: 100%; display: flex; flex-direction: column; justify-content: center; }
         .bento-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
-        .bento-grid { display: grid; grid-template-columns: 2fr 1fr; grid-template-rows: 1fr 1fr; gap: 1.5rem; height: 70vh; }
-        .bento-card { background: var(--card-bg); border-radius: 20px; padding: 1.5rem; border: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; }
+        /* CHANGED: Simplified grid to 2 columns, rows handled by flex */
+        .bento-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; height: 70vh; }
+        
+        .bento-card { background: var(--card-bg); border-radius: 20px; padding: 1.5rem; border: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; transition: flex 0.3s ease; }
         input[type="text"], textarea, input[type="url"], input[type="number"], input[type="date"], select { background: var(--input-bg); border: 1px solid var(--border); color: var(--text-main); padding: 10px; border-radius: 10px; font-family: inherit; }
         
         .clock-container { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 2rem; }
@@ -298,7 +386,10 @@
         .elegant-quote p { font-family: 'Georgia', serif; font-size: 1.5rem; line-height: 1.6; font-style: italic; color: var(--text-main); position: relative; z-index: 10; }
         .elegant-quote::before { content: '“'; position: absolute; top: -40px; left: 50%; transform: translateX(-50%); font-size: 8rem; font-family: serif; color: var(--accent); opacity: 0.15; z-index: 0; line-height: 1; }
         
-        .task-card { grid-row: span 2; }
+        /* NEW: Right Column Container for Cal & Notes */
+        .right-column { display: flex; flex-direction: column; gap: 1.5rem; height: 100%; min-width: 0; }
+        
+        .task-card { height: 100%; }
         .task-input-area { display: flex; gap: 10px; margin-bottom: 1rem; flex-wrap: wrap; align-items: flex-start; }
         .task-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
         .task-item { background: var(--bg-color); padding: 12px; border-radius: 12px; display: flex; align-items: flex-start; gap: 10px; border: 1px solid var(--border); cursor: pointer; transition: border-color 0.2s; }
@@ -306,6 +397,15 @@
         .task-item.completed .task-content { text-decoration: line-through; opacity: 0.6; }
         .task-content { flex: 1; min-width: 0; }
         .task-desc-preview { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 0.8em; opacity: 0.8; width: 100%; }
+        
+        /* CALENDAR STYLES */
+        .calendar-card { flex: 0 0 auto; transition: all 0.3s ease; }
+        .calendar-card.collapsed .calendar-grid, 
+        .calendar-card.collapsed .cal-nav { display: none; }
+        .calendar-card.collapsed { padding-bottom: 1rem; }
+        
+        /* NOTES STYLES */
+        .notes-card { flex: 1; min-height: 200px; }
         
         .bm-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; height: 70vh; }
         .bm-column { background: var(--card-bg); border-radius: 20px; padding: 1.5rem; border: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; }
@@ -325,7 +425,7 @@
         #sync-status { font-size: 0.8rem; color: var(--text-muted); opacity: 0; transition: opacity 0.5s; }
         #sync-status.visible { opacity: 1; }
         
-        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; text-align: center; font-size: 0.85rem; }
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; text-align: center; font-size: 0.85rem; transition: opacity 0.2s; }
         .cal-day { padding: 8px 0; border-radius: 6px; position: relative; cursor: pointer; transition: background-color 0.2s, border-color 0.2s; }
         .cal-day:hover { background-color: var(--input-bg); }
         .cal-day.today { background: var(--accent); color: white; font-weight: bold; }
@@ -344,20 +444,49 @@
             backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1);
         }
         .blur-enabled .nav-btn { text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
+
+        /* GLOBAL STATUS INDICATOR */
+        #global-sync-status {
+            position: fixed; top: 20px; right: 20px; z-index: 1000;
+            padding: 6px 14px; border-radius: 20px;
+            background: var(--card-bg); border: 1px solid var(--border);
+            font-size: 0.75rem; font-weight: 600; color: var(--text-muted);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            opacity: 0; transition: opacity 0.3s; pointer-events: none;
+            display: flex; align-items: center; gap: 8px;
+        }
+        #global-sync-status.visible { opacity: 1; }
+        #global-sync-status.error { color: var(--status-unread); border-color: var(--status-unread); }
         
+        /* --- MOBILE RESPONSIVE FIXES --- */
         @media (max-width: 900px) {
-            .bento-grid, .bm-grid, .diary-grid { grid-template-columns: 1fr; grid-template-rows: auto; height: auto; }
-            .slide { align-items: flex-start; }
-            .bento-wrapper { padding-top: 40px; padding-bottom: 150px; }
-            .fab-container { bottom: 90px; right: 20px; }
-            .task-card { grid-row: auto; }
+            .bento-grid, .bm-grid, .diary-grid { grid-template-columns: 1fr; gap: 1.5rem; height: auto; display: flex; flex-direction: column; }
+            .right-column { height: auto; gap: 1.5rem; }
+            .notes-card { height: 300px; min-height: 200px; flex: none; }
+            .calendar-card { flex: none; }
+            
+            /* FIX: Allow page to scroll, remove internal scrollbars on mobile */
+            .slide { align-items: flex-start; height: auto; min-height: 100vh; overflow-y: auto; padding-bottom: 150px; }
+            .bento-wrapper { padding-top: 40px; height: auto; display: block; }
+            
+            .task-card { height: auto; min-height: 400px; }
             .task-list { max-height: none; overflow-y: visible; flex: none; }
+            
             .slider-track { height: auto; min-height: 100vh; }
-            .slide { height: auto; min-height: 100vh; overflow-y: visible; }
+            .fab-container { bottom: 90px; right: 20px; }
+            #global-sync-status { top: auto; bottom: 170px; right: 20px; }
         }
     </style>
 </head>
 <body class="theme-dark bg-wavy text-main bg-background">
+
+    <!-- GLOBAL SYNC STATUS -->
+    <div id="global-sync-status">
+        <span id="sync-icon">
+            <svg class="w-4 h-4" viewBox="0 0 24 24"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>
+        </span>
+        <span id="sync-text">Synced</span>
+    </div>
 
     <!-- FLOATING ACTION BUTTONS -->
     <div class="fab-container">
@@ -396,6 +525,8 @@
                         <option value="bg-gradient">Gradient</option>
                         <option value="bg-pixelated">Pixelated</option>
                         <option value="bg-starry">Starry</option>
+                        <option value="bg-grid">Tech Grid</option>
+                        <option value="bg-mesh">Gradient Mesh</option>
                     </select>
                 </div>
 
@@ -410,9 +541,14 @@
                     <div class="theme-option" onclick="setTheme('theme-crimson')" data-theme="theme-crimson"><div class="theme-dot" style="background:#000000; border-color: #dc2626;"></div> Crimson</div>
                     <div class="theme-option" onclick="setTheme('theme-midnight')" data-theme="theme-midnight"><div class="theme-dot" style="background:#1e1b4b; border-color: #c084fc;"></div> Midnight</div>
                     <div class="theme-option" onclick="setTheme('theme-coffee')" data-theme="theme-coffee"><div class="theme-dot" style="background:#292524; border-color: #d6d3d1;"></div> Coffee</div>
-                    <!-- New Themes -->
                     <div class="theme-option" onclick="setTheme('theme-sunset')" data-theme="theme-sunset"><div class="theme-dot" style="background:#2a1b1b; border-color: #f97316;"></div> Sunset</div>
                     <div class="theme-option" onclick="setTheme('theme-nebula')" data-theme="theme-nebula"><div class="theme-dot" style="background:#110e1b; border-color: #d946ef;"></div> Nebula</div>
+                    
+                    <!-- New Themes -->
+                    <div class="theme-option" onclick="setTheme('theme-lavender')" data-theme="theme-lavender"><div class="theme-dot" style="background:#f3e8ff; border-color: #9333ea;"></div> Lavender</div>
+                    <div class="theme-option" onclick="setTheme('theme-mint')" data-theme="theme-mint"><div class="theme-dot" style="background:#ecfdf5; border-color: #10b981;"></div> Mint</div>
+                    <div class="theme-option" onclick="setTheme('theme-ember')" data-theme="theme-ember"><div class="theme-dot" style="background:#181212; border-color: #f97316;"></div> Ember</div>
+                    <div class="theme-option" onclick="setTheme('theme-royal')" data-theme="theme-royal"><div class="theme-dot" style="background:#0c0a1e; border-color: #fbbf24;"></div> Royal</div>
                 </div>
 
                 <!-- STORAGE SECTION -->
@@ -564,11 +700,11 @@
                 </div>
             </div>
 
-            <!-- SLIDE 2: Dashboard -->
+            <!-- SLIDE 2: Dashboard (MODIFIED) -->
             <div class="slide" id="slide-2">
                 <div class="bento-wrapper">
                     <div class="bento-header flex justify-between items-center mb-4">
-                        <h2 class="text-primary">Dashboard <span id="sync-status" class="text-muted text-sm opacity-0">Synced</span></h2>
+                        <h2 class="text-primary">Dashboard</h2>
                         <div class="flex gap-2">
                             <button onclick="processQueue(true)" class="text-muted hover:text-primary transition-colors p-2 rounded-full hover:bg-primary/10" title="Push Changes Now"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></button>
                             <button onclick="forceReload()" class="text-muted hover:text-primary transition-colors p-2 rounded-full hover:bg-primary/10" title="Pull Data (Refresh)"><svg viewBox="0 0 24 24"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg></button>
@@ -598,18 +734,26 @@
                             <div class="task-list" id="task-list"></div>
                         </div>
 
-                        <div class="bento-card">
-                            <div class="calendar-header flex justify-between mb-4 font-bold text-primary">
-                                <span onclick="changeMonth(-1)" class="cursor-pointer hover:scale-125 transition-transform">&lt;</span>
-                                <span id="cal-month-year">Date</span>
-                                <span onclick="changeMonth(1)" class="cursor-pointer hover:scale-125 transition-transform">&gt;</span>
+                        <!-- RIGHT COLUMN: Calendar + Notes -->
+                        <div class="right-column">
+                            <div class="bento-card calendar-card" id="calendar-card">
+                                <div class="calendar-header flex justify-between mb-4 font-bold text-primary items-center">
+                                    <span class="cal-nav cursor-pointer hover:scale-125 transition-transform" onclick="changeMonth(-1)">&lt;</span>
+                                    <span id="cal-month-year">Date</span>
+                                    <div class="flex gap-2">
+                                        <span class="cal-nav cursor-pointer hover:scale-125 transition-transform" onclick="changeMonth(1)">&gt;</span>
+                                        <button onclick="toggleCalendar()" class="text-muted hover:text-primary ml-2 border border-border rounded-full w-6 h-6 flex items-center justify-center text-xs" title="Toggle Calendar">
+                                            <span id="cal-toggle-icon">-</span>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="calendar-grid text-sm" id="calendar-days"></div>
                             </div>
-                            <div class="calendar-grid text-sm" id="calendar-days"></div>
-                        </div>
 
-                        <div class="bento-card relative">
-                            <textarea id="quick-notes" class="notes-area w-full h-full bg-transparent border-none outline-none resize-none p-2" placeholder="Quick notes..."></textarea>
-                            <div class="absolute bottom-2 right-2 opacity-50 pointer-events-none"><svg class="w-4 h-4" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></div>
+                            <div class="bento-card relative notes-card">
+                                <textarea id="quick-notes" class="notes-area w-full h-full bg-transparent border-none outline-none resize-none p-2" placeholder="Quick notes..."></textarea>
+                                <div class="absolute bottom-2 right-2 opacity-50 pointer-events-none"><svg class="w-4 h-4" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -741,33 +885,61 @@
                 return await response.json();
             } catch (error) {
                 console.error("Sync Error:", error);
-                document.getElementById('sync-status').innerText = "Sync Error";
-                document.getElementById('sync-status').style.color = "var(--status-unread)";
-                document.getElementById('sync-status').style.opacity = '1';
+                setGlobalStatus("Sync Error", true);
                 return null;
+            }
+        }
+
+        // --- GLOBAL STATUS INDICATOR HELPER ---
+        function setGlobalStatus(text, isError = false, isLoading = false) {
+            const el = document.getElementById('global-sync-status');
+            const txt = document.getElementById('sync-text');
+            const icon = document.getElementById('sync-icon');
+            
+            el.classList.add('visible');
+            el.classList.toggle('error', isError);
+            txt.innerText = text;
+            
+            if (isLoading) {
+                icon.innerHTML = '<svg class="w-4 h-4 animate-spin-slow" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>';
+            } else if (isError) {
+                icon.innerHTML = '<svg class="w-4 h-4" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>';
+            } else {
+                // Checkmark
+                icon.innerHTML = '<svg class="w-4 h-4" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+            }
+            
+            // Auto hide if success after 2s
+            if (!isError && !isLoading) {
+                setTimeout(() => { el.classList.remove('visible'); }, 3000);
             }
         }
 
         function addToQueue(action, payload) {
             state.syncQueue.push({ action, payload, timestamp: Date.now() });
             localStorage.setItem('syncQueue', JSON.stringify(state.syncQueue));
-            const statusEl = document.getElementById('sync-status'); statusEl.innerText = "Changes Cached..."; statusEl.style.opacity = '1';
-            clearTimeout(syncTimer); syncTimer = setTimeout(() => processQueue(), 60000);
+            
+            setGlobalStatus("Pending Changes...", false, true);
+            
+            // Debounce: Reset timer on every change
+            clearTimeout(syncTimer); 
+            syncTimer = setTimeout(() => processQueue(), 10000); // 10s auto-sync
         }
 
         async function processQueue(force = false) {
             if (state.syncQueue.length === 0) return;
-            document.getElementById('sync-status').innerText = "Syncing..."; document.getElementById('sync-status').style.opacity = '1';
+            
+            setGlobalStatus("Syncing...", false, true);
+            
             const queueCopy = [...state.syncQueue]; state.syncQueue = []; 
             localStorage.setItem('syncQueue', JSON.stringify([]));
             try {
                 for (const item of queueCopy) await callApi(item.action, item.payload);
                 await syncBulkData();
-                document.getElementById('sync-status').innerText = "Synced";
-                setTimeout(() => { document.getElementById('sync-status').style.opacity='0'; }, 2000);
+                setGlobalStatus("Synced", false, false);
             } catch (e) {
                 console.error("Queue Processing Error", e);
-                document.getElementById('sync-status').innerText = "Sync Partial Error";
+                setGlobalStatus("Sync Partial Error", true, false);
             }
         }
 
@@ -786,20 +958,31 @@
             const lastFetch = localStorage.getItem('last_fetch_date'); const today = new Date().toDateString();
             loadData();
             if (lastFetch !== today || state.bookmarks.length === 0) {
-                console.log("Fetching from cloud..."); await fetchCloud(); localStorage.setItem('last_fetch_date', today);
+                console.log("Fetching from cloud..."); 
+                setGlobalStatus("Fetching...", false, true);
+                await fetchCloud(); 
+                localStorage.setItem('last_fetch_date', today);
             } else {
                 console.log("Loaded from local cache.");
                 const savedQueue = localStorage.getItem('syncQueue');
                 if (savedQueue) { state.syncQueue = JSON.parse(savedQueue); if (state.syncQueue.length > 0) processQueue(); }
             }
         }
-        function forceReload() { fetchCloud(); localStorage.setItem('last_fetch_date', new Date().toDateString()); }
+        function forceReload() { 
+            setGlobalStatus("Force Loading...", false, true);
+            fetchCloud(); 
+            localStorage.setItem('last_fetch_date', new Date().toDateString()); 
+        }
 
         /* --- THEME & PREFS --- */
         function initTheme() {
             const savedTheme = localStorage.getItem('appTheme') || 'theme-dark'; setTheme(savedTheme);
             const isBlurEnabled = localStorage.getItem('blurEnabled') === 'true'; document.getElementById('blur-toggle').checked = isBlurEnabled; toggleBlur(false);
             const savedBg = localStorage.getItem('appBgStyle') || 'bg-wavy'; document.getElementById('bg-selector').value = savedBg; setBackground(savedBg);
+            
+            // Load calendar state
+            const calCollapsed = localStorage.getItem('calendarCollapsed') === 'true';
+            if(calCollapsed) toggleCalendar(false);
         }
         function setTheme(theme) {
             const body = document.body; const currentBg = localStorage.getItem('appBgStyle') || 'bg-wavy'; const isBlur = body.classList.contains('blur-enabled');
@@ -808,7 +991,7 @@
             document.querySelectorAll('.theme-option').forEach(opt => { opt.classList.toggle('active', opt.dataset.theme === theme); });
         }
         function setBackground(style) {
-            document.body.classList.remove('bg-wavy', 'bg-gradient', 'bg-pixelated', 'bg-starry');
+            document.body.classList.remove('bg-wavy', 'bg-gradient', 'bg-pixelated', 'bg-starry', 'bg-grid', 'bg-mesh');
             document.body.classList.add(style); localStorage.setItem('appBgStyle', style);
         }
         function togglePrefModal() { document.getElementById('pref-modal-overlay').classList.toggle('open'); }
@@ -876,9 +1059,6 @@
 
         /* --- HELPER FUNCTIONS FOR FETCH (FIXED) --- */
         async function fetchCloud() {
-            document.getElementById('sync-status').innerText = "Fetching...";
-            document.getElementById('sync-status').style.opacity = '1';
-            
             // 1. FETCH TASKS
             try {
                 const taskRes = await callApi('fetch_tasks');
@@ -1000,8 +1180,7 @@
             }
 
             saveLocal(false);
-            document.getElementById('sync-status').innerText = "Synced";
-            setTimeout(() => { document.getElementById('sync-status').style.opacity='0'; }, 2000);
+            setGlobalStatus("Synced", false, false);
         }
 
         /* --- BOOKMARKS UI --- */
@@ -1140,6 +1319,17 @@
         window.pickDiaryDate = (dateStr) => { state.diaryDateString = dateStr; renderDiary(); }
 
         /* --- CALENDAR UI --- */
+        function toggleCalendar(save = true) {
+            const card = document.getElementById('calendar-card');
+            const icon = document.getElementById('cal-toggle-icon');
+            card.classList.toggle('collapsed');
+            
+            const isCollapsed = card.classList.contains('collapsed');
+            icon.innerText = isCollapsed ? '+' : '-';
+            
+            if(save) localStorage.setItem('calendarCollapsed', isCollapsed);
+        }
+
         function renderCalendar() {
             const y = state.currentDate.getFullYear(), m = state.currentDate.getMonth();
             document.getElementById('cal-month-year').innerText = new Date(y, m).toLocaleString('default', {month:'long', year:'numeric'});
