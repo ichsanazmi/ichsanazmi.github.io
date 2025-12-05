@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Minimal Markdown Focus — Fullscreen</title>
+  <style>
+    :root{
+      --bg:#0f1724; --panel:#0b1220; --muted:#9aa7b2; --accent:#7dd3fc; --glass: rgba(255,255,255,0.04);
+      --radius:12px; --gap:12px; font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+    html,body{height:100%;margin:0;background:linear-gradient(180deg,#071029 0%, #081426 100%);color:#e6eef6}
+    .app{height:100vh;display:grid;grid-template-columns:1fr;align-items:stretch;}
+
+    /* topbar */
+    .topbar{position:fixed;left:0;right:0;top:0;height:56px;display:flex;align-items:center;gap:12px;padding:8px 14px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));backdrop-filter: blur(6px);z-index:40}
+    .brand{font-weight:600;letter-spacing:0.4px}
+    .controls{margin-left:auto;display:flex;gap:8px}
+    button {background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted);padding:8px 10px;border-radius:10px;cursor:pointer}
+    button.primary{border-color:var(--accent);color:var(--accent);font-weight:600}
+
+    /* main area */
+    .container{display:grid;grid-template-columns: 1fr 520px;gap:18px;padding:80px 28px 28px;max-width:1400px;margin:0 auto;box-sizing:border-box}
+
+    /* editor */
+    .editor-wrap{position:relative;display:flex;flex-direction:column;gap:10px}
+    .editor{flex:1;background:var(--panel);border-radius:12px;padding:20px;min-height:60vh;box-shadow: 0 6px 30px rgba(3,6,12,0.6);overflow:auto}
+    textarea#md{width:100%;height:100%;min-height:60vh;border:0;background:transparent;color:inherit;font-size:18px;line-height:1.7;resize:none;outline:none}
+
+    /* preview */
+    .preview{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:12px;padding:22px;min-height:60vh;overflow:auto;border:1px solid rgba(255,255,255,0.03)}
+    .preview :is(h1,h2,h3){color:#fff;margin:0 0 10px}
+    .preview p{color:var(--muted)}
+    .preview pre{background:#021826;padding:12px;border-radius:8px;overflow:auto}
+
+    /* floating widgets */
+    .floating{position:fixed;left:18px;bottom:22px;display:flex;flex-direction:column;gap:10px;z-index:50}
+    .widget{width:300px;background:var(--glass);border-radius:12px;padding:10px;border:1px solid rgba(255,255,255,0.03);backdrop-filter: blur(8px)}
+    .widget .head{display:flex;align-items:center;gap:8px;cursor:pointer}
+    .widget .body{margin-top:8px;max-height:320px;overflow:auto}
+    .collapsed{max-height:40px}
+    .hint pre{white-space:pre-wrap;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px;color:#d7f3ff}
+
+    /* toc widget smaller */
+    .toc-widget{width:260px}
+    .toc-list{list-style:none;padding:6px 4px;margin:6px 0;display:flex;flex-direction:column;gap:6px}
+    .toc-list a{color:var(--muted);text-decoration:none;font-size:14px;padding:6px;border-radius:8px}
+    .toc-list a:hover{background:rgba(255,255,255,0.02);color:var(--accent)}
+
+    /* small screens */
+    @media (max-width:980px){
+      .container{grid-template-columns:1fr;padding:80px 12px}
+      .preview{order:2}
+      .floating{left:10px;right:10px;bottom:12px}
+      .toc-widget{width:100%}
+      .widget{width:100%}
+    }
+
+    /* focus mode */
+    .focus .container{grid-template-columns:1fr;max-width:1100px}
+    .focus .toc-widget,.focus .hint{display:none}
+    .kbd{font-size:12px;color:var(--muted);padding:4px 6px;border-radius:6px;border:1px solid rgba(255,255,255,0.03)}
+
+    /* subtle transition */
+    .widget,.editor,.preview{transition:all 220ms cubic-bezier(.2,.9,.3,1)}
+  </style>
+</head>
+<body>
+  <div class="app" id="app">
+    <div class="topbar">
+      <div class="brand">Minimal Markdown</div>
+      <div class="controls">
+        <button id="togglePreview">Toggle Preview</button>
+        <button id="focusBtn" class="primary">Focus (F)</button>
+        <button id="exportBtn">Export PDF</button>
+      </div>
+    </div>
+
+    <main class="container" id="main">
+      <section class="editor-wrap">
+        <div class="editor">
+          <textarea id="md" placeholder="# Start writing — fullscreen & minimalist\n\nUse the left floating TOC to jump to headings. Press F to toggle focus mode."></textarea>
+        </div>
+      </section>
+
+      <aside>
+        <div class="preview" id="preview"></div>
+      </aside>
+    </main>
+
+    <!-- floating widgets -->
+    <div class="floating">
+      <div class="widget toc-widget" id="tocWidget">
+        <div class="head" id="tocHead"><strong>TOC</strong><span style="margin-left:auto" class="kbd">click to collapse</span></div>
+        <div class="body" id="tocBody"><ul class="toc-list" id="tocList"></ul></div>
+      </div>
+
+      <div class="widget hint" id="hintWidget">
+        <div class="head" id="hintHead"><strong>Markdown tips</strong><span style="margin-left:auto" class="kbd">examples</span></div>
+        <div class="body" id="hintBody">
+          <pre><code># Heading 1
+## Heading 2
+### Heading 3
+
+**bold**  *italic*  `inline code`
+
+- list item
+1. ordered
+
+```js
+// code block
+console.log('hello')
+```
+
+[link text](https://example.com)
+</code></pre>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // Minimal markdown -> HTML renderer (supports headings, paragraphs, lists, code blocks, inline bold/italic/inline code, links)
+    function renderMarkdown(md){
+      // normalize
+      md = md.replace(/\r/g,'');
+      // code blocks
+      const codeBlocks = [];
+      md = md.replace(/```([\s\S]*?)```/g, function(_, code){ codeBlocks.push(code); return `\u0000CODEBLOCK${codeBlocks.length-1}\u0000`; });
+
+      const lines = md.split('\n');
+      let out = [];
+      let inList = false;
+      for(let i=0;i<lines.length;i++){
+        let line = lines[i];
+        if(/^\s*$/.test(line)){ out.push(''); inList=false; continue; }
+        // headings
+        if(/^#{1,6}\s/.test(line)){
+          const level = line.match(/^#+/)[0].length;
+          const text = line.replace(/^#{1,6}\s+/,'').trim();
+          out.push(`<h${level}>${escapeInline(text)}</h${level}>`);
+          inList=false; continue;
+        }
+        // unordered list
+        if(/^\s*[-*+]\s+/.test(line)){
+          const item = line.replace(/^\s*[-*+]\s+/,'');
+          if(!inList){ out.push('<ul>'); inList=true; }
+          out.push(`<li>${escapeInline(item)}</li>`);
+          // lookahead for end handled by blank lines
+          continue;
+        }
+        // ordered list
+        if(/^\s*\d+\.\s+/.test(line)){
+          const item = line.replace(/^\s*\d+\.\s+/,'');
+          if(!inList){ out.push('<ol>'); inList=true; }
+          out.push(`<li>${escapeInline(item)}</li>`);
+          continue;
+        }
+        // paragraph
+        out.push(`<p>${escapeInline(line)}</p>`);
+      }
+      // close lists
+      let html = out.join('\n');
+      html = html.replace(/<ul>\n(?:<li>[\s\S]*?<\/li>\n)*?/g,function(m){return m;});
+      // close open lists simply: replace sequences of <ul>...<li>.. then next blank converts
+      html = html.replace(/(<ul>[\s\S]*?<li>.*?<\/li>)(?![\s\S]*?<li>)/g,'$1</ul>');
+      html = html.replace(/(<ol>[\s\S]*?<li>.*?<\/li>)(?![\s\S]*?<li>)/g,'$1</ol>');
+
+      // restore codeblocks
+      html = html.replace(/\u0000CODEBLOCK(\d+)\u0000/g, function(_, idx){
+        const code = escapeHtml(codeBlocks[Number(idx)]);
+        return `<pre><code>${code}</code></pre>`;
+      });
+
+      // simple replacements to close lists properly when multiple lists present
+      html = html.replace(/<ul>\n\n/g,'<ul>');
+      html = html.replace(/<ol>\n\n/g,'<ol>');
+
+      return html;
+
+      function escapeHtml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+      function escapeInline(s){
+        // links
+        s = s.replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank" rel="noreferrer">$1</a>');
+        // bold
+        s = s.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>');
+        // italic
+        s = s.replace(/\*(.*?)\*/g,'<em>$1</em>');
+        // inline code
+        s = s.replace(/`([^`]+)`/g,'<code>$1</code>');
+        return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      }
+    }
+
+    // Elements
+    const mdEl = document.getElementById('md');
+    const previewEl = document.getElementById('preview');
+    const tocList = document.getElementById('tocList');
+    const tocWidget = document.getElementById('tocWidget');
+    const hintWidget = document.getElementById('hintWidget');
+    const tocHead = document.getElementById('tocHead');
+    const hintHead = document.getElementById('hintHead');
+    const app = document.getElementById('app');
+    const focusBtn = document.getElementById('focusBtn');
+    const togglePreviewBtn = document.getElementById('togglePreview');
+    const exportBtn = document.getElementById('exportBtn');
+
+    function update(){
+      const md = mdEl.value;
+      const html = renderMarkdown(md);
+      // create anchors for headings
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(html, 'text/html');
+      const headings = doc.querySelectorAll('h1,h2,h3');
+      headings.forEach((h,i)=>{
+        const id = 'h-' + i + '-' + slugify(h.textContent);
+        h.setAttribute('id', id);
+      });
+      previewEl.innerHTML = doc.body.innerHTML;
+      buildTOC();
+    }
+
+    function buildTOC(){
+      tocList.innerHTML = '';
+      const nodes = previewEl.querySelectorAll('h1,h2,h3');
+      nodes.forEach(h =>{
+        const a = document.createElement('a');
+        a.href = '#'+h.id;
+        a.innerText = h.innerText;
+        a.addEventListener('click', function(e){ e.preventDefault(); document.getElementById(h.id).scrollIntoView({behavior:'smooth',block:'start'}); });
+        // indent depending on level
+        const depth = Number(h.tagName.charAt(1));
+        a.style.paddingLeft = (depth-1)*10 + 'px';
+        tocList.appendChild(a);
+      });
+      if(nodes.length===0){ tocList.innerHTML = '<div style="color:var(--muted);font-size:13px;padding:6px">No headings yet. Add a line that starts with # for TOC.</div>' }
+    }
+
+    // slug helper
+    function slugify(s){return s.toLowerCase().replace(/[^a-z0-9\s-]/g,'').trim().replace(/\s+/g,'-').substring(0,80)}
+
+    // events
+    mdEl.addEventListener('input', throttle(update, 200));
+    window.addEventListener('load', ()=>{ mdEl.value = localStorage.getItem('md') || "# Welcome\n\nStart writing..."; update(); });
+    window.addEventListener('beforeunload', ()=>{ localStorage.setItem('md', mdEl.value); });
+
+    // collapse widgets
+    let tocCollapsed=false, hintCollapsed=false;
+    tocHead.addEventListener('click', ()=>{ tocCollapsed=!tocCollapsed; document.getElementById('tocBody').style.display = tocCollapsed ? 'none' : 'block'; });
+    hintHead.addEventListener('click', ()=>{ hintCollapsed=!hintCollapsed; document.getElementById('hintBody').style.display = hintCollapsed ? 'none' : 'block'; });
+
+    // focus mode
+    let focused=false;
+    function setFocus(f){ focused=f; if(f){ app.classList.add('focus'); focusBtn.innerText='Exit Focus (F)'; } else { app.classList.remove('focus'); focusBtn.innerText='Focus (F)'; } }
+    focusBtn.addEventListener('click', ()=> setFocus(!focused));
+    document.addEventListener('keydown', (e)=>{ if(e.key==='f' || e.key==='F'){ setFocus(!focused); } if((e.ctrlKey||e.metaKey) && e.key==='p'){ e.preventDefault(); doExport(); } if(e.key==='/' && (e.ctrlKey||e.metaKey)){ e.preventDefault(); mdEl.focus(); }});
+
+    // preview toggle
+    let previewVisible = true;
+    togglePreviewBtn.addEventListener('click', ()=>{
+      previewVisible = !previewVisible; document.getElementById('main').querySelector('aside').style.display = previewVisible ? 'block' : 'none';
+    });
+
+    // export as pdf (uses print)
+    function doExport(){
+      const win = window.open('','_blank');
+      const css = `body{font-family:Inter, Arial; padding:40px; color:#111} h1,h2,h3{color:#111} pre{background:#f4f6f8;padding:10px;border-radius:6px}`;
+      win.document.write(`<html><head><title>Export</title><meta name=viewport content='width=device-width,initial-scale=1'><style>${css}</style></head><body>`+previewEl.innerHTML+`</body></html>`);
+      win.document.close();
+      // give browser a moment then print
+      setTimeout(()=>{ win.print(); }, 300);
+    }
+    exportBtn.addEventListener('click', doExport);
+
+    // simple throttle
+    function throttle(fn, wait){ let t=0; return function(){ const now=Date.now(); if(now-t>wait){ t=now; fn.apply(this,arguments); } }}
+  </script>
+</body>
+</html>
