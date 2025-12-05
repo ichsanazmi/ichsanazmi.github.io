@@ -314,7 +314,6 @@
             background-position: 0 0, 40px 60px, 130px 270px;
         }
         
-        /* NEW BACKGROUNDS */
         body.bg-grid {
             background-color: var(--bg-color);
             background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px);
@@ -333,6 +332,22 @@
                 radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), 
                 radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%), 
                 radial-gradient(at 100% 0%, hsla(339,49%,30%,1) 0, transparent 50%);
+            background-size: 100% 100%;
+        }
+
+        /* --- NEW BACKGROUNDS --- */
+        body.bg-dots {
+            background-color: var(--bg-color);
+            background-image: radial-gradient(var(--border) 2px, transparent 2px);
+            background-size: 30px 30px;
+            background-position: 0 0;
+        }
+        
+        body.bg-aurora {
+            background: var(--bg-color);
+            background-image: 
+                radial-gradient(circle at 15% 50%, color-mix(in srgb, var(--accent), transparent 80%), transparent 25%), 
+                radial-gradient(circle at 85% 30%, color-mix(in srgb, var(--status-read), transparent 85%), transparent 25%);
             background-size: 100% 100%;
         }
 
@@ -379,12 +394,28 @@
         .bento-card { background: var(--card-bg); border-radius: 20px; padding: 1.5rem; border: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; transition: flex 0.3s ease; }
         input[type="text"], textarea, input[type="url"], input[type="number"], input[type="date"], select { background: var(--input-bg); border: 1px solid var(--border); color: var(--text-main); padding: 10px; border-radius: 10px; font-family: inherit; }
         
-        .clock-container { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 2rem; }
-        .digital-clock { font-size: clamp(4rem, 15vw, 10rem); font-weight: 200; line-height: 1; letter-spacing: -2px; }
-        .date-display { font-size: clamp(1rem, 3vw, 1.5rem); color: var(--accent); text-transform: uppercase; letter-spacing: 2px; }
-        .elegant-quote { max-width: 650px; margin-top: 3rem; position: relative; padding: 20px; }
-        .elegant-quote p { font-family: 'Georgia', serif; font-size: 1.5rem; line-height: 1.6; font-style: italic; color: var(--text-main); position: relative; z-index: 10; }
-        .elegant-quote::before { content: '“'; position: absolute; top: -40px; left: 50%; transform: translateX(-50%); font-size: 8rem; font-family: serif; color: var(--accent); opacity: 0.15; z-index: 0; line-height: 1; }
+        /* UPDATED: Clock container with glass effect */
+        .clock-container { 
+            text-align: center; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            gap: 2rem;
+            /* New subtle dark background to prevent interruption */
+            background: rgba(0,0,0,0.15);
+            backdrop-filter: blur(8px);
+            padding: 2.5rem;
+            border-radius: 30px;
+            border: 1px solid rgba(255,255,255,0.05);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            max-width: 600px;
+            width: 100%;
+        }
+        .digital-clock { font-size: clamp(3rem, 12vw, 6rem); font-weight: 200; line-height: 1; letter-spacing: -2px; }
+        .date-display { font-size: clamp(0.9rem, 2.5vw, 1.2rem); color: var(--accent); text-transform: uppercase; letter-spacing: 2px; }
+        .elegant-quote { max-width: 650px; margin-top: 1rem; position: relative; padding: 10px; }
+        .elegant-quote p { font-family: 'Georgia', serif; font-size: 1.1rem; line-height: 1.6; font-style: italic; color: var(--text-main); position: relative; z-index: 10; }
+        .elegant-quote::before { content: '“'; position: absolute; top: -20px; left: 50%; transform: translateX(-50%); font-size: 4rem; font-family: serif; color: var(--accent); opacity: 0.15; z-index: 0; line-height: 1; }
         
         /* NEW: Right Column Container for Cal & Notes */
         .right-column { display: flex; flex-direction: column; gap: 1.5rem; height: 100%; min-width: 0; }
@@ -527,6 +558,8 @@
                         <option value="bg-starry">Starry</option>
                         <option value="bg-grid">Tech Grid</option>
                         <option value="bg-mesh">Gradient Mesh</option>
+                        <option value="bg-dots">Dots</option>
+                        <option value="bg-aurora">Aurora</option>
                     </select>
                 </div>
 
@@ -549,6 +582,19 @@
                     <div class="theme-option" onclick="setTheme('theme-mint')" data-theme="theme-mint"><div class="theme-dot" style="background:#ecfdf5; border-color: #10b981;"></div> Mint</div>
                     <div class="theme-option" onclick="setTheme('theme-ember')" data-theme="theme-ember"><div class="theme-dot" style="background:#181212; border-color: #f97316;"></div> Ember</div>
                     <div class="theme-option" onclick="setTheme('theme-royal')" data-theme="theme-royal"><div class="theme-dot" style="background:#0c0a1e; border-color: #fbbf24;"></div> Royal</div>
+                </div>
+
+                <!-- PRAYER TIME SETTINGS -->
+                <div class="mt-8 pt-6 border-t border-border">
+                     <h3 class="text-main font-semibold text-sm uppercase tracking-wider mb-2">Prayer Location</h3>
+                     <select id="city-selector" onchange="handleManualCityChange(this.value)" class="w-full bg-input border border-border text-main rounded-xl p-3 mb-2">
+                         <option value="" disabled selected>Select City override...</option>
+                         <!-- JS populates -->
+                     </select>
+                     <button onclick="refreshLocation()" class="text-xs text-primary hover:underline flex items-center justify-center gap-1 w-full text-center">
+                         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg> 
+                         Detect GPS Location
+                     </button>
                 </div>
 
                 <!-- STORAGE SECTION -->
@@ -690,12 +736,25 @@
             <!-- SLIDE 1: Clock -->
             <div class="slide" id="slide-1">
                 <div class="clock-container relative">
-                    <button onclick="forceReload()" class="absolute -top-10 right-0 text-muted hover:text-primary transition-colors p-2 opacity-50 hover:opacity-100" title="Pull Data"><svg viewBox="0 0 24 24"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg></button>
+                    <button onclick="forceReload()" class="absolute top-4 right-4 text-muted hover:text-primary transition-colors p-2 opacity-50 hover:opacity-100" title="Pull Data"><svg viewBox="0 0 24 24"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg></button>
                     <div class="digital-clock text-main animate-pulse" id="clock">00:00:00</div>
                     <div class="date-display text-primary tracking-[0.2em]" id="date">Loading...</div>
                     <div class="elegant-quote animate-fade-in">
                         <p id="quote-text">Loading inspiration...</p>
                         <span class="block text-right text-sm font-bold text-muted mt-4 uppercase tracking-widest" id="quote-author"></span>
+                    </div>
+
+                    <!-- PRAYER TIMES WIDGET -->
+                    <div id="prayer-container" class="mt-4 w-full border-t border-white/10 pt-4">
+                        <div class="flex justify-between items-center mb-4 px-2">
+                            <h3 class="text-xs font-bold uppercase tracking-widest text-muted">Prayer Times</h3>
+                            <span id="prayer-city-display" class="text-[10px] text-primary bg-primary/10 px-2 py-0.5 rounded-full border border-primary/20">Locating...</span>
+                        </div>
+                        <div id="prayer-times-list" class="grid grid-cols-5 gap-2 text-center">
+                            <!-- JS will inject -->
+                            <div class="col-span-5 text-xs text-muted italic">Fetching times...</div>
+                        </div>
+                        <div class="text-[10px] text-muted opacity-40 mt-2 text-right">Source: Aladhan (Kemenag)</div>
                     </div>
                 </div>
             </div>
@@ -793,7 +852,9 @@
 
     <script>
         const CONFIG = {
-            API_URL: 'https://script.google.com/macros/s/AKfycbz8y5ena3plYJoXwotwT-NakjvI23JB6y59Qo0R4jpV8JOj4tWEDIpKQJSvX1I2tII4/exec'
+            API_URL: 'https://script.google.com/macros/s/AKfycbz8y5ena3plYJoXwotwT-NakjvI23JB6y59Qo0R4jpV8JOj4tWEDIpKQJSvX1I2tII4/exec',
+            PRAYER_API: 'https://api.aladhan.com/v1',
+            MANUAL_CITIES: ['Bekasi', 'Jakarta', 'Bandung', 'Surabaya', 'Yogyakarta', 'London', 'New York', 'Mecca', 'Medina']
         };
 
         const LOCAL_QUOTES = [
@@ -983,6 +1044,9 @@
             // Load calendar state
             const calCollapsed = localStorage.getItem('calendarCollapsed') === 'true';
             if(calCollapsed) toggleCalendar(false);
+
+            populateCitySelector();
+            initPrayerTimes();
         }
         function setTheme(theme) {
             const body = document.body; const currentBg = localStorage.getItem('appBgStyle') || 'bg-wavy'; const isBlur = body.classList.contains('blur-enabled');
@@ -991,7 +1055,7 @@
             document.querySelectorAll('.theme-option').forEach(opt => { opt.classList.toggle('active', opt.dataset.theme === theme); });
         }
         function setBackground(style) {
-            document.body.classList.remove('bg-wavy', 'bg-gradient', 'bg-pixelated', 'bg-starry', 'bg-grid', 'bg-mesh');
+            document.body.classList.remove('bg-wavy', 'bg-gradient', 'bg-pixelated', 'bg-starry', 'bg-grid', 'bg-mesh', 'bg-dots', 'bg-aurora');
             document.body.classList.add(style); localStorage.setItem('appBgStyle', style);
         }
         function togglePrefModal() { document.getElementById('pref-modal-overlay').classList.toggle('open'); }
@@ -1022,6 +1086,113 @@
                 else { btn.classList.remove('text-primary'); btn.classList.add('text-muted'); }
             });
         }
+
+        /* --- PRAYER TIMES LOGIC --- */
+        function populateCitySelector() {
+            const sel = document.getElementById('city-selector');
+            sel.innerHTML = '<option value="" disabled selected>Select a city...</option>';
+            CONFIG.MANUAL_CITIES.forEach(c => {
+                const opt = document.createElement('option');
+                opt.value = c; opt.textContent = c;
+                if (c === localStorage.getItem('prayer-city-override')) opt.selected = true;
+                sel.appendChild(opt);
+            });
+        }
+
+        function handleManualCityChange(city) {
+            localStorage.setItem('prayer-city-override', city);
+            localStorage.removeItem('prayer-lat');
+            localStorage.removeItem('prayer-lng');
+            fetchPrayerTimesByCity(city);
+        }
+
+        async function initPrayerTimes() {
+            const overrideCity = localStorage.getItem('prayer-city-override');
+            if (overrideCity) { fetchPrayerTimesByCity(overrideCity); return; }
+
+            const savedLat = localStorage.getItem('prayer-lat');
+            const savedLng = localStorage.getItem('prayer-lng');
+            if (savedLat && savedLng) {
+                document.getElementById('prayer-city-display').textContent = 'Saved Location';
+                fetchPrayerTimesByCoords(savedLat, savedLng);
+                return;
+            }
+            refreshLocation(); 
+        }
+
+        function refreshLocation() {
+            if (navigator.geolocation) {
+                document.getElementById('prayer-city-display').textContent = 'Locating...';
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const lat = position.coords.latitude;
+                        const lng = position.coords.longitude;
+                        localStorage.setItem('prayer-lat', lat);
+                        localStorage.setItem('prayer-lng', lng);
+                        localStorage.removeItem('prayer-city-override'); 
+                        document.getElementById('prayer-city-display').textContent = 'GPS';
+                        fetchPrayerTimesByCoords(lat, lng);
+                    },
+                    (error) => {
+                        if (!localStorage.getItem('prayer-lat') && !localStorage.getItem('prayer-city-override')) {
+                             fetchPrayerTimesByCity('Bekasi');
+                        }
+                    }
+                );
+            } else { fetchPrayerTimesByCity('Bekasi'); }
+        }
+
+        async function fetchPrayerTimesByCoords(lat, lng) {
+            try {
+                const date = new Date();
+                const dStr = `${date.getDate()}-${date.getMonth()+1}-${date.getFullYear()}`;
+                const url = `${CONFIG.PRAYER_API}/timings/${dStr}?latitude=${lat}&longitude=${lng}&method=20`;
+                await executePrayerFetch(url);
+            } catch (e) { fetchPrayerTimesByCity('Bekasi'); }
+        }
+
+        async function fetchPrayerTimesByCity(city) {
+            try {
+                document.getElementById('prayer-city-display').textContent = city;
+                const url = `${CONFIG.PRAYER_API}/timingsByCity?city=${encodeURIComponent(city)}&country=Indonesia&method=20`;
+                await executePrayerFetch(url);
+            } catch (e) { renderPrayerError(); }
+        }
+
+        async function executePrayerFetch(url) {
+            const list = document.getElementById('prayer-times-list');
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+
+                if (data.data && data.data.timings) {
+                    list.innerHTML = '';
+                    const t = data.data.timings;
+                    const prayers = [
+                        { name: 'Fajr', time: t.Fajr },
+                        { name: 'Dhuhr', time: t.Dhuhr },
+                        { name: 'Asr', time: t.Asr },
+                        { name: 'Maghrib', time: t.Maghrib },
+                        { name: 'Isha', time: t.Isha }
+                    ];
+
+                    prayers.forEach(p => {
+                        const div = document.createElement('div');
+                        div.className = `flex flex-col items-center justify-center p-2 rounded-lg bg-input border border-border/50`;
+                        div.innerHTML = `
+                            <span class="text-[10px] font-bold uppercase opacity-60">${p.name}</span>
+                            <span class="text-sm font-bold mt-1 text-primary">${p.time}</span>
+                        `;
+                        list.appendChild(div);
+                    });
+                } else { renderPrayerError(); }
+            } catch (error) { renderPrayerError(); }
+        }
+
+        function renderPrayerError() {
+             document.getElementById('prayer-times-list').innerHTML = `<p class="text-xs text-status-unread w-full col-span-5">Failed to load prayer times.</p>`;
+        }
+
 
         /* --- POMODORO --- */
         let pomoInterval = null; let pomoTimeLeft = 1500; let isPomoRunning = false;
