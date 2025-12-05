@@ -654,8 +654,6 @@
                     <select id="modal-task-cat" class="w-full mt-1 bg-input border border-border text-main rounded-lg p-3">
                         <option value="Personal">Personal</option>
                         <option value="QLC">QLC</option>
-                        <option value="Work">Work</option>
-                        <option value="Health">Health</option>
                     </select>
                 </div>
                 <div>
@@ -765,6 +763,9 @@
                     <div class="bento-header flex justify-between items-center mb-4">
                         <h2 class="text-primary">Dashboard</h2>
                         <div class="flex gap-2">
+                            <button onclick="syncGoogleTasks()" class="text-muted hover:text-primary transition-colors p-2 rounded-full hover:bg-primary/10" title="Sync Google Tasks">
+                                <svg class="w-6 h-6" viewBox="0 0 24 24"><path d="M7 20h10a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2z"/><path d="M9 10l2 2 4-4"/></svg>
+                            </button>
                             <button onclick="processQueue(true)" class="text-muted hover:text-primary transition-colors p-2 rounded-full hover:bg-primary/10" title="Push Changes Now"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></button>
                             <button onclick="forceReload()" class="text-muted hover:text-primary transition-colors p-2 rounded-full hover:bg-primary/10" title="Pull Data (Refresh)"><svg viewBox="0 0 24 24"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg></button>
                         </div>
@@ -784,8 +785,6 @@
                                 <select id="quick-task-cat" class="w-24 bg-input border border-border text-main rounded-lg p-3 text-sm focus:outline-none focus:border-primary transition-colors">
                                     <option value="Personal">Personal</option>
                                     <option value="QLC">QLC</option>
-                                    <option value="Work">Work</option>
-                                    <option value="Health">Health</option>
                                 </select>
                                 <input type="text" id="task-title-in" placeholder="New Task..." class="flex-[2]" onkeypress="handleTaskInput(event)">
                                 <button class="bg-primary text-white px-4 py-2 rounded-lg font-bold shadow-lg shadow-primary/30 hover:opacity-90" onclick="addTask()">Add</button>
@@ -1014,6 +1013,14 @@
             ]);
         }
         function triggerSync() { addToQueue('bulk_sync_trigger', {}); }
+        
+        // NEW: Function to sync with Google Tasks specifically
+        async function syncGoogleTasks() {
+            setGlobalStatus("Syncing G-Tasks...", false, true);
+            await callApi('sync_google_tasks');
+            setGlobalStatus("G-Tasks Synced", false, false);
+            forceReload(); // Reload to get the synced data
+        }
 
         async function initDataLoad() {
             const lastFetch = localStorage.getItem('last_fetch_date'); const today = new Date().toDateString();
