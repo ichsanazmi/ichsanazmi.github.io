@@ -255,6 +255,78 @@
             --wave-opacity: 0.12;
         }
 
+        /* NEW ADDITIONS */
+        .theme-solar {
+            --bg-color: #2e2a18;
+            --card-bg: #423d24;
+            --text-main: #fef08a;
+            --text-muted: #d6ce93;
+            --accent: #facc15;
+            --accent-hover: #eab308;
+            --border: #6b5c18;
+            --input-bg: #4f4722;
+            --modal-overlay: rgba(46, 42, 24, 0.9);
+            --status-read: #84cc16;
+            --status-unread: #ef4444;
+            --wave-opacity: 0.1;
+        }
+        .theme-glacier {
+            --bg-color: #f0f9ff;
+            --card-bg: #ffffff;
+            --text-main: #0c4a6e;
+            --text-muted: #7dd3fc;
+            --accent: #0ea5e9;
+            --accent-hover: #0284c7;
+            --border: #bae6fd;
+            --input-bg: #e0f2fe;
+            --modal-overlay: rgba(240, 249, 255, 0.8);
+            --status-read: #34d399;
+            --status-unread: #fb7185;
+            --wave-opacity: 0.05;
+        }
+        .theme-amethyst {
+            --bg-color: #2e1065;
+            --card-bg: #4c1d95;
+            --text-main: #e9d5ff;
+            --text-muted: #a78bfa;
+            --accent: #c026d3;
+            --accent-hover: #a21caf;
+            --border: #5b21b6;
+            --input-bg: #581c87;
+            --modal-overlay: rgba(46, 16, 101, 0.9);
+            --status-read: #4ade80;
+            --status-unread: #f472b6;
+            --wave-opacity: 0.1;
+        }
+        .theme-coral {
+            --bg-color: #fff1f2;
+            --card-bg: #ffffff;
+            --text-main: #881337;
+            --text-muted: #fb7185;
+            --accent: #f43f5e;
+            --accent-hover: #e11d48;
+            --border: #fecdd3;
+            --input-bg: #ffe4e6;
+            --modal-overlay: rgba(255, 241, 242, 0.8);
+            --status-read: #34d399;
+            --status-unread: #f43f5e;
+            --wave-opacity: 0.05;
+        }
+        .theme-slate {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent: #64748b;
+            --accent-hover: #475569;
+            --border: #334155;
+            --input-bg: #1e293b;
+            --modal-overlay: rgba(15, 23, 42, 0.9);
+            --status-read: #4ade80;
+            --status-unread: #f87171;
+            --wave-opacity: 0.05;
+        }
+
         /* --- 2. GLOBAL STYLES --- */
         body {
             margin: 0;
@@ -376,11 +448,55 @@
         .app-modal { background: var(--card-bg); padding: 2rem; border-radius: 24px; width: 90%; max-width: 400px; text-align: center; border: 1px solid var(--border); transform: translateY(20px); transition: transform 0.3s; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); max-height: 80vh; overflow-y: auto; }
         .modal-overlay.open .app-modal { transform: translateY(0); }
         
-        .theme-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 1.5rem; }
-        .theme-option { padding: 12px; border-radius: 12px; border: 1px solid var(--border); background: var(--input-bg); cursor: pointer; display: flex; align-items: center; gap: 10px; transition: all 0.2s; }
-        .theme-option:hover { border-color: var(--accent); }
-        .theme-option.active { border-color: var(--accent); background: var(--accent); color: white; }
-        .theme-dot { width: 16px; height: 16px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.2); }
+        /* DROPDOWN STYLES */
+        .theme-selector-wrapper { position: relative; z-index: 50; width: 100%; text-align: left; }
+        .theme-select-btn {
+            width: 100%;
+            padding: 12px 16px;
+            background: var(--input-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: var(--text-main);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: border-color 0.2s;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        .theme-select-btn:hover { border-color: var(--accent); }
+        .theme-dropdown-list {
+            position: absolute;
+            top: 100%; left: 0; right: 0;
+            margin-top: 8px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+            display: none;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            z-index: 100;
+            padding: 8px;
+        }
+        .theme-dropdown-list.show { display: block; animation: fadeIn 0.2s; }
+        
+        .theme-option { 
+            padding: 10px 12px; 
+            border-radius: 8px; 
+            background: transparent; 
+            cursor: pointer; 
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
+            transition: all 0.2s; 
+            margin-bottom: 2px;
+            border: 1px solid transparent;
+        }
+        .theme-option:hover { background: var(--input-bg); }
+        .theme-option.active { background: var(--input-bg); border-color: var(--accent); color: var(--text-main); font-weight: bold; }
+        .theme-dot { width: 14px; height: 14px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.2); flex-shrink: 0; }
         
         .timer-display { font-size: 4rem; font-weight: 200; margin: 1rem 0; font-variant-numeric: tabular-nums; }
         .duration-input { background: var(--input-bg); border: 1px solid var(--border); color: var(--text-main); padding: 5px; width: 60px; text-align: center; border-radius: 8px; font-size: 1rem; }
@@ -470,7 +586,7 @@
         .diary-textarea { flex: 1; background: transparent; border: none; resize: none; outline: none; font-size: 1.1rem; line-height: 1.6; color: var(--text-main); }
         .diary-calendar-container { background: var(--card-bg); border-radius: 20px; padding: 1.5rem; border: 1px solid var(--border); }
         
-        .blur-enabled .bento-card, .blur-enabled .bm-column, .blur-enabled .diary-editor, .blur-enabled .diary-calendar-container, .blur-enabled .app-modal, .blur-enabled .task-item, .blur-enabled .bm-item {
+        .blur-enabled .bento-card, .blur-enabled .bm-column, .blur-enabled .diary-editor, .blur-enabled .diary-calendar-container, .blur-enabled .app-modal, .blur-enabled .task-item, .blur-enabled .bm-item, .blur-enabled .theme-dropdown-list {
             background-color: color-mix(in srgb, var(--card-bg), transparent 50%) !important;
             backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1);
         }
@@ -563,25 +679,42 @@
                     </select>
                 </div>
 
-                <!-- THEME SECTION -->
+                <!-- THEME SECTION (DROPDOWN) -->
                 <h3 class="text-main font-semibold text-sm uppercase tracking-wider mb-2">Color Theme</h3>
-                <div class="theme-grid">
-                    <div class="theme-option" onclick="setTheme('theme-dark')" data-theme="theme-dark"><div class="theme-dot" style="background:#121212;"></div> Dark</div>
-                    <div class="theme-option" onclick="setTheme('theme-light')" data-theme="theme-light"><div class="theme-dot" style="background:#f4f6f8;"></div> Light</div>
-                    <div class="theme-option" onclick="setTheme('theme-ocean')" data-theme="theme-ocean"><div class="theme-dot" style="background:#0f172a;"></div> Ocean</div>
-                    <div class="theme-option" onclick="setTheme('theme-forest')" data-theme="theme-forest"><div class="theme-dot" style="background:#1a2f1a;"></div> Forest</div>
-                    
-                    <div class="theme-option" onclick="setTheme('theme-crimson')" data-theme="theme-crimson"><div class="theme-dot" style="background:#000000; border-color: #dc2626;"></div> Crimson</div>
-                    <div class="theme-option" onclick="setTheme('theme-midnight')" data-theme="theme-midnight"><div class="theme-dot" style="background:#1e1b4b; border-color: #c084fc;"></div> Midnight</div>
-                    <div class="theme-option" onclick="setTheme('theme-coffee')" data-theme="theme-coffee"><div class="theme-dot" style="background:#292524; border-color: #d6d3d1;"></div> Coffee</div>
-                    <div class="theme-option" onclick="setTheme('theme-sunset')" data-theme="theme-sunset"><div class="theme-dot" style="background:#2a1b1b; border-color: #f97316;"></div> Sunset</div>
-                    <div class="theme-option" onclick="setTheme('theme-nebula')" data-theme="theme-nebula"><div class="theme-dot" style="background:#110e1b; border-color: #d946ef;"></div> Nebula</div>
-                    
-                    <!-- New Themes -->
-                    <div class="theme-option" onclick="setTheme('theme-lavender')" data-theme="theme-lavender"><div class="theme-dot" style="background:#f3e8ff; border-color: #9333ea;"></div> Lavender</div>
-                    <div class="theme-option" onclick="setTheme('theme-mint')" data-theme="theme-mint"><div class="theme-dot" style="background:#ecfdf5; border-color: #10b981;"></div> Mint</div>
-                    <div class="theme-option" onclick="setTheme('theme-ember')" data-theme="theme-ember"><div class="theme-dot" style="background:#181212; border-color: #f97316;"></div> Ember</div>
-                    <div class="theme-option" onclick="setTheme('theme-royal')" data-theme="theme-royal"><div class="theme-dot" style="background:#0c0a1e; border-color: #fbbf24;"></div> Royal</div>
+                <div class="theme-selector-wrapper mb-4">
+                    <div class="theme-select-btn" onclick="toggleThemeDropdown()">
+                        <span id="current-theme-label" class="flex items-center gap-2">Select Theme</span>
+                        <svg class="w-4 h-4 text-muted" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
+                    </div>
+                    <div class="theme-dropdown-list" id="theme-dropdown-list">
+                        <!-- Standard -->
+                        <div class="theme-option" onclick="selectTheme('theme-dark', 'Dark')" data-theme="theme-dark"><div class="theme-dot" style="background:#121212;"></div> Dark Mode</div>
+                        <div class="theme-option" onclick="selectTheme('theme-light', 'Light')" data-theme="theme-light"><div class="theme-dot" style="background:#f4f6f8;"></div> Light Mode</div>
+                        <div class="theme-option" onclick="selectTheme('theme-ocean', 'Ocean')" data-theme="theme-ocean"><div class="theme-dot" style="background:#0f172a;"></div> Ocean Blue</div>
+                        <div class="theme-option" onclick="selectTheme('theme-forest', 'Forest')" data-theme="theme-forest"><div class="theme-dot" style="background:#1a2f1a;"></div> Deep Forest</div>
+                        
+                        <!-- Vibrant -->
+                        <div class="theme-option" onclick="selectTheme('theme-crimson', 'Crimson')" data-theme="theme-crimson"><div class="theme-dot" style="background:#000000; border-color: #dc2626;"></div> Crimson Red</div>
+                        <div class="theme-option" onclick="selectTheme('theme-midnight', 'Midnight')" data-theme="theme-midnight"><div class="theme-dot" style="background:#1e1b4b; border-color: #c084fc;"></div> Midnight Purple</div>
+                        <div class="theme-option" onclick="selectTheme('theme-coffee', 'Coffee')" data-theme="theme-coffee"><div class="theme-dot" style="background:#292524; border-color: #d6d3d1;"></div> Coffee Bean</div>
+                        <div class="theme-option" onclick="selectTheme('theme-sunset', 'Sunset')" data-theme="theme-sunset"><div class="theme-dot" style="background:#2a1b1b; border-color: #f97316;"></div> Sunset Orange</div>
+                        <div class="theme-option" onclick="selectTheme('theme-nebula', 'Nebula')" data-theme="theme-nebula"><div class="theme-dot" style="background:#110e1b; border-color: #d946ef;"></div> Nebula Pink</div>
+                        
+                        <!-- Soft -->
+                        <div class="theme-option" onclick="selectTheme('theme-lavender', 'Lavender')" data-theme="theme-lavender"><div class="theme-dot" style="background:#f3e8ff; border-color: #9333ea;"></div> Soft Lavender</div>
+                        <div class="theme-option" onclick="selectTheme('theme-mint', 'Mint')" data-theme="theme-mint"><div class="theme-dot" style="background:#ecfdf5; border-color: #10b981;"></div> Fresh Mint</div>
+                        
+                        <!-- Rich -->
+                        <div class="theme-option" onclick="selectTheme('theme-ember', 'Ember')" data-theme="theme-ember"><div class="theme-dot" style="background:#181212; border-color: #f97316;"></div> Burning Ember</div>
+                        <div class="theme-option" onclick="selectTheme('theme-royal', 'Royal')" data-theme="theme-royal"><div class="theme-dot" style="background:#0c0a1e; border-color: #fbbf24;"></div> Royal Gold</div>
+
+                        <!-- NEW THEMES -->
+                        <div class="theme-option" onclick="selectTheme('theme-solar', 'Solar')" data-theme="theme-solar"><div class="theme-dot" style="background:#2e2a18; border-color: #facc15;"></div> Solar Gold</div>
+                        <div class="theme-option" onclick="selectTheme('theme-glacier', 'Glacier')" data-theme="theme-glacier"><div class="theme-dot" style="background:#f0f9ff; border-color: #0ea5e9;"></div> Glacier Blue</div>
+                        <div class="theme-option" onclick="selectTheme('theme-amethyst', 'Amethyst')" data-theme="theme-amethyst"><div class="theme-dot" style="background:#2e1065; border-color: #c026d3;"></div> Deep Amethyst</div>
+                        <div class="theme-option" onclick="selectTheme('theme-coral', 'Coral')" data-theme="theme-coral"><div class="theme-dot" style="background:#fff1f2; border-color: #f43f5e;"></div> Soft Coral</div>
+                        <div class="theme-option" onclick="selectTheme('theme-slate', 'Slate')" data-theme="theme-slate"><div class="theme-dot" style="background:#0f172a; border-color: #64748b;"></div> Minimal Slate</div>
+                    </div>
                 </div>
 
                 <!-- PRAYER TIME SETTINGS -->
@@ -1044,7 +1177,8 @@
 
         /* --- THEME & PREFS --- */
         function initTheme() {
-            const savedTheme = localStorage.getItem('appTheme') || 'theme-dark'; setTheme(savedTheme);
+            const savedTheme = localStorage.getItem('appTheme') || 'theme-dark'; 
+            setTheme(savedTheme);
             const isBlurEnabled = localStorage.getItem('blurEnabled') === 'true'; document.getElementById('blur-toggle').checked = isBlurEnabled; toggleBlur(false);
             const savedBg = localStorage.getItem('appBgStyle') || 'bg-wavy'; document.getElementById('bg-selector').value = savedBg; setBackground(savedBg);
             
@@ -1055,12 +1189,35 @@
             populateCitySelector();
             initPrayerTimes();
         }
+        
         function setTheme(theme) {
             const body = document.body; const currentBg = localStorage.getItem('appBgStyle') || 'bg-wavy'; const isBlur = body.classList.contains('blur-enabled');
             body.className = `${theme} ${currentBg} ${isBlur ? 'blur-enabled' : ''} text-main bg-background`;
             localStorage.setItem('appTheme', theme);
-            document.querySelectorAll('.theme-option').forEach(opt => { opt.classList.toggle('active', opt.dataset.theme === theme); });
+            
+            // Update dropdown active state
+            document.querySelectorAll('.theme-option').forEach(opt => { 
+                if(opt.dataset.theme === theme) {
+                    opt.classList.add('active');
+                    document.getElementById('current-theme-label').innerText = opt.innerText;
+                } else {
+                    opt.classList.remove('active');
+                }
+            });
+            
+            // Hide dropdown if open
+            document.getElementById('theme-dropdown-list').classList.remove('show');
         }
+
+        function toggleThemeDropdown() {
+            document.getElementById('theme-dropdown-list').classList.toggle('show');
+        }
+
+        // Add selection helper
+        window.selectTheme = (themeClass, themeName) => {
+             setTheme(themeClass);
+        }
+
         function setBackground(style) {
             document.body.classList.remove('bg-wavy', 'bg-gradient', 'bg-pixelated', 'bg-starry', 'bg-grid', 'bg-mesh', 'bg-dots', 'bg-aurora');
             document.body.classList.add(style); localStorage.setItem('appBgStyle', style);
@@ -1185,7 +1342,7 @@
 
                     prayers.forEach(p => {
                         const div = document.createElement('div');
-                        div.className = `flex flex-col items-center justify-center p-2 rounded-lg bg-input border border-border/50`;
+                        div.className = `flex flex-col items-center justify-center p-2 rounded-lg bg-input`;
                         div.innerHTML = `
                             <span class="text-[10px] font-bold uppercase opacity-60">${p.name}</span>
                             <span class="text-sm font-bold mt-1 text-primary">${p.time}</span>
