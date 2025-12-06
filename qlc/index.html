@@ -882,7 +882,9 @@
                         };
                     });
                     
-                    allTasks = mappedTasks;
+                    // FILTER: Only keep tasks where category is 'QLC' (case insensitive)
+                    allTasks = mappedTasks.filter(t => t.category && t.category.trim().toLowerCase() === 'qlc');
+                    
                     saveLocal(); // Cache results
 
                     renderCalendar();
