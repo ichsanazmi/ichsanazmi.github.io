@@ -14,6 +14,11 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
+    <!-- GOOGLE FONTS: DM Serif Display -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&display=swap" rel="stylesheet">
+
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -527,7 +532,14 @@
             max-width: 600px;
             width: 100%;
         }
-        .digital-clock { font-size: clamp(3rem, 12vw, 6rem); font-weight: 200; line-height: 1; letter-spacing: -2px; }
+        /* MODIFIED: DM Serif Display Font & Bigger Size */
+        .digital-clock { 
+            font-family: 'DM Serif Display', serif;
+            font-size: clamp(6rem, 20vw, 15rem); 
+            font-weight: 700; 
+            line-height: 0.9; 
+            letter-spacing: -4px; 
+        }
         .date-display { font-size: clamp(0.9rem, 2.5vw, 1.2rem); color: var(--accent); text-transform: uppercase; letter-spacing: 2px; }
         .elegant-quote { max-width: 650px; margin-top: 1rem; position: relative; padding: 10px; }
         .elegant-quote p { font-family: 'Georgia', serif; font-size: 1.1rem; line-height: 1.6; font-style: italic; color: var(--text-main); position: relative; z-index: 10; }
@@ -1636,8 +1648,10 @@
             const today = formatLocalYYYYMMDD(new Date()); 
             const label = document.getElementById('diary-date-label');
             if(state.diaryDateString === today) label.innerText = "Today"; else label.innerText = state.diaryDateString;
-            renderDiaryCalendar();
+            renderDiaryCalendar(); // This is calling the missing function
         }
+
+        // --- MISSING FUNCTIONS START ---
         function renderDiaryCalendar() {
             const y = state.diaryViewDate.getFullYear(), m = state.diaryViewDate.getMonth();
             const fd = new Date(y, m, 1).getDay(), dim = new Date(y, m+1, 0).getDate();
@@ -1646,12 +1660,15 @@
             for(let i=1; i<=dim; i++) {
                 const currentDateStr = `${y}-${String(m+1).padStart(2,'0')}-${String(i).padStart(2,'0')}`;
                 let classes = "cal-day cursor-pointer hover:bg-input transition-colors";
-                if(currentDateStr === state.diaryDateString) classes += " bg-primary text-white font-bold"; else if(state.diary[currentDateStr]) classes += " border border-primary";
+                if(currentDateStr === state.diaryDateString) classes += " bg-primary text-white font-bold"; 
+                else if(state.diary[currentDateStr]) classes += " border border-primary";
                 el.innerHTML += `<div class="${classes}" onclick="pickDiaryDate('${currentDateStr}')">${i}</div>`;
             }
+             document.getElementById('diary-cal-month-year').innerText = new Date(y, m).toLocaleString('default', {month:'long', year:'numeric'});
         }
         window.changeDiaryMonth = (delta) => { state.diaryViewDate.setMonth(state.diaryViewDate.getMonth() + delta); renderDiaryCalendar(); }
         window.pickDiaryDate = (dateStr) => { state.diaryDateString = dateStr; renderDiary(); }
+        // --- MISSING FUNCTIONS END ---
 
         /* --- CALENDAR UI --- */
         function toggleCalendar(save = true) {
