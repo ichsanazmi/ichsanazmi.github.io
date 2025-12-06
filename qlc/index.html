@@ -351,30 +351,42 @@
                         </h2>
                         <form id="addTaskForm" class="space-y-3 lg:space-y-4">
                             <input type="hidden" id="newTaskDate">
+                            
+                            <!-- TASK TITLE (Col D) -->
                             <div>
-                                <label class="block text-[10px] lg:text-xs font-bold text-muted uppercase mb-1">Title</label>
+                                <label class="block text-[10px] lg:text-xs font-bold text-muted uppercase mb-1">Task Title (Col D)</label>
                                 <input type="text" id="newTaskTitle" class="w-full p-2 lg:p-3 border border-border rounded text-xs lg:text-sm bg-input text-main focus:ring-1 focus:ring-primary focus:border-primary outline-none" placeholder="Task Title" required>
                             </div>
+                            
+                            <!-- CATEGORY (Col C) -->
                             <div>
-                                <label class="block text-[10px] lg:text-xs font-bold text-muted uppercase mb-1">Details</label>
+                                <label class="block text-[10px] lg:text-xs font-bold text-muted uppercase mb-1">Category (Col C)</label>
+                                <input type="text" id="newTaskCategory" class="w-full p-2 lg:p-3 border border-border rounded text-xs lg:text-sm bg-input text-main focus:ring-1 focus:ring-primary focus:border-primary outline-none" placeholder="e.g. QLC, Personal" value="QLC" required>
+                            </div>
+                            
+                            <!-- DETAILS (Col E) -->
+                            <div>
+                                <label class="block text-[10px] lg:text-xs font-bold text-muted uppercase mb-1">Details (Col E)</label>
                                 <textarea id="newTaskDesc" rows="4" class="w-full p-2 lg:p-3 border border-border rounded text-xs lg:text-sm bg-input text-main focus:ring-1 focus:ring-primary focus:border-primary outline-none" placeholder="Description..." required></textarea>
                             </div>
+                            
+                            <!-- STATUS (Col B) -->
                             <div>
-                                <label class="block text-[10px] lg:text-xs font-bold text-muted uppercase mb-1">Status</label>
+                                <label class="block text-[10px] lg:text-xs font-bold text-muted uppercase mb-1">Status (Col B)</label>
                                 <select id="newTaskStatus" class="w-full p-2 lg:p-3 border border-border rounded text-xs lg:text-sm focus:ring-1 focus:ring-primary outline-none bg-input text-main">
                                     <option value="Belum">Belum</option>
                                     <option value="Selesai">Selesai</option>
                                 </select>
                             </div>
                             
-                            <!-- Attachments -->
+                            <!-- Links Input (Col F & G) -->
                             <div>
                                 <label class="block text-[10px] lg:text-xs font-bold text-muted uppercase mb-1 flex justify-between">
-                                    Attachments (Max 2)
-                                    <span class="text-[9px] lg:text-[10px] text-primary font-normal normal-case">(Paste / Ctrl+V supported)</span>
+                                    Links (Optional)
+                                    <span class="text-[9px] lg:text-[10px] text-primary font-normal normal-case">(Column F & G)</span>
                                 </label>
-                                <input type="file" id="newTaskFile1" class="block w-full text-[10px] lg:text-xs text-muted file:mr-2 file:py-1 lg:file:py-1.5 file:px-2 lg:file:px-3 file:rounded-full file:border-0 file:text-[10px] lg:file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 mb-2 transition-colors">
-                                <input type="file" id="newTaskFile2" class="block w-full text-[10px] lg:text-xs text-muted file:mr-2 file:py-1 lg:file:py-1.5 file:px-2 lg:file:px-3 file:rounded-full file:border-0 file:text-[10px] lg:file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 transition-colors">
+                                <input type="url" id="newTaskLink1" placeholder="Link 1 (https://...)" class="w-full p-2 mb-2 border border-border rounded text-xs lg:text-sm bg-input text-main focus:ring-1 focus:ring-primary outline-none">
+                                <input type="url" id="newTaskLink2" placeholder="Link 2 (https://...)" class="w-full p-2 border border-border rounded text-xs lg:text-sm bg-input text-main focus:ring-1 focus:ring-primary outline-none">
                             </div>
 
                             <button type="submit" id="addBtn" class="w-full bg-primary hover:opacity-90 text-white font-bold py-2 lg:py-2.5 rounded text-xs lg:text-sm shadow-sm transition duration-200 mt-2">
@@ -393,7 +405,7 @@
                         </h2>
                         <div class="flex gap-2">
                             <!-- Push Changes (New) -->
-                            <button onclick="processQueue(true)" class="text-muted hover:text-primary transition-colors p-2 rounded-full hover:bg-primary/10" title="Push Changes Now">
+                            <button onclick="syncAllTasks()" class="text-muted hover:text-primary transition-colors p-2 rounded-full hover:bg-primary/10" title="Push Changes Now">
                                 <svg class="w-4 h-4" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
                             </button>
                             <!-- Manual Refresh -->
@@ -421,7 +433,7 @@
     <div id="uploadModal" class="hidden fixed inset-0 bg-black/75 flex items-center justify-center p-4 z-40 backdrop-blur-sm">
         <div class="bg-card rounded-2xl shadow-2xl w-full max-w-lg lg:max-w-xl overflow-hidden transform transition-all border border-border">
             <div class="bg-input px-6 py-4 lg:px-8 lg:py-5 border-b border-border flex justify-between items-center">
-                <h3 class="text-lg lg:text-xl font-bold text-main">Edit Task & Upload</h3>
+                <h3 class="text-lg lg:text-xl font-bold text-main">Edit Task</h3>
                 <button onclick="closeModal()" class="text-muted hover:text-main text-2xl lg:text-3xl">&times;</button>
             </div>
             
@@ -430,11 +442,15 @@
                     <p class="text-xs lg:text-sm text-primary uppercase font-bold tracking-wide mb-2">Selected Task (QLC)</p>
                     <div class="space-y-3">
                         <div>
-                            <label class="block text-xs lg:text-sm font-semibold text-muted uppercase mb-1">Title</label>
+                            <label class="block text-xs lg:text-sm font-semibold text-muted uppercase mb-1">Task Title (Col D)</label>
                             <input type="text" id="modalTitle" class="w-full p-2 lg:p-3 border border-border rounded text-sm lg:text-base font-bold text-main bg-card focus:ring-2 focus:ring-primary outline-none">
                         </div>
                         <div>
-                            <label class="block text-xs lg:text-sm font-semibold text-muted uppercase mb-1">Description</label>
+                            <label class="block text-xs lg:text-sm font-semibold text-muted uppercase mb-1">Category (Col C)</label>
+                            <input type="text" id="modalCategory" class="w-full p-2 lg:p-3 border border-border rounded text-sm lg:text-base font-bold text-main bg-card focus:ring-2 focus:ring-primary outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs lg:text-sm font-semibold text-muted uppercase mb-1">Description (Col E)</label>
                             <textarea id="modalDesc" rows="3" class="w-full p-2 lg:p-3 border border-border rounded text-sm lg:text-base text-main bg-card focus:ring-2 focus:ring-primary outline-none"></textarea>
                         </div>
                         <input type="hidden" id="modalRowIndex">
@@ -442,36 +458,21 @@
                 </div>
 
                 <div>
-                    <label class="block text-sm lg:text-base font-medium text-main mb-1">Update Status</label>
+                    <label class="block text-sm lg:text-base font-medium text-main mb-1">Update Status (Col B)</label>
                     <select id="modalStatus" class="w-full p-2 lg:p-3 border border-border rounded-lg focus:ring-primary text-sm lg:text-base bg-card text-main">
                         <option value="Belum">Belum</option>
                         <option value="Selesai">Selesai</option>
                     </select>
                 </div>
 
-                <!-- File Inputs -->
+                <!-- Link Inputs -->
                 <div class="space-y-3 lg:space-y-4 pt-2">
                     <p class="text-sm lg:text-base font-semibold text-main flex justify-between">
-                        Attachments (Max 2)
-                        <span class="text-[9px] lg:text-xs text-primary font-normal normal-case">(Paste / Ctrl+V supported)</span>
+                        Update Links (Col F & G)
                     </p>
-                    <div class="border border-dashed border-border rounded-lg p-3 lg:p-4 bg-input hover:bg-card transition">
-                        <div class="flex justify-between items-center mb-2">
-                            <span class="text-xs lg:text-sm font-bold text-muted">Slot 1 (Link D)</span>
-                            <a id="link1Display" target="_blank" class="text-xs lg:text-sm text-blue-500 hover:underline hidden flex items-center gap-1">
-                                View Existing <svg class="w-3 h-3 lg:w-4 lg:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
-                            </a>
-                        </div>
-                        <input type="file" id="fileInput1" class="block w-full text-sm lg:text-base text-muted file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs lg:file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 transition disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
-                    </div>
-                    <div class="border border-dashed border-border rounded-lg p-3 lg:p-4 bg-input hover:bg-card transition">
-                        <div class="flex justify-between items-center mb-2">
-                            <span class="text-xs lg:text-sm font-bold text-muted">Slot 2 (Link E)</span>
-                            <a id="link2Display" target="_blank" class="text-xs lg:text-sm text-blue-500 hover:underline hidden flex items-center gap-1">
-                                View Existing <svg class="w-3 h-3 lg:w-4 lg:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
-                            </a>
-                        </div>
-                        <input type="file" id="fileInput2" class="block w-full text-sm lg:text-base text-muted file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs lg:file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 transition disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                    <div class="space-y-2">
+                        <input type="url" id="modalLink1" placeholder="Link 1 URL" class="w-full p-3 border border-border rounded text-sm bg-input text-main focus:ring-1 focus:ring-primary outline-none">
+                        <input type="url" id="modalLink2" placeholder="Link 2 URL" class="w-full p-3 border border-border rounded text-sm bg-input text-main focus:ring-1 focus:ring-primary outline-none">
                     </div>
                 </div>
             </div>
@@ -482,6 +483,15 @@
                     Save Changes
                 </button>
             </div>
+        </div>
+    </div>
+
+    <!-- NEW: Full Screen Sync Loading Overlay -->
+    <div id="syncLoadingOverlay" class="hidden fixed inset-0 bg-black/50 z-[70] flex flex-col items-center justify-center backdrop-blur-sm transition-opacity duration-300">
+        <div class="bg-card p-6 rounded-2xl shadow-2xl flex flex-col items-center border border-border transform scale-100 transition-transform duration-300">
+            <div class="animate-spin rounded-full h-10 w-10 border-4 border-input border-t-primary mb-4"></div>
+            <h3 class="text-main font-bold text-lg animate-pulse">Syncing to Cloud...</h3>
+            <p class="text-muted text-sm mt-1 text-center">Updating all columns (A-H)...</p>
         </div>
     </div>
 
@@ -553,10 +563,6 @@
         let calendarViewDate = new Date(); // Date object for calendar navigation
         let deferredPrompt; // PWA Install Prompt
         
-        // --- NEW: SYNC QUEUE STATE ---
-        let syncQueue = [];
-        let syncTimer = null;
-
         // --- INIT ---
         window.onload = function() {
             initTheme();
@@ -595,46 +601,50 @@
             }
         }
         
-        // --- SYNC QUEUE LOGIC ---
-        function addToQueue(action, payload) {
-            // Add to in-memory queue
-            syncQueue.push({ action, payload, timestamp: Date.now() });
-            
-            // Persist queue in case of reload
-            try {
-                localStorage.setItem('qlcSyncQueue', JSON.stringify(syncQueue));
-            } catch (e) {
-                console.warn("Queue too large for LocalStorage (Files included?)", e);
-            }
-            
-            // UI Feedback
-            showSyncStatus("Changes Cached...");
-            
-            // Restart 1-minute debounce timer
-            clearTimeout(syncTimer);
-            syncTimer = setTimeout(() => processQueue(), 60000); // 1 Minute Idle
-        }
+        // --- SYNC LOGIC (PUSH ALL) ---
+        // Mapped to User Request:
+        // A: Created Timestamp (Read Only, not pushed)
+        // B: Status
+        // C: Category
+        // D: Title (Text)
+        // E: Description (Tasks)
+        // F: File 1 (Link 1)
+        // G: File 2 (Link 2)
+        // H: Write Timestamp
+        // I: Date (App Logic - Kept for filtering)
         
-        async function processQueue(force = false) {
-            if (syncQueue.length === 0) return;
-
+        async function syncAllTasks() {
+            // Show Loading Overlay
+            const overlay = document.getElementById('syncLoadingOverlay');
+            overlay.classList.remove('hidden');
             showSyncStatus("Syncing...");
 
-            // Process queue items one by one (FIFO)
-            const queueCopy = [...syncQueue];
-            syncQueue = []; // Clear local queue immediately
-            localStorage.setItem('qlcSyncQueue', JSON.stringify([]));
-
             try {
-                for (const item of queueCopy) {
-                    await callApi(item.action, item.payload);
-                }
+                const payloadTasks = allTasks.map(t => ({
+                    status: t.status,        // Col B
+                    category: t.category,    // Col C
+                    text: t.text,            // Col D
+                    description: t.description, // Col E
+                    link1: t.link1 || "",    // Col F
+                    link2: t.link2 || "",    // Col G
+                    // LastUpdated is handled by server (Col H)
+                    date: t.date             // Col I (Maintained for app logic)
+                }));
+
+                const result = await callApi("push_tasks", { tasks: payloadTasks });
                 
-                showSyncStatus("Synced");
-                setTimeout(() => { document.getElementById('sync-status').style.opacity='0'; }, 2000);
+                if (result && result.result === "success") {
+                    showSyncStatus("Synced");
+                    setTimeout(() => { document.getElementById('sync-status').style.opacity='0'; }, 2000);
+                } else {
+                    showSyncStatus("Sync Failed", true);
+                }
             } catch (e) {
-                console.error("Queue Processing Error", e);
-                showSyncStatus("Sync Partial Error", true);
+                console.error("Sync Exception", e);
+                showSyncStatus("Net Error", true);
+            } finally {
+                // Hide Loading Overlay
+                overlay.classList.add('hidden');
             }
         }
         
@@ -647,44 +657,53 @@
 
         // --- LOAD STRATEGY ---
         async function initDataLoad() {
+            // AUTO MIGRATION LOGIC (For new GAS structure)
+            const currentSchema = localStorage.getItem('qlc_schema_version');
+            if (currentSchema !== 'v3') {
+                console.log("Old Schema Detected. Clearing cache and forcing fetch...");
+                localStorage.removeItem('qlcAllTasks');
+                localStorage.setItem('qlc_schema_version', 'v3');
+                allTasks = []; // Reset memory
+                await fetchCloud(); // Force fetch
+                return;
+            }
+
             const lastFetch = localStorage.getItem('qlc_last_fetch_date');
             const today = new Date().toDateString();
             
             // Load from local storage immediately for UI
             const cached = localStorage.getItem('qlcAllTasks');
             if (cached) {
-                allTasks = JSON.parse(cached);
-                renderCalendar();
-                filterAndRenderTasks();
-                updateTaskProgress();
+                try {
+                    allTasks = JSON.parse(cached);
+                    renderCalendar();
+                    filterAndRenderTasks();
+                    updateTaskProgress();
+                } catch(e) {
+                    console.log("Cache error, clearing");
+                    localStorage.removeItem('qlcAllTasks');
+                    fetchCloud();
+                }
             }
 
             // Only fetch from cloud if it's a new day or never fetched
-            if (lastFetch !== today) {
-                console.log("New day detected. Fetching from cloud...");
+            if (lastFetch !== today || allTasks.length === 0) {
+                console.log("New day or empty data detected. Fetching from cloud...");
                 await fetchCloud();
                 localStorage.setItem('qlc_last_fetch_date', today);
             } else {
                 console.log("Loaded from local cache.");
-                // Check if there is a pending queue
-                const savedQueue = localStorage.getItem('qlcSyncQueue');
-                if (savedQueue) {
-                    syncQueue = JSON.parse(savedQueue);
-                    if (syncQueue.length > 0) processQueue();
-                }
             }
         }
 
         function forceReload() {
+            localStorage.setItem('qlc_schema_version', 'v3'); // Ensure schema is set
             fetchCloud();
             localStorage.setItem('qlc_last_fetch_date', new Date().toDateString());
         }
         
-        function saveLocal(shouldSync = true) {
+        function saveLocal() {
             localStorage.setItem('qlcAllTasks', JSON.stringify(allTasks));
-            // Queue logic handles the syncing, so we don't trigger immediate sync here usually
-            // But if we want to ensure data consistency:
-            // (Queue logic handles individual item updates. Full overwrite saveLocal is just for cache)
         }
 
         // --- THEME LOGIC ---
@@ -725,65 +744,6 @@
                     document.getElementById('installHelpModal').classList.remove('hidden');
                 }
             });
-        }
-
-        // --- PASTE HANDLER ---
-        document.addEventListener('paste', (e) => {
-            const items = (e.clipboardData || e.originalEvent.clipboardData).items;
-            let file = null;
-
-            // Check for file in clipboard
-            for (let i = 0; i < items.length; i++) {
-                if (items[i].kind === 'file') {
-                    file = items[i].getAsFile();
-                    break;
-                }
-            }
-
-            if (!file) return; // Allow normal text paste
-
-            // Determine context (Modal or Quick Add)
-            const modal = document.getElementById('uploadModal');
-            let t1, t2;
-
-            if (modal && !modal.classList.contains('hidden')) {
-                t1 = document.getElementById('fileInput1');
-                t2 = document.getElementById('fileInput2');
-            } else {
-                t1 = document.getElementById('newTaskFile1');
-                t2 = document.getElementById('newTaskFile2');
-            }
-
-            // Assign to first empty/enabled slot
-            if (t1 && !t1.disabled && t1.files.length === 0) {
-                assignFile(t1, file);
-                e.preventDefault();
-            } else if (t2 && !t2.disabled && t2.files.length === 0) {
-                assignFile(t2, file);
-                e.preventDefault();
-            } else {
-                showStatus('No available attachment slots!', 'error');
-            }
-        });
-
-        function assignFile(input, file) {
-            const dt = new DataTransfer();
-            if (!file.name || file.name === 'image.png') {
-                const ext = file.type.split('/')[1] || 'png';
-                const ts = new Date().toISOString().replace(/[:.]/g, '-');
-                const newName = `pasted-${ts}.${ext}`;
-                const newFile = new File([file], newName, { type: file.type });
-                dt.items.add(newFile);
-            } else {
-                dt.items.add(file);
-            }
-            input.files = dt.files;
-            
-            const prevBg = input.style.backgroundColor;
-            input.classList.add('bg-primary');
-            setTimeout(() => input.classList.remove('bg-primary'), 400);
-            
-            showStatus('File pasted successfully!', 'success');
         }
 
         // --- PROGRESS & CALENDAR LOGIC ---
@@ -896,13 +856,34 @@
             try {
                 const json = await callApi("fetch_tasks");
                 if (json && json.result === 'success') {
-                    const mappedTasks = json.data.map((t, i) => ({
-                        ...t,
-                        rowIndex: i + 2
-                    }));
+                    // Mapped to GAS response with new column structure
                     
-                    allTasks = mappedTasks.filter(t => t.category === 'QLC');
-                    saveLocal(false); // Cache results
+                    const mappedTasks = json.data.map((t, i) => {
+                        let finalDate = t.date;
+                        // Fallback Date dari Col A (Created/Timestamp)
+                        if (!finalDate && t.timestamp) {
+                            try {
+                                finalDate = String(t.timestamp).split('T')[0].trim();
+                            } catch(e) { finalDate = ""; }
+                        }
+
+                        // STRICT MAPPING (No Smart Swap)
+                        // t.text is strictly Col D from Server (Title)
+                        return {
+                            status: t.status,        // Col B
+                            category: t.category,    // Col C
+                            text: t.text,            // Col D (Strictly Title)
+                            description: t.description, // Col E
+                            link1: t.link1 || "",    // Col F
+                            link2: t.link2 || "",    // Col G
+                            created: t.timestamp,    // Col A
+                            date: finalDate,         // Col I or Fallback
+                            rowIndex: i + 2
+                        };
+                    });
+                    
+                    allTasks = mappedTasks;
+                    saveLocal(); // Cache results
 
                     renderCalendar();
                     filterAndRenderTasks();
@@ -926,13 +907,17 @@
             
             // 1. Optimistic UI Update
             allTasks = allTasks.filter(t => t.rowIndex !== rowIndex);
+            
+            // Re-index remaining tasks to avoid confusion
+            allTasks.forEach((t, i) => t.rowIndex = i + 2);
+
             renderCalendar();
             filterAndRenderTasks();
             updateTaskProgress();
-            saveLocal(false);
+            saveLocal();
 
-            // 2. Queue Server Update
-            addToQueue("delete_task", { rowIndex: rowIndex });
+            // 2. Sync All to Cloud
+            syncAllTasks();
         }
 
         // --- FILTER & RENDER TASKS ---
@@ -965,10 +950,11 @@
                     const isDone = task.status === 'Selesai' || task.status === 'Complete';
                     const statusBadgeClass = isDone ? 'bg-emerald-500/10 text-emerald-500' : 'bg-amber-500/10 text-amber-600';
                     const cardBorderClass = isDone ? 'border-emerald-500/30' : 'border-amber-500/30';
+                    const category = task.category || "General";
 
                     const link1Btn = task.link1 ? `<a href="${task.link1}" target="_blank" class="inline-flex items-center px-2 py-1 lg:px-3 lg:py-1.5 rounded bg-input text-blue-500 text-[10px] lg:text-xs font-semibold hover:bg-background border border-border transition" title="Open Link 1">Link 1</a>` : ``;
                     const link2Btn = task.link2 ? `<a href="${task.link2}" target="_blank" class="inline-flex items-center px-2 py-1 lg:px-3 lg:py-1.5 rounded bg-input text-blue-500 text-[10px] lg:text-xs font-semibold hover:bg-background border border-border transition" title="Open Link 2">Link 2</a>` : ``;
-                    const linksSection = (link1Btn || link2Btn) ? `<div class="flex gap-2">${link1Btn}${link2Btn}</div>` : `<span class="text-[10px] lg:text-xs text-muted">No attachments</span>`;
+                    const linksSection = (link1Btn || link2Btn) ? `<div class="flex gap-2">${link1Btn}${link2Btn}</div>` : `<span class="text-[10px] lg:text-xs text-muted">No links</span>`;
 
                     html += `
                     <div class="bg-card p-4 lg:p-6 rounded-lg shadow-sm border ${cardBorderClass} hover:shadow-md transition duration-200 flex flex-col h-full relative group">
@@ -980,7 +966,10 @@
                                 <svg class="w-4 h-4 lg:w-5 lg:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
                             </button>
                         </div>
-                        <div class="mb-2"><span class="px-2 py-0.5 lg:px-2.5 lg:py-1 rounded text-[10px] lg:text-xs font-bold ${statusBadgeClass}">${task.status}</span></div>
+                        <div class="mb-2 flex gap-2">
+                             <span class="px-2 py-0.5 lg:px-2.5 lg:py-1 rounded text-[10px] lg:text-xs font-bold ${statusBadgeClass}">${task.status}</span>
+                             <span class="px-2 py-0.5 lg:px-2.5 lg:py-1 rounded text-[10px] lg:text-xs font-bold bg-primary/10 text-primary truncate max-w-[100px]">${category}</span>
+                        </div>
                         <h4 class="text-sm lg:text-base font-bold text-main mb-1 lg:mb-2 leading-tight break-words">${task.text || 'Untitled Task'}</h4>
                         <p class="text-muted text-xs lg:text-sm mb-3 lg:mb-4 whitespace-pre-wrap flex-grow line-clamp-3">${task.description}</p>
                         <div class="pt-2 lg:pt-3 mt-auto border-t border-border flex items-center justify-between">
@@ -1010,40 +999,34 @@
             btn.innerHTML = `...`;
 
             try {
-                const file1 = document.getElementById('newTaskFile1').files[0];
-                const file2 = document.getElementById('newTaskFile2').files[0];
-                const filesPayload = [];
-                if (file1) filesPayload.push(await toBase64(file1, 1));
-                if (file2) filesPayload.push(await toBase64(file2, 2));
-
                 const task = {
+                    category: document.getElementById('newTaskCategory').value,
                     text: document.getElementById('newTaskTitle').value,
                     description: document.getElementById('newTaskDesc').value,
                     status: document.getElementById('newTaskStatus').value,
                     date: document.getElementById('newTaskDate').value,
-                    category: "QLC" 
+                    link1: document.getElementById('newTaskLink1').value,
+                    link2: document.getElementById('newTaskLink2').value,
+                    rowIndex: allTasks.length + 2 
                 };
 
                 // 1. Optimistic UI Update
-                allTasks.push({
-                    ...task,
-                    rowIndex: null, // No row index yet
-                    link1: "",
-                    link2: ""
-                });
+                allTasks.push(task);
+                
                 renderCalendar();
                 filterAndRenderTasks();
                 updateTaskProgress();
-                saveLocal(false);
+                saveLocal();
 
-                // 2. Queue Server Update
-                addToQueue("upsert_task", { task: task, files: filesPayload });
+                // 2. Sync All to Cloud
+                syncAllTasks();
 
-                // Reset Form
+                // Reset Form (keep category populated for convenience or clear it?)
+                // document.getElementById('newTaskCategory').value = "QLC"; 
                 document.getElementById('newTaskTitle').value = "";
                 document.getElementById('newTaskDesc').value = "";
-                document.getElementById('newTaskFile1').value = "";
-                document.getElementById('newTaskFile2').value = "";
+                document.getElementById('newTaskLink1').value = "";
+                document.getElementById('newTaskLink2').value = "";
                 
             } catch (error) { 
                 showStatus(error.message, 'error'); 
@@ -1056,21 +1039,12 @@
         function openModal(task) {
             document.getElementById('uploadModal').classList.remove('hidden');
             document.getElementById('modalRowIndex').value = task.rowIndex;
+            document.getElementById('modalCategory').value = task.category || "QLC";
             document.getElementById('modalTitle').value = task.text || "";
             document.getElementById('modalDesc').value = task.description || "";
             document.getElementById('modalStatus').value = task.status;
-
-            const f1 = document.getElementById('fileInput1');
-            const l1 = document.getElementById('link1Display');
-            f1.value = ""; 
-            if (task.link1) { f1.disabled = true; l1.href = task.link1; l1.classList.remove('hidden'); } 
-            else { f1.disabled = false; l1.classList.add('hidden'); }
-
-            const f2 = document.getElementById('fileInput2');
-            const l2 = document.getElementById('link2Display');
-            f2.value = ""; 
-            if (task.link2) { f2.disabled = true; l2.href = task.link2; l2.classList.remove('hidden'); } 
-            else { f2.disabled = false; l2.classList.add('hidden'); }
+            document.getElementById('modalLink1').value = task.link1 || "";
+            document.getElementById('modalLink2').value = task.link2 || "";
         }
 
         function closeModal() { document.getElementById('uploadModal').classList.add('hidden'); }
@@ -1083,25 +1057,13 @@
             btn.innerHTML = `Saving...`;
 
             try {
-                const file1 = document.getElementById('fileInput1').files[0];
-                const file2 = document.getElementById('fileInput2').files[0];
-                const filesPayload = [];
-
-                if (file1) filesPayload.push(await toBase64(file1, 1));
-                if (file2) filesPayload.push(await toBase64(file2, 2));
-
                 const taskUpdate = {
+                    category: document.getElementById('modalCategory').value,
                     status: document.getElementById('modalStatus').value,
                     text: document.getElementById('modalTitle').value,
                     description: document.getElementById('modalDesc').value,
-                    category: "QLC" 
-                };
-
-                const payload = {
-                    action: "upsert_task",
-                    rowIndex: parseInt(rowIndex),
-                    task: taskUpdate,
-                    files: filesPayload
+                    link1: document.getElementById('modalLink1').value,
+                    link2: document.getElementById('modalLink2').value,
                 };
 
                 // 1. Optimistic UI Update
@@ -1111,12 +1073,11 @@
                     renderCalendar();
                     filterAndRenderTasks();
                     updateTaskProgress();
-                    saveLocal(false);
+                    saveLocal();
                 }
 
-                // 2. Queue Server Update
-                // Note: File uploads are queued, which might be risky for large files in localStorage.
-                addToQueue("upsert_task", payload.task ? { task: taskUpdate, rowIndex: parseInt(rowIndex), files: filesPayload } : payload);
+                // 2. Sync All to Cloud
+                syncAllTasks();
 
                 closeModal();
             } catch (error) { 
@@ -1124,18 +1085,6 @@
             } finally { 
                 btn.disabled = false; btn.innerHTML = originalText; 
             }
-        }
-
-        function toBase64(file, slotNumber) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.readAsDataURL(file);
-                reader.onload = () => {
-                    const base64 = reader.result.split(',')[1]; 
-                    resolve({ name: file.name, mimeType: file.type, base64: base64, slot: slotNumber });
-                };
-                reader.onerror = error => reject(error);
-            });
         }
 
         function showStatus(msg, type) {
