@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sticky Iframe Layout</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            /* Prevent the whole page from scrolling */
+            overflow: hidden;
+        }
+
+        h1 {
+            text-align: center;
+            padding: 10px;
+            margin: 0;
+            /* Give the h1 a fixed height */
+            height: 40px; 
+            box-sizing: border-box;
+        }
+
+        /* This is the main container that holds the two iframes.
+           We use Flexbox to stack them vertically.
+        */
+        .iframe-container {
+            display: flex;
+            /* Stack them vertically */
+            flex-direction: column;
+            
+            /* Make the container fill the screen height, minus the header */
+            height: calc(100vh - 40px); 
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box; /* Include padding in the total width/height */
+        }
+
+        /* Base styles for each iframe wrapper */
+        .iframe-wrapper {
+            padding: 10px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Style for the FIRST iframe wrapper (the "sticky" video) */
+        .iframe-container .iframe-wrapper:first-child {
+            /* This iframe will not grow or shrink. */
+            flex: 0 0 auto; 
+            /* Set a height for the video player */
+            height: 40vh;
+            min-height: 300px; /* Minimum height for the player */
+            padding-bottom: 5px; /* Adjust spacing */
+        }
+
+        /* Style for the SECOND iframe wrapper (the scrollable content) */
+        .iframe-container .iframe-wrapper:last-child {
+            /* This iframe will grow to fill ALL remaining space */
+            flex: 1 1 auto;
+            min-height: 200px; /* Minimum height for the content area */
+            padding-top: 5px; /* Adjust spacing */
+        }
+
+        iframe {
+            /* The iframe fills its wrapper */
+            width: 100%;
+            height: 100%;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        /* Adjust video height on smaller screens */
+        @media (max-width: 768px) {
+            .iframe-container .iframe-wrapper:first-child {
+                height: 30vh;
+                min-height: 250px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="iframe-container">
+        
+        <!-- Iframe 1 (Video) - Now sticks to the top -->
+        <div class="iframe-wrapper">
+            <iframe 
+                src="https://www.youtube.com/embed/vXDE3ObeAS4" 
+                title="YouTube video player" 
+                frameborder="0" 
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                referrerpolicy="strict-origin-when-cross-origin" 
+                allowfullscreen
+            >
+                <!-- Fallback content -->
+                <p>Your browser does not support iframes. <a href="https://youtube.com/live/vXDE3ObeAS4?feature=share">Link to video</a></p>
+            </iframe>
+        </div>
+
+        <!-- Iframe 2 (Scrollable Content) -->
+        <div class="iframe-wrapper">
+            <iframe 
+                src="https://ars.particify.de/p/75959579" 
+                title="Scrollable content"
+            >
+                <!-- Fallback content -->
+                <p>Your browser does not support iframes. <a href="https://en.wikipedia.org/wiki/CSS">Link to content</a></p>
+            </iframe>
+        </div>
+
+    </div>
+
+</body>
+</html>
+
