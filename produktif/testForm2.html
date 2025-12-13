@@ -189,7 +189,7 @@
 
     <script>
         // URL Apps Script Anda (Sesuai kode asli)
-        const APPSSCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyk66-Gw4aNoj_nEnsPuucpyycVVdWkQT08R3UB6BBTMOTtsJDcENZQT6eWz9aTfZ644Q/exec'; 
+        const APPSSCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyNmWhLajw_UMtO5TwgrnSqewjxybXs1oRJQm97us_mjQR8gvjonTlTwgdQV1BedxLj/exec'; 
         
         const form = document.getElementById('contactForm');
         const submitButton = document.getElementById('submitButton');
@@ -212,7 +212,7 @@
             async function submitForm(event) {
             event.preventDefault(); // Mencegah pengiriman formulir standar
 
-            if (APPSSCRIPT_URL === 'https://script.google.com/macros/s/AKfycbyNmWhLajw_UMtO5TwgrnSqewjxybXs1oRJQm97us_mjQR8gvjonTlTwgdQV1BedxLj/exec') {
+            if (APPSSCRIPT_URL === 'test') {
                 showMessage("ERROR: Ganti 'YOUR_APPS_SCRIPT_WEB_APP_URL' dengan URL Apps Script Anda.", 'error');
                 return;
             }
